@@ -1,0 +1,635 @@
+diff --git a/gdal-1.11.0/frmts/postgisraster/postgisraster.h b/gdal-1.11.0/frmts/postgisraster/postgisraster.h
+index 7557d84..4fafc81 100644
+--- a/gdal-1.11.0/frmts/postgisraster/postgisraster.h
++++ b/gdal-1.11.0/frmts/postgisraster/postgisraster.h
+@@ -38,7 +38,7 @@
+ #define POSTGISRASTER_H_INCLUDED
+ 
+ #include "gdal_priv.h"
+-#include "libpq-fe.h"
++#include "libpq/libpq-fe.h"
+ #include "vrtdataset.h"
+ #include "cpl_quad_tree.h"
+ #include <float.h>
+diff --git a/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogr_pg.h b/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogr_pg.h
+index e0aefc2..63905c5 100644
+--- a/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogr_pg.h
++++ b/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogr_pg.h
+@@ -32,7 +32,7 @@
+ #define _OGR_PG_H_INCLUDED
+ 
+ #include "ogrsf_frmts.h"
+-#include "libpq-fe.h"
++#include "libpq/libpq-fe.h"
+ #include "cpl_string.h"
+ 
+ #include "ogrpgutility.h"
+diff --git a/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogrpgutility.h b/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogrpgutility.h
+index de6a1a3..b910f9d 100644
+--- a/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogrpgutility.h
++++ b/gdal-1.11.0/ogr/ogrsf_frmts/pg/ogrpgutility.h
+@@ -30,7 +30,7 @@
+ #ifndef OGRPGUTILITY_H_INCLUDED
+ #define OGRPGUTILITY_H_INCLUDED
+ 
+-#include "libpq-fe.h"
++#include "libpq/libpq-fe.h"
+ 
+ PGresult *OGRPG_PQexec(PGconn *conn, const char *query,
+                        int bMultipleCommandAllowed = FALSE);
+diff --git a/postgis-2.4.2/configure b/postgis-2.4.2/configure
+index ea25dd2..3741ac5 100755
+--- a/postgis-2.4.2/configure
++++ b/postgis-2.4.2/configure
+@@ -13516,6 +13516,10 @@ if test "x$LIBLWGEOM_ONLY" = "xno"; then
+   fi
+ 
+   POSTGIS_PGSQL_VERSION="$PGSQL_MAJOR_VERSION$PGSQL_MINOR_VERSION"
++  PGXS_ALIAS=`$PG_CONFIG --version | awk '{print $1}'`
++  if test "$PGXS_ALIAS" = "openGauss"; then
++      POSTGIS_PGSQL_VERSION="92"
++  fi
+ 
+   PGSQL_PKGLIBDIR=`"$PG_CONFIG" --pkglibdir`
+   PGSQL_LIBDIR=`"$PG_CONFIG" --libdir`
+diff --git a/postgis-2.4.2/postgis--2.4.2.sql b/postgis-2.4.2/postgis--2.4.2.sql
+index 74a34bf..b48f739 100644
+--- a/postgis-2.4.2/postgis--2.4.2.sql
++++ b/postgis-2.4.2/postgis--2.4.2.sql
+@@ -1720,7 +1720,7 @@ CREATE TABLE spatial_ref_sys (
+ 	 auth_srid integer,
+ 	 srtext varchar(2048),
+ 	 proj4text varchar(2048)
+-)DISTRIBUTE BY REPLICATION;
++);
+ 
+ 
+ -----------------------------------------------------------------------
+diff --git a/postgis-2.4.2/postgis_svn_revision.h b/postgis-2.4.2/postgis_svn_revision.h
+index 525c0e9..af82288 100644
+--- a/postgis-2.4.2/postgis_svn_revision.h
++++ b/postgis-2.4.2/postgis_svn_revision.h
+@@ -1 +1 @@
+-#define POSTGIS_SVN_REVISION "2.1.1"
++#define POSTGIS_SVN_REVISION '2.1.1'
+diff --git a/postgis-2.4.2/raster/rt_pg/rtpostgis.c b/postgis-2.4.2/raster/rt_pg/rtpostgis.c
+index e6f5354..f74a52c 100644
+--- a/postgis-2.4.2/raster/rt_pg/rtpostgis.c
++++ b/postgis-2.4.2/raster/rt_pg/rtpostgis.c
+@@ -135,7 +135,7 @@
+ //#include "utils/memutils.h"
+ 
+ #include "extension_dependency.h"
+-
++#include "utils/memutils.h"
+ #include "../../postgis_config.h"
+ #include "lwgeom_pg.h"
+ 
+@@ -436,6 +436,7 @@ _PG_init_gdal(void) {
+ 	 * Change to context for memory allocation calls like palloc() in the
+ 	 * extension initialization routine
+ 	 */
++        MemoryContextUnSeal(TopMemoryContext);
+ 	old_context = MemoryContextSwitchTo(TopMemoryContext);
+ 
+ 	/*
+@@ -582,6 +583,7 @@ _PG_init_gdal(void) {
+ 
+ 	inited_gdal = true;
+ 	/* Revert back to old context */
++        MemoryContextSeal(TopMemoryContext);
+ 	MemoryContextSwitchTo(old_context);
+ }
+ 
+diff --git a/postgis-2.4.2/topology/Makefile.in b/postgis-2.4.2/topology/Makefile.in
+index 7a8ac71..15bc2b6 100644
+--- a/postgis-2.4.2/topology/Makefile.in
++++ b/postgis-2.4.2/topology/Makefile.in
+@@ -64,6 +64,7 @@ PGXS := @PGXS@
+ # http://www.postgresql.org/message-id/CAB7nPqTsR5o3g-fBi6jbsVdhfPiLFWQ_0cGU5=94Rv_8W3qvFA@mail.gmail.com
+ NO_TEMP_INSTALL=yes
+ include $(PGXS)
++CFLAGS += -fpermissive
+ 
+ # Set PERL _after_ the include of PGXS
+ PERL=@PERL@
+diff --git a/postgis-2.4.2/topology/postgis_topology.c b/postgis-2.4.2/topology/postgis_topology.c
+index 5718b88..7730082 100644
+--- a/postgis-2.4.2/topology/postgis_topology.c
++++ b/postgis-2.4.2/topology/postgis_topology.c
+@@ -22,6 +22,7 @@
+ #include "funcapi.h" /* for FuncCallContext */
+ #include "executor/spi.h" /* this is what you need to work with SPI */
+ #include "inttypes.h" /* for PRId64 */
++#include "utils/palloc.h"
+ 
+ #include "../postgis_config.h"
+ 
+@@ -965,7 +966,7 @@ cb_getEdgeByFace(const LWT_BE_TOPOLOGY* topo,
+   POSTGIS_DEBUGF(1, "data_changed is %d", topo->be_data->data_changed);
+ 
+   spi_result = SPI_execute_with_args(sql->data, nargs, argtypes, values, NULL,
+-                                     !topo->be_data->data_changed, 0);
++                                     !topo->be_data->data_changed, 0, NULL);
+   pfree(array_ids); /* not needed anymore */
+   if ( gser ) pfree(gser); /* not needed anymore */
+   MemoryContextSwitchTo( oldcontext ); /* switch back */
+@@ -2557,7 +2558,7 @@ cb_getFaceContainingPoint( const LWT_BE_TOPOLOGY* topo, const LWPOINT* pt )
+   values[0] = PointerGetDatum(pts);
+   argtypes[0] = topo->geometryOID;
+   spi_result = SPI_execute_with_args(sql->data, 1, argtypes, values, NULL,
+-                                     !topo->be_data->data_changed, 1);
++                                     !topo->be_data->data_changed, 1, NULL);
+   MemoryContextSwitchTo( oldcontext ); /* switch back */
+   pfree(pts); /* not needed anymore */
+   if ( spi_result != SPI_OK_SELECT ) {
+@@ -2958,7 +2959,7 @@ _PG_init(void)
+ 
+   /* Switch to the top memory context so that the backend interface
+    * is valid for the whole backend lifetime */
+-  old_context = MemoryContextSwitchTo( TopMemoryContext );
++  old_context = MemoryContextSwitchTo(SESS_GET_MEM_CXT_GROUP(MEMORY_CONTEXT_EXECUTOR));
+ 
+   /* initialize backend data */
+   be_data.data_changed = false;
+@@ -2992,7 +2993,7 @@ _PG_fini(void)
+ }
+ 
+ /*  ST_ModEdgeSplit(atopology, anedge, apoint) */
+-Datum ST_ModEdgeSplit(PG_FUNCTION_ARGS);
++extern "C" Datum ST_ModEdgeSplit(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_ModEdgeSplit);
+ Datum ST_ModEdgeSplit(PG_FUNCTION_ARGS)
+ {
+@@ -3057,7 +3058,7 @@ Datum ST_ModEdgeSplit(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_NewEdgesSplit(atopology, anedge, apoint) */
+-Datum ST_NewEdgesSplit(PG_FUNCTION_ARGS);
++extern "C" Datum ST_NewEdgesSplit(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_NewEdgesSplit);
+ Datum ST_NewEdgesSplit(PG_FUNCTION_ARGS)
+ {
+@@ -3122,7 +3123,7 @@ Datum ST_NewEdgesSplit(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_AddIsoNode(atopology, aface, apoint) */
+-Datum ST_AddIsoNode(PG_FUNCTION_ARGS);
++extern "C" Datum ST_AddIsoNode(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_AddIsoNode);
+ Datum ST_AddIsoNode(PG_FUNCTION_ARGS)
+ {
+@@ -3198,7 +3199,7 @@ Datum ST_AddIsoNode(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_AddIsoEdge(atopology, anode, anothernode, acurve) */
+-Datum ST_AddIsoEdge(PG_FUNCTION_ARGS);
++extern "C" Datum ST_AddIsoEdge(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_AddIsoEdge);
+ Datum ST_AddIsoEdge(PG_FUNCTION_ARGS)
+ {
+@@ -3271,7 +3272,7 @@ Datum ST_AddIsoEdge(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_AddEdgeModFace(atopology, snode, enode, line) */
+-Datum ST_AddEdgeModFace(PG_FUNCTION_ARGS);
++extern "C" Datum ST_AddEdgeModFace(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_AddEdgeModFace);
+ Datum ST_AddEdgeModFace(PG_FUNCTION_ARGS)
+ {
+@@ -3337,7 +3338,7 @@ Datum ST_AddEdgeModFace(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_AddEdgeNewFaces(atopology, snode, enode, line) */
+-Datum ST_AddEdgeNewFaces(PG_FUNCTION_ARGS);
++extern "C" Datum ST_AddEdgeNewFaces(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_AddEdgeNewFaces);
+ Datum ST_AddEdgeNewFaces(PG_FUNCTION_ARGS)
+ {
+@@ -3403,7 +3404,7 @@ Datum ST_AddEdgeNewFaces(PG_FUNCTION_ARGS)
+ }
+ 
+ /* ST_GetFaceGeometry(atopology, aface) */
+-Datum ST_GetFaceGeometry(PG_FUNCTION_ARGS);
++extern "C" Datum ST_GetFaceGeometry(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_GetFaceGeometry);
+ Datum ST_GetFaceGeometry(PG_FUNCTION_ARGS)
+ {
+@@ -3470,7 +3471,7 @@ typedef struct FACEEDGESSTATE
+ FACEEDGESSTATE;
+ 
+ /* ST_GetFaceEdges(atopology, aface) */
+-Datum ST_GetFaceEdges(PG_FUNCTION_ARGS);
++extern "C" Datum ST_GetFaceEdges(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_GetFaceEdges);
+ Datum ST_GetFaceEdges(PG_FUNCTION_ARGS)
+ {
+@@ -3596,7 +3597,7 @@ Datum ST_GetFaceEdges(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_ChangeEdgeGeom(atopology, anedge, acurve) */
+-Datum ST_ChangeEdgeGeom(PG_FUNCTION_ARGS);
++extern "C" Datum ST_ChangeEdgeGeom(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_ChangeEdgeGeom);
+ Datum ST_ChangeEdgeGeom(PG_FUNCTION_ARGS)
+ {
+@@ -3667,7 +3668,7 @@ Datum ST_ChangeEdgeGeom(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_RemoveIsoNode(atopology, anode) */
+-Datum ST_RemoveIsoNode(PG_FUNCTION_ARGS);
++extern "C" Datum ST_RemoveIsoNode(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_RemoveIsoNode);
+ Datum ST_RemoveIsoNode(PG_FUNCTION_ARGS)
+ {
+@@ -3727,7 +3728,7 @@ Datum ST_RemoveIsoNode(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_RemIsoEdge(atopology, anedge) */
+-Datum ST_RemIsoEdge(PG_FUNCTION_ARGS);
++extern "C" Datum ST_RemIsoEdge(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_RemIsoEdge);
+ Datum ST_RemIsoEdge(PG_FUNCTION_ARGS)
+ {
+@@ -3787,7 +3788,7 @@ Datum ST_RemIsoEdge(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_MoveIsoNode(atopology, anode, apoint) */
+-Datum ST_MoveIsoNode(PG_FUNCTION_ARGS);
++extern "C" Datum ST_MoveIsoNode(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_MoveIsoNode);
+ Datum ST_MoveIsoNode(PG_FUNCTION_ARGS)
+ {
+@@ -3871,7 +3872,7 @@ Datum ST_MoveIsoNode(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_RemEdgeModFace(atopology, anedge) */
+-Datum ST_RemEdgeModFace(PG_FUNCTION_ARGS);
++extern "C" Datum ST_RemEdgeModFace(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_RemEdgeModFace);
+ Datum ST_RemEdgeModFace(PG_FUNCTION_ARGS)
+ {
+@@ -3922,7 +3923,7 @@ Datum ST_RemEdgeModFace(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_RemEdgeNewFace(atopology, anedge) */
+-Datum ST_RemEdgeNewFace(PG_FUNCTION_ARGS);
++extern "C" Datum ST_RemEdgeNewFace(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_RemEdgeNewFace);
+ Datum ST_RemEdgeNewFace(PG_FUNCTION_ARGS)
+ {
+@@ -3971,7 +3972,7 @@ Datum ST_RemEdgeNewFace(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_ModEdgeHeal(atopology, anedge, anotheredge) */
+-Datum ST_ModEdgeHeal(PG_FUNCTION_ARGS);
++extern "C" Datum ST_ModEdgeHeal(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_ModEdgeHeal);
+ Datum ST_ModEdgeHeal(PG_FUNCTION_ARGS)
+ {
+@@ -4021,7 +4022,7 @@ Datum ST_ModEdgeHeal(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  ST_NewEdgeHeal(atopology, anedge, anotheredge) */
+-Datum ST_NewEdgeHeal(PG_FUNCTION_ARGS);
++extern "C" Datum ST_NewEdgeHeal(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(ST_NewEdgeHeal);
+ Datum ST_NewEdgeHeal(PG_FUNCTION_ARGS)
+ {
+@@ -4071,7 +4072,7 @@ Datum ST_NewEdgeHeal(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  GetNodeByPoint(atopology, point, tolerance) */
+-Datum GetNodeByPoint(PG_FUNCTION_ARGS);
++extern "C" extern "C" Datum GetNodeByPoint(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(GetNodeByPoint);
+ Datum GetNodeByPoint(PG_FUNCTION_ARGS)
+ {
+@@ -4137,7 +4138,7 @@ Datum GetNodeByPoint(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  GetEdgeByPoint(atopology, point, tolerance) */
+-Datum GetEdgeByPoint(PG_FUNCTION_ARGS);
++extern "C" Datum GetEdgeByPoint(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(GetEdgeByPoint);
+ Datum GetEdgeByPoint(PG_FUNCTION_ARGS)
+ {
+@@ -4203,7 +4204,7 @@ Datum GetEdgeByPoint(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  GetFaceByPoint(atopology, point, tolerance) */
+-Datum GetFaceByPoint(PG_FUNCTION_ARGS);
++extern "C" Datum GetFaceByPoint(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(GetFaceByPoint);
+ Datum GetFaceByPoint(PG_FUNCTION_ARGS)
+ {
+@@ -4269,7 +4270,7 @@ Datum GetFaceByPoint(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  TopoGeo_AddPoint(atopology, point, tolerance) */
+-Datum TopoGeo_AddPoint(PG_FUNCTION_ARGS);
++extern "C" Datum TopoGeo_AddPoint(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(TopoGeo_AddPoint);
+ Datum TopoGeo_AddPoint(PG_FUNCTION_ARGS)
+ {
+@@ -4343,7 +4344,7 @@ Datum TopoGeo_AddPoint(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  TopoGeo_AddLinestring(atopology, point, tolerance) */
+-Datum TopoGeo_AddLinestring(PG_FUNCTION_ARGS);
++extern "C" Datum TopoGeo_AddLinestring(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(TopoGeo_AddLinestring);
+ Datum TopoGeo_AddLinestring(PG_FUNCTION_ARGS)
+ {
+@@ -4467,7 +4468,7 @@ Datum TopoGeo_AddLinestring(PG_FUNCTION_ARGS)
+ }
+ 
+ /*  TopoGeo_AddPolygon(atopology, poly, tolerance) */
+-Datum TopoGeo_AddPolygon(PG_FUNCTION_ARGS);
++extern "C" Datum TopoGeo_AddPolygon(PG_FUNCTION_ARGS);
+ PG_FUNCTION_INFO_V1(TopoGeo_AddPolygon);
+ Datum TopoGeo_AddPolygon(PG_FUNCTION_ARGS)
+ {
+diff --git a/postgis-2.4.2/topology/sql/topogeometry/totopogeom.sql.in b/postgis-2.4.2/topology/sql/topogeometry/totopogeom.sql.in
+index 8401a8c..7eb8950 100644
+--- a/postgis-2.4.2/topology/sql/topogeometry/totopogeom.sql.in
++++ b/postgis-2.4.2/topology/sql/topogeometry/totopogeom.sql.in
+@@ -199,7 +199,7 @@ BEGIN
+         'Layer "%" of topology "%" is %, cannot hold a collection feature.',
+         layer_info.layer_id, topology_info.name, layer_info.typename;
+     END IF;
+-    tg.type := 4;
++    tg.type_geo := 4;
+   ELSIF typ = 'POINT' OR typ = 'MULTIPOINT' THEN -- puntal
+     --  A point can go in puntal or collection layer
+     IF layer_info.feature_type != 4 and layer_info.feature_type != 1 THEN
+@@ -207,7 +207,7 @@ BEGIN
+         'Layer "%" of topology "%" is %, cannot hold a puntal feature.',
+         layer_info.layer_id, topology_info.name, layer_info.typename;
+     END IF;
+-    tg.type := 1;
++    tg.type_geo := 1;
+   ELSIF typ = 'LINESTRING' or typ = 'MULTILINESTRING' THEN -- lineal
+     --  A line can go in lineal or collection layer
+     IF layer_info.feature_type != 4 and layer_info.feature_type != 2 THEN
+@@ -215,7 +215,7 @@ BEGIN
+         'Layer "%" of topology "%" is %, cannot hold a lineal feature.',
+         layer_info.layer_id, topology_info.name, layer_info.typename;
+     END IF;
+-    tg.type := 2;
++    tg.type_geo := 2;
+   ELSIF typ = 'POLYGON' OR typ = 'MULTIPOLYGON' THEN -- areal
+     --  An area can go in areal or collection layer
+     IF layer_info.feature_type != 4 and layer_info.feature_type != 3 THEN
+@@ -223,7 +223,7 @@ BEGIN
+         'Layer "%" of topology "%" is %, cannot hold an areal feature.',
+         layer_info.layer_id, topology_info.name, layer_info.typename;
+     END IF;
+-    tg.type := 3;
++    tg.type_geo := 3;
+   ELSE
+       -- Should never happen
+       RAISE EXCEPTION
+diff --git a/postgis-2.4.2/topology/sql/topogeometry/type.sql.in b/postgis-2.4.2/topology/sql/topogeometry/type.sql.in
+index 5db267a..01bd092 100644
+--- a/postgis-2.4.2/topology/sql/topogeometry/type.sql.in
++++ b/postgis-2.4.2/topology/sql/topogeometry/type.sql.in
+@@ -24,10 +24,10 @@ CREATE OR REPLACE FUNCTION topology.GeometryType(tg topology.TopoGeometry)
+ AS
+ $$
+ 	SELECT CASE
+-		WHEN type($1) = 1 THEN 'MULTIPOINT'
+-		WHEN type($1) = 2 THEN 'MULTILINESTRING'
+-		WHEN type($1) = 3 THEN 'MULTIPOLYGON'
+-		WHEN type($1) = 4 THEN 'GEOMETRYCOLLECTION'
++		WHEN type_geo($1) = 1 THEN 'MULTIPOINT'
++		WHEN type_geo($1) = 2 THEN 'MULTILINESTRING'
++		WHEN type_geo($1) = 3 THEN 'MULTIPOLYGON'
++		WHEN type_geo($1) = 4 THEN 'GEOMETRYCOLLECTION'
+ 		ELSE 'UNEXPECTED'
+ 		END;
+ $$
+@@ -48,10 +48,10 @@ CREATE OR REPLACE FUNCTION topology.ST_GeometryType(tg topology.TopoGeometry)
+ AS
+ $$
+ 	SELECT CASE
+-		WHEN type($1) = 1 THEN 'ST_MultiPoint'
+-		WHEN type($1) = 2 THEN 'ST_MultiLinestring'
+-		WHEN type($1) = 3 THEN 'ST_MultiPolygon'
+-		WHEN type($1) = 4 THEN 'ST_GeometryCollection'
++		WHEN type_geo($1) = 1 THEN 'ST_MultiPoint'
++		WHEN type_geo($1) = 2 THEN 'ST_MultiLinestring'
++		WHEN type_geo($1) = 3 THEN 'ST_MultiPolygon'
++		WHEN type_geo($1) = 4 THEN 'ST_GeometryCollection'
+ 		ELSE 'ST_Unexpected'
+ 		END;
+ $$
+diff --git a/postgis-2.4.2/topology/topology.sql.in b/postgis-2.4.2/topology/topology.sql.in
+index 5eb1148..5562663 100644
+--- a/postgis-2.4.2/topology/topology.sql.in
++++ b/postgis-2.4.2/topology/topology.sql.in
+@@ -340,7 +340,7 @@ CREATE TYPE topology.TopoGeometry AS (
+   topology_id integer,
+   layer_id integer,
+   id integer,
+-  type integer -- 1: [multi]point, 2: [multi]line,
++  type_geo integer -- 1: [multi]point, 2: [multi]line,
+                -- 3: [multi]polygon, 4: collection
+ );
+ 
+@@ -943,7 +943,7 @@ BEGIN
+ 
+   -- Set layer id and type in return object
+   ret.layer_id = layer_id;
+-  ret.type = tg_type;
++  ret.type_geo = tg_type;
+ 
+   --
+   -- Get new TopoGeo id from sequence
+diff --git a/postgis-2.4.2/postgis--2.4.2.sql b/postgis-2.4.2/postgis--2.4.2.sql
+index b48f73913..5656acd48 100644
+--- a/postgis-2.4.2/postgis--2.4.2.sql
++++ b/postgis-2.4.2/postgis--2.4.2.sql
+@@ -2303,88 +2303,6 @@ END;
+ $$
+ LANGUAGE 'plpgsql' VOLATILE;
+ 
+------------------------------------------------------------------------
+--- DROPGEOMETRYTABLE
+---   <catalogue>, <schema>, <table>
+------------------------------------------------------------------------
+---
+--- Drop a table and all its references in geometry_columns
+---
+------------------------------------------------------------------------
+-CREATE OR REPLACE FUNCTION DropGeometryTable(catalog_name varchar, schema_name varchar, table_name varchar)
+-	RETURNS text	
+-	AS
+-$$
+-DECLARE
+-	real_schema name;
+-	okay boolean;
+-BEGIN
+-
+-	-- Find, check or fix schema_name
+-	IF ( schema_name IS NOT Null ) THEN
+-		okay = false;
+-
+-		FOR myrec IN SELECT nspname FROM pg_namespace WHERE text(nspname) = schema_name LOOP
+-			okay := true;
+-		END LOOP;
+-
+-		IF ( okay <>  true ) THEN
+-			RAISE EXCEPTION 'Invalid schema name';
+-			RETURN false;
+-		ELSE
+-			real_schema = schema_name;
+-		END IF;
+-	ELSE
+-		SELECT current_schema() into real_schema;
+-	END IF;
+-	
+-	-- Find out if the column is in the geometry_columns table
+-	okay = false;
+-	FOR myrec IN SELECT * from geometry_columns where f_table_schema = text(real_schema) and f_table_name = table_name LOOP
+-		okay := true;
+-	END LOOP;
+-	IF (okay <> true) THEN
+-		RAISE EXCEPTION 'table %.% not found in geometry_columns',real_schema,table_name;
+-		RETURN false;
+-	END IF;
+-
+-	-- TODO: Should we warn if table doesn't exist probably instead just saying dropped
+-	-- Remove table
+-	EXECUTE 'DROP TABLE  '
+-		|| quote_ident(real_schema) || '.' ||
+-		quote_ident(table_name) || ' RESTRICT';
+-	RETURN
+-		real_schema || '.' ||
+-		table_name ||' dropped.';
+-
+-END;
+-$$
+-LANGUAGE 'plpgsql' VOLATILE;
+-
+------------------------------------------------------------------------
+--- DROPGEOMETRYTABLE
+---   <schema>, <table>
+------------------------------------------------------------------------
+---
+--- Drop a table and all its references in geometry_columns
+---
+------------------------------------------------------------------------
+-CREATE OR REPLACE FUNCTION DropGeometryTable(schema_name varchar, table_name varchar) RETURNS text AS
+-$$ SELECT DropGeometryTable('',$1,$2) $$
+-LANGUAGE 'sql' VOLATILE;
+-
+------------------------------------------------------------------------
+--- DROPGEOMETRYTABLE
+---   <table>
+------------------------------------------------------------------------
+---
+--- Drop a table and all its references in geometry_columns
+--- For PG>=73 use current_schema()
+---
+------------------------------------------------------------------------
+-CREATE OR REPLACE FUNCTION DropGeometryTable(table_name varchar) RETURNS text AS
+-$$ SELECT DropGeometryTable('','',$1) $$
+-LANGUAGE 'sql' VOLATILE;
+ 
+ -----------------------------------------------------------------------
+ -- UPDATEGEOMETRYSRID
+@@ -5969,6 +5887,92 @@ CREATE OR REPLACE RULE geometry_columns_delete AS
+         DO INSTEAD NOTHING;
+ 
+ 
++-----------------------------------------------------------------------
++-- DROPGEOMETRYTABLE
++--   <catalogue>, <schema>, <table>
++-----------------------------------------------------------------------
++--
++-- Drop a table and all its references in geometry_columns
++--
++-----------------------------------------------------------------------
++CREATE OR REPLACE FUNCTION DropGeometryTable(catalog_name varchar, schema_name varchar, table_name varchar)
++	RETURNS text	
++	AS
++$$
++DECLARE
++	real_schema name;
++	okay boolean;
++BEGIN
++
++	-- Find, check or fix schema_name
++	IF ( schema_name IS NOT Null ) THEN
++		okay = false;
++
++		FOR myrec IN SELECT nspname FROM pg_namespace WHERE text(nspname) = schema_name LOOP
++			okay := true;
++		END LOOP;
++
++		IF ( okay <>  true ) THEN
++			RAISE EXCEPTION 'Invalid schema name';
++			RETURN false;
++		ELSE
++			real_schema = schema_name;
++		END IF;
++	ELSE
++		SELECT current_schema() into real_schema;
++	END IF;
++	
++	-- Find out if the column is in the geometry_columns table
++	okay = false;
++	FOR myrec IN SELECT * from geometry_columns where f_table_schema = text(real_schema) and f_table_name = table_name LOOP
++		okay := true;
++	END LOOP;
++	IF (okay <> true) THEN
++		RAISE EXCEPTION 'table %.% not found in geometry_columns',real_schema,table_name;
++		RETURN false;
++	END IF;
++
++	-- TODO: Should we warn if table doesn't exist probably instead just saying dropped
++	-- Remove table
++	EXECUTE 'DROP TABLE  '
++		|| quote_ident(real_schema) || '.' ||
++		quote_ident(table_name) || ' RESTRICT';
++	RETURN
++		real_schema || '.' ||
++		table_name ||' dropped.';
++
++END;
++$$
++LANGUAGE 'plpgsql' VOLATILE;
++
++-----------------------------------------------------------------------
++-- DROPGEOMETRYTABLE
++--   <table>
++-----------------------------------------------------------------------
++--
++-- Drop a table and all its references in geometry_columns
++-- For PG>=73 use current_schema()
++--
++-----------------------------------------------------------------------
++CREATE OR REPLACE FUNCTION DropGeometryTable(table_name varchar) RETURNS text AS
++$$ SELECT DropGeometryTable('','',$1) $$
++LANGUAGE 'sql' VOLATILE;
++
++
++-----------------------------------------------------------------------
++-- DROPGEOMETRYTABLE
++--   <schema>, <table>
++-----------------------------------------------------------------------
++--
++-- Drop a table and all its references in geometry_columns
++--
++-----------------------------------------------------------------------
++CREATE OR REPLACE FUNCTION DropGeometryTable(schema_name varchar, table_name varchar) RETURNS text AS
++$$ SELECT DropGeometryTable('',$1,$2) $$
++LANGUAGE 'sql' VOLATILE;
++
++
++
+ ---------------------------------------------------------------
+ -- 3D-functions
+ ---------------------------------------------------------------
+

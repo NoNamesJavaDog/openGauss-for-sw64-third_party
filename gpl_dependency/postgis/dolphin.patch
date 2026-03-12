@@ -1,0 +1,495 @@
+diff -uprN a/postgis-2.4.2/doc/extras_topology.xml b/postgis-2.4.2/doc/extras_topology.xml
+--- a/postgis-2.4.2/doc/extras_topology.xml	2022-12-26 19:40:42.743183270 +0800
++++ b/postgis-2.4.2/doc/extras_topology.xml	2022-12-26 20:43:27.759183270 +0800
+@@ -2689,7 +2689,7 @@ faceid
+ 		  <funcprototype>
+ 			<funcdef>geometry <function>ST_Simplify</function></funcdef>
+ 			<paramdef><type>TopoGeometry</type> <parameter>geomA</parameter></paramdef>
+-			<paramdef><type>float</type> <parameter>tolerance</parameter></paramdef>
++			<paramdef><type>float8</type> <parameter>tolerance</parameter></paramdef>
+ 		  </funcprototype>
+ 		</funcsynopsis>
+ 	  </refsynopsisdiv>
+diff -uprN a/postgis-2.4.2/doc/topology_comments.sql b/postgis-2.4.2/doc/topology_comments.sql
+--- a/postgis-2.4.2/doc/topology_comments.sql	2022-12-26 19:40:42.783183270 +0800
++++ b/postgis-2.4.2/doc/topology_comments.sql	2022-12-26 16:34:20.239183270 +0800
+@@ -99,7 +99,7 @@ COMMENT ON FUNCTION topology.AddEdge(var
+ 			
+ COMMENT ON FUNCTION topology.AddFace(varchar , geometry , boolean ) IS 'args: toponame, apolygon, force_new=false - Registers a face primitive to a topology and gets its identifier.';
+ 			
+-COMMENT ON FUNCTION topology.ST_Simplify(TopoGeometry, float) IS 'args: geomA, tolerance - Returns a "simplified" geometry version of the given TopoGeometry using the Douglas-Peucker algorithm.';
++COMMENT ON FUNCTION topology.ST_Simplify(TopoGeometry, float8) IS 'args: geomA, tolerance - Returns a "simplified" geometry version of the given TopoGeometry using the Douglas-Peucker algorithm.';
+ 			
+ COMMENT ON FUNCTION topology.CreateTopoGeom(varchar , integer , integer, topoelementarray) IS 'args: toponame, tg_type, layer_id, tg_objs - Creates a new topo geometry object from topo element array - tg_type: 1:[multi]point, 2:[multi]line, 3:[multi]poly, 4:collection';
+ 			
+@@ -146,4 +146,4 @@ COMMENT ON FUNCTION topology.AsTopoJSON(
+ COMMENT ON FUNCTION topology.Equals(topogeometry , topogeometry ) IS 'args: tg1, tg2 - Returns true if two topogeometries are composed of the same topology primitives.';
+ 			
+ COMMENT ON FUNCTION topology.Intersects(topogeometry , topogeometry ) IS 'args: tg1, tg2 - Returns true if any pair of primitives from thetwo topogeometries intersect.';
+-			
+\ No newline at end of file
++			
+diff -uprN a/postgis-2.4.2/postgis--2.4.2.sql b/postgis-2.4.2/postgis--2.4.2.sql
+--- a/postgis-2.4.2/postgis--2.4.2.sql	2022-12-26 19:40:42.743183270 +0800
++++ b/postgis-2.4.2/postgis--2.4.2.sql	2022-12-26 17:49:52.315183270 +0800
+@@ -533,9 +533,9 @@ CREATE OR REPLACE FUNCTION geometry_over
+ 
+ -- Availability: 0.1.0
+ -- Changed: 2.0.0 use gserialized selectivity estimators
+-CREATE OPERATOR && (
++CREATE OPERATOR ^&&^ (
+ 	LEFTARG = geometry, RIGHTARG = geometry, PROCEDURE = geometry_overlaps,
+-	COMMUTATOR = '&&',
++	COMMUTATOR = '^&&^',
+ 	RESTRICT = gserialized_gist_sel_2d,
+ 	JOIN = gserialized_gist_joinsel_2d
+ );
+@@ -574,9 +574,9 @@ CREATE OPERATOR <-> (
+ );
+ 
+ -- Availability: 2.0.0
+-CREATE OPERATOR <#> (
++CREATE OPERATOR <^^> (
+     LEFTARG = geometry, RIGHTARG = geometry, PROCEDURE = geometry_distance_box,
+-    COMMUTATOR = '<#>'
++    COMMUTATOR = '<^^>'
+ );
+ 
+ -- Availability: 2.0.0
+@@ -715,7 +715,7 @@ CREATE OPERATOR CLASS gist_geometry_ops_
+ 	STORAGE box2df,
+ 	OPERATOR        1        <<  ,
+ 	OPERATOR        2        &<	 ,
+-	OPERATOR        3        &&  ,
++	OPERATOR        3        ^&&^  ,
+ 	OPERATOR        4        &>	 ,
+ 	OPERATOR        5        >>	 ,
+ 	OPERATOR        6        ~=	 ,
+@@ -726,7 +726,7 @@ CREATE OPERATOR CLASS gist_geometry_ops_
+ 	OPERATOR        11       |>> ,
+ 	OPERATOR        12       |&> ,
+ 	OPERATOR        13       <-> FOR ORDER BY pg_catalog.float_ops,
+-	OPERATOR        14       <#> FOR ORDER BY pg_catalog.float_ops,
++	OPERATOR        14       <^^> FOR ORDER BY pg_catalog.float_ops,
+ 	FUNCTION        8        geometry_gist_distance_2d (internal, geometry, int4),
+ 	FUNCTION        1        geometry_gist_consistent_2d (internal, geometry, int4),
+ 	FUNCTION        2        geometry_gist_union_2d (bytea, internal),
+@@ -2807,7 +2807,7 @@ CREATE OR REPLACE FUNCTION box(box3d)
+ 	AS '$libdir/postgis-2.4','BOX3D_to_BOX'
+ 	LANGUAGE 'c' NOT FENCED IMMUTABLE STRICT ;
+ 
+-CREATE OR REPLACE FUNCTION text(geometry)
++CREATE OR REPLACE FUNCTION text_geo(geometry)
+ 	RETURNS text
+ 	AS '$libdir/postgis-2.4','LWGEOM_to_text'
+ 	LANGUAGE 'c' NOT FENCED IMMUTABLE STRICT 
+@@ -2860,7 +2860,7 @@ CREATE CAST (box2d AS geometry) WITH FUN
+ CREATE CAST (box3d AS box) WITH FUNCTION box(box3d) AS IMPLICIT;
+ CREATE CAST (box3d AS geometry) WITH FUNCTION geometry(box3d) AS IMPLICIT;
+ CREATE CAST (text AS geometry) WITH FUNCTION geometry(text) AS IMPLICIT;
+-CREATE CAST (geometry AS text) WITH FUNCTION text(geometry) AS IMPLICIT;
++CREATE CAST (geometry AS text) WITH FUNCTION text_geo(geometry) AS IMPLICIT;
+ CREATE CAST (bytea AS geometry) WITH FUNCTION geometry(bytea) AS IMPLICIT;
+ CREATE CAST (geometry AS bytea) WITH FUNCTION bytea(geometry) AS IMPLICIT;
+ 
+@@ -3092,7 +3092,7 @@ CREATE OR REPLACE FUNCTION _ST_LineCross
+ -- Availability: 1.4.0
+ CREATE OR REPLACE FUNCTION ST_LineCrossingDirection(geom1 geometry, geom2 geometry)
+ 	RETURNS integer AS
+-	$$ SELECT CASE WHEN NOT $1 OPERATOR(&&) $2 THEN 0 ELSE _ST_LineCrossingDirection($1,$2) END $$
++	$$ SELECT CASE WHEN NOT $1 OPERATOR(^&&^) $2 THEN 0 ELSE _ST_LineCrossingDirection($1,$2) END $$
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- Requires GEOS >= 3.0.0
+@@ -3671,7 +3671,7 @@ CREATE OR REPLACE FUNCTION _ST_Touches(g
+ -- Inlines index magic
+ CREATE OR REPLACE FUNCTION ST_Touches(geom1 geometry, geom2 geometry)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_Touches($1,$2)'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_Touches($1,$2)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- Availability: 1.3.4
+@@ -3684,7 +3684,7 @@ CREATE OR REPLACE FUNCTION _ST_DWithin(g
+ -- Availability: 1.2.2
+ CREATE OR REPLACE FUNCTION ST_DWithin(geom1 geometry, geom2 geometry, float8)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) ST_Expand($2,$3) AND $2 OPERATOR(&&) ST_Expand($1,$3) AND _ST_DWithin($1, $2, $3)'
++	AS 'SELECT $1 OPERATOR(^&&^) ST_Expand($2,$3) AND $2 OPERATOR(^&&^) ST_Expand($1,$3) AND _ST_DWithin($1, $2, $3)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- PostGIS equivalent function: intersects(geom1 geometry, geom2 geometry)
+@@ -3698,7 +3698,7 @@ CREATE OR REPLACE FUNCTION _ST_Intersect
+ -- Inlines index magic
+ CREATE OR REPLACE FUNCTION ST_Intersects(geom1 geometry, geom2 geometry)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_Intersects($1,$2)'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_Intersects($1,$2)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- PostGIS equivalent function: crosses(geom1 geometry, geom2 geometry)
+@@ -3712,7 +3712,7 @@ CREATE OR REPLACE FUNCTION _ST_Crosses(g
+ -- Inlines index magic
+ CREATE OR REPLACE FUNCTION ST_Crosses(geom1 geometry, geom2 geometry)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_Crosses($1,$2)'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_Crosses($1,$2)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- PostGIS equivalent function: contains(geom1 geometry, geom2 geometry)
+@@ -3794,7 +3794,7 @@ CREATE OR REPLACE FUNCTION ST_Within(geo
+ -- Inlines index magic
+ CREATE OR REPLACE FUNCTION ST_Overlaps(geom1 geometry, geom2 geometry)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_Overlaps($1,$2)'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_Overlaps($1,$2)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- PostGIS equivalent function: IsValid(geometry)
+@@ -4703,7 +4703,7 @@ CREATE OR REPLACE FUNCTION _ST_DFullyWit
+ 
+ CREATE OR REPLACE FUNCTION ST_DFullyWithin(geom1 geometry, geom2 geometry, float8)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) ST_Expand($2,$3) AND $2 OPERATOR(&&) ST_Expand($1,$3) AND _ST_DFullyWithin(ST_ConvexHull($1), ST_ConvexHull($2), $3)'
++	AS 'SELECT $1 OPERATOR(^&&^) ST_Expand($2,$3) AND $2 OPERATOR(^&&^) ST_Expand($1,$3) AND _ST_DFullyWithin(ST_ConvexHull($1), ST_ConvexHull($2), $3)'
+ 	LANGUAGE 'sql' IMMUTABLE;
+ 
+ 
+@@ -5052,9 +5052,9 @@ CREATE OR REPLACE FUNCTION geography_ove
+ 	LANGUAGE 'c' NOT FENCED IMMUTABLE STRICT ;
+ 
+ -- Availability: 1.5.0
+-CREATE OPERATOR && (
++CREATE OPERATOR ^&&^ (
+ 	LEFTARG = geography, RIGHTARG = geography, PROCEDURE = geography_overlaps,
+-	COMMUTATOR = '&&',
++	COMMUTATOR = '^&&^',
+ 	RESTRICT = gserialized_gist_sel_nd,
+ 	JOIN = gserialized_gist_joinsel_nd	
+ );
+@@ -5066,7 +5066,7 @@ CREATE OPERATOR && (
+ CREATE OPERATOR CLASS gist_geography_ops
+ 	DEFAULT FOR TYPE geography USING GIST AS
+ 	STORAGE 	gidx,
+-	OPERATOR        3        &&	,
++	OPERATOR        3        ^&&^	,
+ --	OPERATOR        6        ~=	,
+ --	OPERATOR        7        ~	,
+ --	OPERATOR        8        @	,
+@@ -5354,14 +5354,14 @@ CREATE OR REPLACE FUNCTION _ST_Expand(ge
+ -- Availability: 1.5.0
+ CREATE OR REPLACE FUNCTION ST_DWithin(geography, geography, float8, boolean)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) _ST_Expand($2,$3) AND $2 OPERATOR(&&) _ST_Expand($1,$3) AND _ST_DWithin($1, $2, $3, $4)'
++	AS 'SELECT $1 OPERATOR(^&&^) _ST_Expand($2,$3) AND $2 OPERATOR(^&&^) _ST_Expand($1,$3) AND _ST_DWithin($1, $2, $3, $4)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- Currently defaulting to spheroid calculations
+ -- Availability: 1.5.0
+ CREATE OR REPLACE FUNCTION ST_DWithin(geography, geography, float8)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) _ST_Expand($2,$3) AND $2 OPERATOR(&&) _ST_Expand($1,$3) AND _ST_DWithin($1, $2, $3, true)'
++	AS 'SELECT $1 OPERATOR(^&&^) _ST_Expand($2,$3) AND $2 OPERATOR(^&&^) _ST_Expand($1,$3) AND _ST_DWithin($1, $2, $3, true)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- Availability: 1.5.0 - this is just a hack to prevent unknown from causing ambiguous name because of geography
+@@ -5420,7 +5420,7 @@ CREATE OR REPLACE FUNCTION _ST_DWithinUn
+ -- Calculate the dwithin relation *without* using the caching code line or tree code
+ CREATE OR REPLACE FUNCTION _ST_DWithinUnCached(geography, geography, float8)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) _ST_Expand($2,$3) AND $2 OPERATOR(&&) _ST_Expand($1,$3) AND _ST_DWithinUnCached($1, $2, $3, true)'
++	AS 'SELECT $1 OPERATOR(^&&^) _ST_Expand($2,$3) AND $2 OPERATOR(^&&^) _ST_Expand($1,$3) AND _ST_DWithinUnCached($1, $2, $3, true)'
+ 	LANGUAGE 'sql' IMMUTABLE;
+ 	
+ -- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+@@ -5490,7 +5490,7 @@ CREATE OR REPLACE FUNCTION _ST_Covers(ge
+ -- Availability: 1.5.0
+ CREATE OR REPLACE FUNCTION ST_Covers(geography, geography)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_Covers($1, $2)'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_Covers($1, $2)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- Availability: 1.5.0 - this is just a hack to prevent unknown from causing ambiguous name because of geography
+@@ -5503,7 +5503,7 @@ CREATE OR REPLACE FUNCTION ST_Covers(tex
+ -- Availability: 1.5.0
+ CREATE OR REPLACE FUNCTION ST_CoveredBy(geography, geography)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_Covers($2, $1)'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_Covers($2, $1)'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- Availability: 1.5.0 - this is just a hack to prevent unknown from causing ambiguous name because of geography
+@@ -5522,7 +5522,7 @@ CREATE OR REPLACE FUNCTION ST_Segmentize
+ -- Availability: 1.5.0
+ CREATE OR REPLACE FUNCTION ST_Intersects(geography, geography)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_Distance($1, $2, 0.0, false) < 0.00001'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_Distance($1, $2, 0.0, false) < 0.00001'
+ 	LANGUAGE 'sql' IMMUTABLE ;
+ 
+ -- Availability: 1.5.0 - this is just a hack to prevent unknown from causing ambiguous name because of geography
+@@ -6015,7 +6015,7 @@ CREATE OR REPLACE FUNCTION _ST_3DDWithin
+ 
+ CREATE OR REPLACE FUNCTION ST_3DDWithin(geom1 geometry, geom2 geometry,float8)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) ST_Expand($2,$3) AND $2 OPERATOR(&&) ST_Expand($1,$3) AND _ST_3DDWithin($1, $2, $3)'
++	AS 'SELECT $1 OPERATOR(^&&^) ST_Expand($2,$3) AND $2 OPERATOR(^&&^) ST_Expand($1,$3) AND _ST_3DDWithin($1, $2, $3)'
+ 	LANGUAGE 'sql' IMMUTABLE  
+ 	COST 100;
+ 
+@@ -6027,7 +6027,7 @@ CREATE OR REPLACE FUNCTION _ST_3DDFullyW
+ 
+ CREATE OR REPLACE FUNCTION ST_3DDFullyWithin(geom1 geometry, geom2 geometry,float8)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) ST_Expand($2,$3) AND $2 OPERATOR(&&) ST_Expand($1,$3) AND _ST_3DDFullyWithin($1, $2, $3)'
++	AS 'SELECT $1 OPERATOR(^&&^) ST_Expand($2,$3) AND $2 OPERATOR(^&&^) ST_Expand($1,$3) AND _ST_3DDFullyWithin($1, $2, $3)'
+ 	LANGUAGE 'sql' IMMUTABLE  
+ 	COST 100;
+ 
+@@ -6039,7 +6039,7 @@ CREATE OR REPLACE FUNCTION _ST_3DInterse
+ 
+ CREATE OR REPLACE FUNCTION ST_3DIntersects(geom1 geometry, geom2 geometry)
+ 	RETURNS boolean
+-	AS 'SELECT $1 OPERATOR(&&) $2 AND _ST_3DIntersects($1, $2)'
++	AS 'SELECT $1 OPERATOR(^&&^) $2 AND _ST_3DIntersects($1, $2)'
+ 	LANGUAGE 'sql' IMMUTABLE  
+ 	COST 100;
+ 
+diff -uprN a/postgis-2.4.2/postgis_raster--2.4.2.sql b/postgis-2.4.2/postgis_raster--2.4.2.sql
+--- a/postgis-2.4.2/postgis_raster--2.4.2.sql	2022-12-26 19:40:42.791183270 +0800
++++ b/postgis-2.4.2/postgis_raster--2.4.2.sql	2022-12-26 17:50:04.059183270 +0800
+@@ -329,7 +329,7 @@ CREATE OR REPLACE FUNCTION st_makeemptyr
+ 
+ -- Availability: 2.1.0
+ CREATE TYPE addbandarg AS (
+-	index int,
++	idx int,
+ 	pixeltype text,
+ 	initialvalue float8,
+ 	nodataval float8
+@@ -1885,7 +1885,7 @@ CREATE OR REPLACE FUNCTION st_gdaldriver
+ 	LANGUAGE 'c' NOT FENCED VOLATILE STRICT ;
+ 
+ -- Cannot be strict as "options" and "srid" can be NULL
+-CREATE OR REPLACE FUNCTION st_asgdalraster(rast raster, format text, options text[] DEFAULT NULL, srid integer DEFAULT NULL)
++CREATE OR REPLACE FUNCTION st_asgdalraster(rast raster, text_format text, options text[] DEFAULT NULL, srid integer DEFAULT NULL)
+ 	RETURNS bytea
+ 	AS '$libdir/rtpostgis-2.4', 'RASTER_asGDALRaster'
+ 	LANGUAGE 'c' NOT FENCED VOLATILE ;
+@@ -2854,7 +2854,7 @@ CREATE OR REPLACE FUNCTION st_distinct4m
+     LANGUAGE 'sql' VOLATILE ;
+ 
+ CREATE OR REPLACE FUNCTION st_stddev4ma(matrix float[][], nodatamode TEXT, VARIADIC args TEXT[])
+-    RETURNS float AS
++    RETURNS float8 AS
+     $$ SELECT stddev(unnest) FROM unnest($1) $$
+     LANGUAGE 'sql' VOLATILE ;
+ 
+@@ -4750,7 +4750,7 @@ CREATE OR REPLACE FUNCTION st_pixelofval
+ -- Raster Accessors ST_Georeference()
+ -----------------------------------------------------------------------
+ 
+-CREATE OR REPLACE FUNCTION st_georeference(rast raster, format text DEFAULT 'GDAL')
++CREATE OR REPLACE FUNCTION st_georeference(rast raster, text_format text DEFAULT 'GDAL')
+     RETURNS text AS
+     $$
+     DECLARE
+@@ -4850,7 +4850,7 @@ CREATE OR REPLACE FUNCTION st_setgeotran
+ -----------------------------------------------------------------------
+ -- Raster Editors ST_SetGeoreference()
+ -----------------------------------------------------------------------
+-CREATE OR REPLACE FUNCTION st_setgeoreference(rast raster, georef text, format text DEFAULT 'GDAL')
++CREATE OR REPLACE FUNCTION st_setgeoreference(rast raster, georef text, text_format text DEFAULT 'GDAL')
+     RETURNS raster AS
+     $$
+     DECLARE
+@@ -4862,8 +4862,8 @@ CREATE OR REPLACE FUNCTION st_setgeorefe
+             RETURN rastout;
+         END IF;
+ 		
+-        IF format = ' ' THEN
+-			format := 'GDAL';
++        IF text_format = ' ' THEN
++			text_format := 'GDAL';
+         END IF;
+ 
+         SELECT regexp_matches(georef,
+@@ -5594,7 +5594,7 @@ CREATE OR REPLACE FUNCTION raster_contai
+ 
+ CREATE OR REPLACE FUNCTION raster_overlap(raster, raster)
+     RETURNS bool
+-    AS 'select $1::geometry OPERATOR(&&) $2::geometry'
++    AS 'select $1::geometry OPERATOR(^&&^) $2::geometry'
+     LANGUAGE 'sql' IMMUTABLE STRICT ;
+ 
+ -- raster/geometry functions
+@@ -5614,7 +5614,7 @@ CREATE OR REPLACE FUNCTION raster_contai
+ -- Availability: 2.0.0
+ CREATE OR REPLACE FUNCTION raster_geometry_overlap(raster, geometry)
+     RETURNS bool
+-    AS 'select $1::geometry OPERATOR(&&) $2'
++    AS 'select $1::geometry OPERATOR(^&&^) $2'
+     LANGUAGE 'sql' IMMUTABLE STRICT ;
+ 
+ -- geometry/raster functions
+@@ -5634,7 +5634,7 @@ CREATE OR REPLACE FUNCTION geometry_cont
+ -- Availability: 2.0.0
+ CREATE OR REPLACE FUNCTION geometry_raster_overlap(geometry, raster)
+     RETURNS bool
+-    AS 'select $1 OPERATOR(&&) $2::geometry'
++    AS 'select $1 OPERATOR(^&&^) $2::geometry'
+     LANGUAGE 'sql' IMMUTABLE STRICT ;
+ 
+ ------------------------------------------------------------------------------
+@@ -5671,9 +5671,9 @@ CREATE OPERATOR &<| (
+     );
+ 
+ -- Availability: 2.0.0
+-CREATE OPERATOR && (
++CREATE OPERATOR ^&&^ (
+     LEFTARG = raster, RIGHTARG = raster, PROCEDURE = raster_overlap,
+-    COMMUTATOR = '&&',
++    COMMUTATOR = '^&&^',
+     RESTRICT = contsel, JOIN = contjoinsel
+     );
+ 
+@@ -5746,9 +5746,9 @@ CREATE OPERATOR @ (
+     );
+ 
+ -- Availability: 2.0.0
+-CREATE OPERATOR && (
++CREATE OPERATOR ^&&^ (
+     LEFTARG = raster, RIGHTARG = geometry, PROCEDURE = raster_geometry_overlap,
+-    COMMUTATOR = '&&',
++    COMMUTATOR = '^&&^',
+     RESTRICT = contsel, JOIN = contjoinsel
+     );
+ 
+@@ -5772,9 +5772,9 @@ CREATE OPERATOR @ (
+     );
+ 
+ -- Availability: 2.0.0
+-CREATE OPERATOR && (
++CREATE OPERATOR ^&&^ (
+     LEFTARG = geometry, RIGHTARG = raster, PROCEDURE = geometry_raster_overlap,
+-    COMMUTATOR = '&&',
++    COMMUTATOR = '^&&^',
+     RESTRICT = contsel, JOIN = contjoinsel
+     );
+ 
+@@ -5999,7 +5999,7 @@ CREATE OR REPLACE FUNCTION _st_intersect
+ 
+ CREATE OR REPLACE FUNCTION st_intersects(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_intersects(st_convexhull($1), st_convexhull($3)) ELSE _st_intersects($1, $2, $3, $4) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_intersects(st_convexhull($1), st_convexhull($3)) ELSE _st_intersects($1, $2, $3, $4) END $$
+ 	LANGUAGE 'sql' VOLATILE 
+ 	COST 1000;
+ 
+@@ -6044,7 +6044,7 @@ CREATE OR REPLACE FUNCTION _st_intersect
+ -- This function can not be STRICT
+ CREATE OR REPLACE FUNCTION st_intersects(geom geometry, rast raster, nband integer DEFAULT NULL)
+ 	RETURNS boolean AS
+-	$$ SELECT $1 OPERATOR(&&) $2::geometry AND _st_intersects($1, $2, $3); $$
++	$$ SELECT $1 OPERATOR(^&&^) $2::geometry AND _st_intersects($1, $2, $3); $$
+ 	LANGUAGE 'sql' VOLATILE 
+ 	COST 1000;
+ 
+@@ -6054,13 +6054,13 @@ CREATE OR REPLACE FUNCTION st_intersects
+ 
+ CREATE OR REPLACE FUNCTION st_intersects(rast raster, geom geometry, nband integer DEFAULT NULL)
+ 	RETURNS boolean
+-	AS $$ SELECT $1::geometry OPERATOR(&&) $2 AND _st_intersects($2, $1, $3) $$
++	AS $$ SELECT $1::geometry OPERATOR(^&&^) $2 AND _st_intersects($2, $1, $3) $$
+ 	LANGUAGE 'sql' VOLATILE 
+ 	COST 1000;
+ 
+ CREATE OR REPLACE FUNCTION st_intersects(rast raster, nband integer, geom geometry)
+ 	RETURNS boolean
+-	AS $$ SELECT $1::geometry OPERATOR(&&) $3 AND _st_intersects($3, $1, $2) $$
++	AS $$ SELECT $1::geometry OPERATOR(^&&^) $3 AND _st_intersects($3, $1, $2) $$
+ 	LANGUAGE 'sql' VOLATILE 
+ 	COST 1000;
+ 
+@@ -6076,7 +6076,7 @@ CREATE OR REPLACE FUNCTION _st_overlaps(
+ 
+ CREATE OR REPLACE FUNCTION st_overlaps(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_overlaps(st_convexhull($1), st_convexhull($3)) ELSE _ST_overlaps($1, $2, $3, $4) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_overlaps(st_convexhull($1), st_convexhull($3)) ELSE _ST_overlaps($1, $2, $3, $4) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6098,7 +6098,7 @@ CREATE OR REPLACE FUNCTION _st_touches(r
+ 
+ CREATE OR REPLACE FUNCTION st_touches(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_touches(st_convexhull($1), st_convexhull($3)) ELSE _st_touches($1, $2, $3, $4) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_touches(st_convexhull($1), st_convexhull($3)) ELSE _st_touches($1, $2, $3, $4) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6120,7 +6120,7 @@ CREATE OR REPLACE FUNCTION _st_contains(
+ 
+ CREATE OR REPLACE FUNCTION st_contains(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_contains(st_convexhull($1), st_convexhull($3)) ELSE _st_contains($1, $2, $3, $4) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_contains(st_convexhull($1), st_convexhull($3)) ELSE _st_contains($1, $2, $3, $4) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6142,7 +6142,7 @@ CREATE OR REPLACE FUNCTION _st_containsp
+ 
+ CREATE OR REPLACE FUNCTION st_containsproperly(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_containsproperly(st_convexhull($1), st_convexhull($3)) ELSE _st_containsproperly($1, $2, $3, $4) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_containsproperly(st_convexhull($1), st_convexhull($3)) ELSE _st_containsproperly($1, $2, $3, $4) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6164,7 +6164,7 @@ CREATE OR REPLACE FUNCTION _st_covers(ra
+ 
+ CREATE OR REPLACE FUNCTION st_covers(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_covers(st_convexhull($1), st_convexhull($3)) ELSE _st_covers($1, $2, $3, $4) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_covers(st_convexhull($1), st_convexhull($3)) ELSE _st_covers($1, $2, $3, $4) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6186,7 +6186,7 @@ CREATE OR REPLACE FUNCTION _st_coveredby
+ 
+ CREATE OR REPLACE FUNCTION st_coveredby(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_coveredby(st_convexhull($1), st_convexhull($3)) ELSE _st_coveredby($1, $2, $3, $4) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_coveredby(st_convexhull($1), st_convexhull($3)) ELSE _st_coveredby($1, $2, $3, $4) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6208,7 +6208,7 @@ CREATE OR REPLACE FUNCTION _st_within(ra
+ 
+ CREATE OR REPLACE FUNCTION st_within(rast1 raster, nband1 integer, rast2 raster, nband2 integer)
+ 	RETURNS boolean
+-	AS $$ SELECT $1 OPERATOR(&&) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_within(st_convexhull($1), st_convexhull($3)) ELSE _st_contains($3, $4, $1, $2) END $$
++	AS $$ SELECT $1 OPERATOR(^&&^) $3 AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _st_within(st_convexhull($1), st_convexhull($3)) ELSE _st_contains($3, $4, $1, $2) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6230,7 +6230,7 @@ CREATE OR REPLACE FUNCTION _ST_DWithin(r
+ 
+ CREATE OR REPLACE FUNCTION ST_DWithin(rast1 raster, nband1 integer, rast2 raster, nband2 integer, distance double precision)
+ 	RETURNS boolean
+-	AS $$ SELECT $1::geometry OPERATOR(&&) ST_Expand(ST_ConvexHull($3), $5) AND $3::geometry OPERATOR(&&) ST_Expand(ST_ConvexHull($1), $5) AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _ST_dwithin(st_convexhull($1), st_convexhull($3), $5) ELSE _ST_dwithin($1, $2, $3, $4, $5) END $$
++	AS $$ SELECT $1::geometry OPERATOR(^&&^) ST_Expand(ST_ConvexHull($3), $5) AND $3::geometry OPERATOR(^&&^) ST_Expand(ST_ConvexHull($1), $5) AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _ST_dwithin(st_convexhull($1), st_convexhull($3), $5) ELSE _ST_dwithin($1, $2, $3, $4, $5) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 
+@@ -6252,7 +6252,7 @@ CREATE OR REPLACE FUNCTION _ST_DFullyWit
+ 
+ CREATE OR REPLACE FUNCTION ST_DFullyWithin(rast1 raster, nband1 integer, rast2 raster, nband2 integer, distance double precision)
+ 	RETURNS boolean
+-	AS $$ SELECT $1::geometry OPERATOR(&&) ST_Expand(ST_ConvexHull($3), $5) AND $3::geometry OPERATOR(&&) ST_Expand(ST_ConvexHull($1), $5) AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _ST_DFullyWithin(ST_ConvexHull($1), ST_Convexhull($3), $5) ELSE _ST_DFullyWithin($1, $2, $3, $4, $5) END $$
++	AS $$ SELECT $1::geometry OPERATOR(^&&^) ST_Expand(ST_ConvexHull($3), $5) AND $3::geometry OPERATOR(^&&^) ST_Expand(ST_ConvexHull($1), $5) AND CASE WHEN $2 IS NULL OR $4 IS NULL THEN _ST_DFullyWithin(ST_ConvexHull($1), ST_Convexhull($3), $5) ELSE _ST_DFullyWithin($1, $2, $3, $4, $5) END $$
+ 	LANGUAGE 'sql' IMMUTABLE 
+ 	COST 1000;
+ 

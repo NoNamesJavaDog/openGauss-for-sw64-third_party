@@ -1,0 +1,5 @@
+dependency/oracle_fdw/ORACLE_FDW_2_1_0.zip filter=lfs diff=lfs merge=lfs -text
+buildtools/python3/Python-3.7.4.tar.xz filter=lfs diff=lfs merge=lfs -text
+dependency/boost/boost_1_82_0.tar.gz filter=lfs diff=lfs merge=lfs -text
+dependency/aws-sdk-cpp/aws-sdk-cpp-1.11.712.tar.gz filter=lfs diff=lfs merge=lfs -text
+v1.16.3.tar.gz filter=lfs diff=lfs merge=lfs -text
