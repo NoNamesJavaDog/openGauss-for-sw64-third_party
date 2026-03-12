@@ -1,0 +1,6 @@
+libaio-devel
+ncurses-devel
+pam-devel
+libffi-devel
+python3-devel
+libtool

@@ -1,0 +1,180 @@
+jemalloc:
+  cpeName: jemalloc
+  version: 5.3.0
+  url: 'https://github.com/jemalloc'
+openssl:
+  cpeName: openssl
+  version: 3.0.9
+  url: 'https://github.com/openssl/openssl'
+masstree:
+  cpeName: masstree
+  version: 1.0.1
+  url: 'https://github.com/idanlevy1234/masstree-beta'
+mysql_fdw:
+  cpeName: mysql_fdw
+  version: v2.5.5
+  url: 'https://github.com/EnterpriseDB/mysql_fdw'
+oracle_fdw:
+  cpeName: oracle_fdw
+  version: v2.2.0
+  url: 'https://github.com/laurenz/oracle_fdw'
+llvm:
+  cpeName: llvm
+  version: 12.0.1
+  url: 'https://github.com/llvm/llvm-project'
+paramiko:
+  cpeName: paramiko
+  version: 3.4.0
+  url: 'https://github.com/paramiko/paramiko'
+huaweicloud-sdk-c-obs:
+  cpeName: huaweicloud-sdk-c-obs
+  version: 3.19.9.3
+  url: 'https://github.com/huaweicloud/huaweicloud-sdk-c-obs'
+Kerberos 5 (KRB5):
+  cpeName: Kerberos 5 (KRB5)
+  version: 1.20.1
+  url: 'https://github.com/krb5/krb5'
+curl:
+  cpeName: curl
+  version: 7.78.0
+  url: 'https://github.com/curl/curl'
+libiconv:
+  cpeName: libiconv
+  version: 1.17
+  url: 'https://ftp.gnu.org/pub/gnu/libiconv/'
+pcre:
+  cpeName: pcre
+  version: 8.45
+  url: 'https://github.com/PCRE2Project/pcre2'
+psutil:
+  cpeName: psutil
+  version: 6.0.0
+  url: 'ttps://github.com/giampaolo/psutil'
+Netifaces:
+  cpeName: Netifaces
+  version: 0.11.0
+  url: 'https://github.com/al45tair/netifaces'
+nghttp2:
+  cpeName: nghttp2
+  version: 1.63.0
+  url: 'https://github.com/nghttp2/nghttp2'
+'python::cryptography':
+  cpeName: python::cryptography
+  version: 40.0.2
+  url: 'https://github.com/pyca/cryptography'
+'python::cffi':
+  cpeName: python::cffi
+  version: 1.17.1
+  url: 'https://github.com/python-cffi/cffi'
+pycparser:
+  cpeName: pycparser
+  version: 2.21
+  url: 'https://github.com/eliben/pycparser'
+'python::asn1crypto':
+  cpeName: python::asn1crypto
+  version: 1.5.1
+  url: 'https://github.com/wbond/asn1crypto'
+idna:
+  cpeName: idna
+  version: 3.7
+  url: 'https://github.com/kjd/idna'
+six:
+  cpeName: six
+  version: 1.15.0
+  url: 'https://github.com/benjaminp/six'
+pyasn1:
+  cpeName: pyasn1
+  version: 0.6.2
+  url: 'https://github.com/pyasn1/pyasn1'
+PyNaCl:
+  cpeName: PyNaCl
+  version: 1.5.0
+  url: 'https://github.com/pyca/pynacl'
+bcrypt:
+  cpeName: bcrypt
+  version: 3.2.2
+  url: 'https://github.com/pyca/bcrypt'
+zlib:
+  cpeName: zlib
+  version: 1.2.12
+  url: 'https://github.com/madler/zlib'
+pyOpenSSL:
+  cpeName: pyOpenSSL
+  version: 20.0.1
+  url: 'https://github.com/pyca/pyopenssl'
+boost:
+  cpeName: boost
+  version: 1.82.0
+  url: 'https://github.com/boostorg/boost'
+libcgroup:
+  cpeName: libcgroup
+  version: 2.0.3
+  url: 'https://github.com/libcgroup/libcgroup'
+zstd:
+  cpeName: zstd
+  version: 1.5.6
+  url: 'https://github.com/facebook/zstd'
+cJSON:
+  cpeName: cJSON
+  version: 1.7.17
+  url: 'https://github.com/DaveGamble/cJSON'
+libevent:
+  cpeName: libevent
+  version: 2.1.12
+  url: 'https://github.com/libevent/libevent'
+xgboost:
+  cpeName: xgboost
+  version: 1.7.3
+  url: 'https://github.com/dmlc/xgboost'
+tassl:
+  cpeName: tassl
+  version: 1.1.1
+  url: 'https://github.com/jntass/TASSL-1.1.1'
+fio:
+  cpeName: fio
+  version: 3.30
+  url: 'https://github.com/axboe/fio'
+asn1crypto:
+  cpeName: asn1crypto
+  version: 1.5.1
+  url: 'https://github.com/wbond/asn1crypto'
+ipaddress:
+  cpeName: ipaddress
+  version: 1.0.22
+  url: 'https://github.com/phihag/ipaddress'
+bottle:
+  cpeName: bottle
+  version: 0.12.25
+  url: 'https://github.com/bottlepy/bottle'
+tornado:
+  cpeName: tornado
+  version: 6.3.2
+  url: 'https://github.com/tornadoweb/tornado'
+dmlc-core:
+  cpeName: dmlc-core
+  version: 0.5
+  url: 'https://github.com/dmlc/dmlc-core'
+paste:
+  cpeName: paste
+  version: 3.5.0
+  url: 'https://github.com/cdent/paste'
+aws-sdk-cpp:
+  cpeName: aws-sdk-cpp
+  version: 1.11.712
+  url: 'https://github.com/aws/aws-sdk-cpp'
+tornado:
+  cpeName: tornado
+  version: 6.3.2
+  url: 'https://github.com/tornadoweb/tornado'
+text-splitter:
+  cpeName: text-splitter
+  version: v0.28.0
+  url: 'https://github.com/benbrandt/text-splitter/'
+tokenizers:
+  cpeName: tokenizers
+  version: 0.21.2
+  url: 'https://github.com/huggingface/tokenizers'
+onnxruntime:
+  cpeName: onnxruntime
+  version: 1.22.0
+  url: 'https://github.com/microsoft/onnxruntime'
