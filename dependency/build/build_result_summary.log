@@ -1,0 +1,200 @@
+openssl-openssl-3.0.9/ACKNOWLEDGEMENTS.md
+openssl-openssl-3.0.9/AUTHORS.md
+openssl-openssl-3.0.9/CHANGES.md
+openssl-openssl-3.0.9/CONTRIBUTING.md
+openssl-openssl-3.0.9/Configurations/
+openssl-openssl-3.0.9/Configurations/00-base-templates.conf
+openssl-openssl-3.0.9/Configurations/10-main.conf
+openssl-openssl-3.0.9/Configurations/15-android.conf
+openssl-openssl-3.0.9/Configurations/15-ios.conf
+openssl-openssl-3.0.9/Configurations/50-cppbuilder.conf
+openssl-openssl-3.0.9/Configurations/50-djgpp.conf
+openssl-openssl-3.0.9/Configurations/50-haiku.conf
+openssl-openssl-3.0.9/Configurations/50-masm.conf
+openssl-openssl-3.0.9/Configurations/50-nonstop.conf
+openssl-openssl-3.0.9/Configurations/50-os390.conf
+openssl-openssl-3.0.9/Configurations/50-vms-x86_64.conf
+openssl-openssl-3.0.9/Configurations/50-win-onecore.conf
+openssl-openssl-3.0.9/Configurations/INTERNALS.Configure
+openssl-openssl-3.0.9/Configurations/README-design.md
+openssl-openssl-3.0.9/Configurations/README.md
+openssl-openssl-3.0.9/Configurations/common0.tmpl
+openssl-openssl-3.0.9/Configurations/descrip.mms.tmpl
+openssl-openssl-3.0.9/Configurations/gentemplate.pm
+openssl-openssl-3.0.9/Configurations/platform.pm
+openssl-openssl-3.0.9/Configurations/platform/
+openssl-openssl-3.0.9/Configurations/platform/AIX.pm
+openssl-openssl-3.0.9/Configurations/platform/BASE.pm
+openssl-openssl-3.0.9/Configurations/platform/Cygwin.pm
+openssl-openssl-3.0.9/Configurations/platform/Unix.pm
+openssl-openssl-3.0.9/Configurations/platform/VMS.pm
+openssl-openssl-3.0.9/Configurations/platform/Windows.pm
+openssl-openssl-3.0.9/Configurations/platform/Windows/
+openssl-openssl-3.0.9/Configurations/platform/Windows/MSVC.pm
+openssl-openssl-3.0.9/Configurations/platform/Windows/cppbuilder.pm
+openssl-openssl-3.0.9/Configurations/platform/mingw.pm
+openssl-openssl-3.0.9/Configurations/shared-info.pl
+openssl-openssl-3.0.9/Configurations/unix-Makefile.tmpl
+openssl-openssl-3.0.9/Configurations/unix-checker.pm
+openssl-openssl-3.0.9/Configurations/windows-checker.pm
+openssl-openssl-3.0.9/Configurations/windows-makefile.tmpl
+openssl-openssl-3.0.9/Configure
+openssl-openssl-3.0.9/FAQ.md
+openssl-openssl-3.0.9/HACKING.md
+openssl-openssl-3.0.9/INSTALL.md
+openssl-openssl-3.0.9/LICENSE.txt
+openssl-openssl-3.0.9/NEWS.md
+openssl-openssl-3.0.9/NOTES-ANDROID.md
+openssl-openssl-3.0.9/NOTES-DJGPP.md
+openssl-openssl-3.0.9/NOTES-NONSTOP.md
+openssl-openssl-3.0.9/NOTES-PERL.md
+openssl-openssl-3.0.9/NOTES-UNIX.md
+openssl-openssl-3.0.9/NOTES-VALGRIND.md
+openssl-openssl-3.0.9/NOTES-VMS.md
+openssl-openssl-3.0.9/NOTES-WINDOWS.md
+openssl-openssl-3.0.9/README-ENGINES.md
+openssl-openssl-3.0.9/README-FIPS.md
+openssl-openssl-3.0.9/README-PROVIDERS.md
+openssl-openssl-3.0.9/README.md
+openssl-openssl-3.0.9/SUPPORT.md
+openssl-openssl-3.0.9/VERSION.dat
+openssl-openssl-3.0.9/VMS/
+openssl-openssl-3.0.9/VMS/VMSify-conf.pl
+openssl-openssl-3.0.9/VMS/engine.opt
+openssl-openssl-3.0.9/VMS/msg_install.com
+openssl-openssl-3.0.9/VMS/msg_staging.com
+openssl-openssl-3.0.9/VMS/openssl_ivp.com.in
+openssl-openssl-3.0.9/VMS/openssl_shutdown.com.in
+openssl-openssl-3.0.9/VMS/openssl_startup.com.in
+openssl-openssl-3.0.9/VMS/openssl_utils.com.in
+openssl-openssl-3.0.9/VMS/test-includes.com
+openssl-openssl-3.0.9/VMS/translatesyms.pl
+openssl-openssl-3.0.9/apps/
+openssl-openssl-3.0.9/apps/CA.pl.in
+openssl-openssl-3.0.9/apps/asn1parse.c
+openssl-openssl-3.0.9/apps/build.info
+openssl-openssl-3.0.9/apps/ca-cert.srl
+openssl-openssl-3.0.9/apps/ca-key.pem
+openssl-openssl-3.0.9/apps/ca-req.pem
+openssl-openssl-3.0.9/apps/ca.c
+openssl-openssl-3.0.9/apps/cert.pem
+openssl-openssl-3.0.9/apps/ciphers.c
+openssl-openssl-3.0.9/apps/client.pem
+openssl-openssl-3.0.9/apps/cmp.c
+openssl-openssl-3.0.9/apps/cms.c
+openssl-openssl-3.0.9/apps/crl.c
+openssl-openssl-3.0.9/apps/crl2pkcs7.c
+openssl-openssl-3.0.9/apps/ct_log_list.cnf
+openssl-openssl-3.0.9/apps/demoSRP/
+openssl-openssl-3.0.9/apps/demoSRP/srp_verifier.txt
+openssl-openssl-3.0.9/apps/demoSRP/srp_verifier.txt.attr
+openssl-openssl-3.0.9/apps/dgst.c
+openssl-openssl-3.0.9/apps/dhparam.c
+openssl-openssl-3.0.9/apps/dsa-ca.pem
+openssl-openssl-3.0.9/apps/dsa-pca.pem
+openssl-openssl-3.0.9/apps/dsa.c
+openssl-openssl-3.0.9/apps/dsa1024.pem
+openssl-openssl-3.0.9/apps/dsa512.pem
+openssl-openssl-3.0.9/apps/dsap.pem
+openssl-openssl-3.0.9/apps/dsaparam.c
+openssl-openssl-3.0.9/apps/ec.c
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/Meter.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/MeterProvider.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/MonotonicCounter.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/NoopMeterProvider.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/NoopTelemetryProvider.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/NoopTracerProvider.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/TelemetryProvider.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/TraceSpan.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/Tracer.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/TracerProvider.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/TracingUtils.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/tracing/UpDownCounter.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/AuthScheme.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/AuthSchemeOption.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/AuthSchemeResolverBase.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/BearerTokenAuthScheme.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/BearerTokenAuthSchemeOption.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/BearerTokenAuthSchemeResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/GenericAuthSchemeResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/NoAuthScheme.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/NoAuthSchemeOption.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/SigV4AuthScheme.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/SigV4AuthSchemeOption.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/SigV4AuthSchemeResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/SigV4MultiAuthResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/SigV4aAuthScheme.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/SigV4aAuthSchemeOption.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/auth/built-in/SigV4aAuthSchemeResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/identity/AwsBearerTokenIdentity.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/identity/AwsBearerTokenIdentityBase.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/identity/AwsCredentialIdentity.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/identity/AwsCredentialIdentityBase.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/identity/AwsIdentity.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/resolver/AwsBearerTokenIdentityResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/resolver/AwsCredentialIdentityResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/resolver/AwsIdentityResolverBase.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/resolver/built-in/AwsCredentialsProviderIdentityResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/resolver/built-in/DefaultAwsCredentialIdentityResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/resolver/built-in/NoAuthIdentityResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/resolver/built-in/SimpleAwsCredentialIdentityResolver.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/identity/impl/AwsBearerTokenIdentityImpl.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/identity/impl/AwsCredentialIdentityImpl.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/signer/AwsSignerBase.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/signer/built-in/BearerTokenSigner.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/signer/built-in/NoAuthSigner.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/signer/built-in/SigV4Signer.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/signer/built-in/SigV4aSigner.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/identity/signer/built-in/SignerProperties.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/interceptor/Interceptor.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/smithy/interceptor/InterceptorContext.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/aws/core/http/curl/CurlHandleContainer.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/aws/core/http/curl/CurlHttpClient.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/aws/core/utils/crypto/crt/CRTHMAC.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/aws/core/utils/crypto/crt/CRTHash.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/aws/core/utils/crypto/crt/CRTSecureRandom.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/include/aws/core/utils/crypto/crt/CRTSymmetricCipher.h
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/lib/cmake/aws-cpp-sdk-core/aws-cpp-sdk-core-targets.cmake
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/lib/cmake/aws-cpp-sdk-core/aws-cpp-sdk-core-targets-release.cmake
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/lib/cmake/aws-cpp-sdk-core/aws-cpp-sdk-core-config.cmake
+-- Installing: /root/openGauss-third_party/dependency/aws-sdk-cpp/install_llt/lib/cmake/aws-cpp-sdk-core/aws-cpp-sdk-core-config-version.cmake
+mkdir: created directory '/root/openGauss-third_party/dependency/oracle_fdw/../..//output/kernel/dependency/oracle_fdw'
+patching file Makefile
+patching file oracle_fdw.cpp (renamed from oracle_fdw.c)
+patching file oracle_fdw.h
+patching file oracle_gis.cpp (renamed from oracle_gis.c)
+patching file oracle_utils.cpp (renamed from oracle_utils.c)
+patching file oracle_fdw.cpp
+patching file oracle_fdw.cpp
+patching file oracle_fdw.cpp
+Hunk #1 succeeded at 2713 (offset 6 lines).
+mkdir: created directory '/root/openGauss-third_party/dependency/mysql_fdw/../..//output/kernel/dependency/mysql_fdw'
+patching file Makefile
+patching file connection.cpp (renamed from connection.c)
+patching file deparse.cpp (renamed from deparse.c)
+patching file expected/connection_validation.out
+patching file expected/dml.out
+patching file expected/pushdown.out
+patching file expected/select.out
+patching file expected/server_options.out
+patching file mysql_fdw.cpp (renamed from mysql_fdw.c)
+patching file mysql_fdw.h
+patching file mysql_init.sh
+patching file mysql_query.cpp (renamed from mysql_query.c)
+patching file option.cpp (renamed from option.c)
+patching file sql/connection_validation.sql
+patching file sql/dml.sql
+patching file sql/pushdown.sql
+patching file sql/select.sql
+patching file sql/server_options.sql
+patching file connection.cpp
+patching file mysql_fdw.cpp
+patching file mysql_fdw.cpp
+Hunk #1 succeeded at 769 (offset -8 lines).
+Hunk #2 succeeded at 782 (offset -8 lines).
+[text-splitter] sw_64: Rust 1.58.1 < 1.82.0, building C stub
+[text-splitter] sw_64 C stub done
+[tokenizers] sw_64: Rust 1.58.1 too old, building C stub
+[tokenizers] sw_64 C stub done
+[onnxruntime] sw_64: building C stubs for libonnxruntime + libonnx_wrapper
+[onnxruntime] sw_64 C stubs done
