@@ -1,0 +1,73 @@
+diff -crN mysql_fdw_base/mysql_fdw.cpp mysql_fdw/mysql_fdw.cpp
+*** mysql_fdw_base/mysql_fdw.cpp	2022-12-07 15:00:45.911005716 +0800
+--- mysql_fdw/mysql_fdw.cpp	2022-12-07 15:02:06.026126832 +0800
+***************
+*** 167,185 ****
+  static bool mysqlAnalyzeForeignTable(Relation relation,
+  									 AcquireSampleRowsFunc *func,
+  									 BlockNumber *totalpages);
+- #if PG_VERSION_NUM >= 90500
+  static ForeignScan *mysqlGetForeignPlan(PlannerInfo *root,
+  										RelOptInfo *foreignrel,
+  										Oid foreigntableid,
+  										ForeignPath *best_path, List *tlist,
+  										List *scan_clauses, Plan *outer_plan);
+- #else
+- static ForeignScan *mysqlGetForeignPlan(PlannerInfo *root,
+- 										RelOptInfo *foreignrel,
+- 										Oid foreigntableid,
+- 										ForeignPath *best_path, List *tlist,
+- 										List *scan_clauses);
+- #endif
+  static void mysqlEstimateCosts(PlannerInfo *root, RelOptInfo *baserel,
+  							   Cost *startup_cost, Cost *total_cost,
+  							   Oid foreigntableid);
+--- 167,177 ----
+***************
+*** 976,984 ****
+  									 total_cost,
+  									 NIL,	/* no pathkeys */
+  									 baserel->lateral_relids,
+- #if PG_VERSION_NUM >= 90500
+  									 NULL,	/* no extra plan */
+- #endif
+  									 NULL));	/* no fdw_private data */
+  }
+  
+--- 968,974 ----
+***************
+*** 987,1003 ****
+   * mysqlGetForeignPlan
+   * 		Get a foreign scan plan node
+   */
+- #if PG_VERSION_NUM >= 90500
+  static ForeignScan *
+  mysqlGetForeignPlan(PlannerInfo *root, RelOptInfo *foreignrel,
+  					Oid foreigntableid, ForeignPath *best_path,
+  					List *tlist, List *scan_clauses, Plan *outer_plan)
+- #else
+- static ForeignScan *
+- mysqlGetForeignPlan(PlannerInfo *root, RelOptInfo *foreignrel,
+- 					Oid foreigntableid, ForeignPath *best_path,
+- 					List *tlist, List *scan_clauses)
+- #endif
+  {
+  	MySQLFdwRelationInfo *fpinfo = (MySQLFdwRelationInfo *) foreignrel->fdw_private;
+  	Index		scan_relid = foreignrel->relid;
+--- 977,986 ----
+***************
+*** 1097,1109 ****
+  	 * field of the finished plan node; we can't keep them in private state
+  	 * because then they wouldn't be subject to later planner processing.
+  	 */
+- #if PG_VERSION_NUM >= 90500
+  	return make_foreignscan(tlist, local_exprs, scan_relid, params_list,
+  							fdw_private, NIL, NIL, outer_plan);
+- #else
+- 	return make_foreignscan(tlist, local_exprs, scan_relid, params_list,
+- 							fdw_private);
+- #endif
+  }
+  
+  /*
+--- 1080,1087 ----

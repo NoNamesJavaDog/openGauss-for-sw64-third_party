@@ -1,0 +1,24 @@
+diff -crN mysql_fdw-REL-2_5_5/connection.cpp mysql_fdw-REL-2_5_5_edit/connection.cpp
+*** mysql_fdw-REL-2_5_5/connection.cpp	2022-03-23 14:14:14.555701519 +0800
+--- mysql_fdw-REL-2_5_5_edit/connection.cpp	2022-03-23 14:18:02.049652371 +0800
+***************
+*** 91,99 ****
+  		 * Register some callback functions that manage connection cleanup.
+  		 * This should be done just once in each backend.
+  		 */
+! 		CacheRegisterSyscacheCallback(FOREIGNSERVEROID,
+  									  mysql_inval_callback, (Datum) 0);
+! 		CacheRegisterSyscacheCallback(USERMAPPINGOID,
+  									  mysql_inval_callback, (Datum) 0);
+  		if (IS_THREAD_POOL_SESSION)
+  		{
+--- 91,99 ----
+  		 * Register some callback functions that manage connection cleanup.
+  		 * This should be done just once in each backend.
+  		 */
+! 		CacheRegisterSessionSyscacheCallback(FOREIGNSERVEROID,
+  									  mysql_inval_callback, (Datum) 0);
+! 		CacheRegisterSessionSyscacheCallback(USERMAPPINGOID,
+  									  mysql_inval_callback, (Datum) 0);
+  		if (IS_THREAD_POOL_SESSION)
+  		{

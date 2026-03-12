@@ -1,0 +1,1629 @@
+diff --git Makefile Makefile
+index 199504b..5666c6e 100644
+--- Makefile
++++ Makefile
+@@ -23,6 +23,8 @@ else
+ MYSQL_LIB = mysqlclient
+ endif
+ 
++MYSQL_LIB = mariadb
++
+ UNAME = uname
+ OS := $(shell $(UNAME))
+ ifeq ($(OS), Darwin)
+@@ -31,7 +33,7 @@ else
+ DLSUFFIX = .so
+ endif
+ 
+-PG_CPPFLAGS += -D _MYSQL_LIBNAME=\"lib$(MYSQL_LIB)$(DLSUFFIX)\"
++PG_CPPFLAGS += -D _MYSQL_LIBNAME=\"lib$(MYSQL_LIB)$(DLSUFFIX)\" -Wno-parentheses
+ 
+ ifdef USE_PGXS
+ PG_CONFIG = pg_config
+@@ -45,9 +47,10 @@ $(error PostgreSQL 9.5, 9.6, 10, 11, 12, or 13 is required to compile this exten
+ endif
+ 
+ else
+-subdir = contrib/mysql_fdw
+-top_builddir = ../..
++top_builddir := $(TOP_DIR)
+ include $(top_builddir)/src/Makefile.global
+ include $(top_srcdir)/contrib/contrib-global.mk
++exclude_option=-fPIE
++override CPPFLAGS := $(filter-out $(exclude_option),$(CPPFLAGS))
+ endif
+ 
+diff --git connection.c connection.cpp
+similarity index 86%
+rename from connection.c
+rename to connection.cpp
+index bb5f6cd..d4d46fa 100644
+--- connection.c
++++ connection.cpp
+@@ -23,6 +23,7 @@
+ #include "utils/inval.h"
+ #include "utils/memutils.h"
+ #include "utils/syscache.h"
++#include "storage/ipc.h"
+ 
+ /* Length of host */
+ #define HOST_LEN 256
+@@ -49,10 +50,11 @@ typedef struct ConnCacheEntry
+ 	uint32		mapping_hashvalue;	/* hash value of user mapping OID */
+ } ConnCacheEntry;
+ 
+-/*
+- * Connection cache (initialized on first use)
+- */
+-static HTAB *ConnectionHash = NULL;
++static void
++mysql_fdw_exit(int code, Datum arg)
++{
++	mysql_cleanup_connection();
++}
+ 
+ static void mysql_inval_callback(Datum arg, int cacheid, uint32 hashvalue);
+ 
+@@ -70,7 +72,7 @@ mysql_get_connection(ForeignServer *server, UserMapping *user, mysql_opt *opt)
+ 	ConnCacheKey key;
+ 
+ 	/* First time through, initialize connection cache hashtable */
+-	if (ConnectionHash == NULL)
++	if (u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList == NULL)
+ 	{
+ 		HASHCTL		ctl;
+ 
+@@ -80,8 +82,8 @@ mysql_get_connection(ForeignServer *server, UserMapping *user, mysql_opt *opt)
+ 		ctl.hash = tag_hash;
+ 
+ 		/* Allocate ConnectionHash in the cache context */
+-		ctl.hcxt = CacheMemoryContext;
+-		ConnectionHash = hash_create("mysql_fdw connections", 8,
++		ctl.hcxt = u_sess->cache_mem_cxt;
++		u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList = hash_create("mysql_fdw connections", 8,
+ 									 &ctl,
+ 									 HASH_ELEM | HASH_FUNCTION | HASH_CONTEXT);
+ 
+@@ -93,6 +95,14 @@ mysql_get_connection(ForeignServer *server, UserMapping *user, mysql_opt *opt)
+ 									  mysql_inval_callback, (Datum) 0);
+ 		CacheRegisterSyscacheCallback(USERMAPPINGOID,
+ 									  mysql_inval_callback, (Datum) 0);
++		if (IS_THREAD_POOL_SESSION)
++		{
++			u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].fdwExitFunc = mysql_fdw_exit;
++		}
++		else
++		{
++			on_proc_exit(mysql_fdw_exit, 0);
++		}
+ 	}
+ 
+ 	/* Create hash key for the entry.  Assume no pad bytes in key struct */
+@@ -102,7 +112,7 @@ mysql_get_connection(ForeignServer *server, UserMapping *user, mysql_opt *opt)
+ 	/*
+ 	 * Find or create cached entry for requested connection.
+ 	 */
+-	entry = hash_search(ConnectionHash, &key, HASH_ENTER, &found);
++	entry = (ConnCacheEntry*)hash_search((HTAB*)u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList, &key, HASH_ENTER, &found);
+ 	if (!found)
+ 	{
+ 		/* Initialize new hashtable entry (key is already filled in) */
+@@ -170,10 +180,10 @@ mysql_cleanup_connection(void)
+ 	HASH_SEQ_STATUS scan;
+ 	ConnCacheEntry *entry;
+ 
+-	if (ConnectionHash == NULL)
++	if (u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList == NULL)
+ 		return;
+ 
+-	hash_seq_init(&scan, ConnectionHash);
++	hash_seq_init(&scan, (HTAB*)u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList);
+ 	while ((entry = (ConnCacheEntry *) hash_seq_search(&scan)))
+ 	{
+ 		if (entry->conn == NULL)
+@@ -183,6 +193,9 @@ mysql_cleanup_connection(void)
+ 		mysql_close(entry->conn);
+ 		entry->conn = NULL;
+ 	}
++    /* clean-up memory */
++	hash_destroy((HTAB*)u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList);
++	u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList = NULL;
+ }
+ 
+ /*
+@@ -194,10 +207,10 @@ mysql_release_connection(MYSQL *conn)
+ 	HASH_SEQ_STATUS	scan;
+ 	ConnCacheEntry *entry;
+ 
+-	if (ConnectionHash == NULL)
++	if (u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList == NULL)
+ 		return;
+ 
+-	hash_seq_init(&scan, ConnectionHash);
++	hash_seq_init(&scan, (HTAB*)u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList);
+ 	while ((entry = (ConnCacheEntry *) hash_seq_search(&scan)))
+ 	{
+ 		if (entry->conn == NULL)
+@@ -212,6 +225,9 @@ mysql_release_connection(MYSQL *conn)
+ 			break;
+ 		}
+ 	}
++	/* clean-up memory */
++	hash_destroy((HTAB*)u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList);
++	u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList = NULL;
+ }
+ 
+ MYSQL *
+@@ -282,7 +298,11 @@ mysql_inval_callback(Datum arg, int cacheid, uint32 hashvalue)
+ 	Assert(cacheid == FOREIGNSERVEROID || cacheid == USERMAPPINGOID);
+
++       if (u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList == NULL) {
++           return;
++       }
++
+ 	/* ConnectionHash must exist already, if we're registered */
+-	hash_seq_init(&scan, ConnectionHash);
++	hash_seq_init(&scan, (HTAB*)u_sess->ext_fdw_ctx[MYSQL_TYPE_FDW].connList);
+ 	while ((entry = (ConnCacheEntry *) hash_seq_search(&scan)))
+ 	{
+ 		/* Ignore invalid entries */
+diff --git deparse.c deparse.cpp
+similarity index 97%
+rename from deparse.c
+rename to deparse.cpp
+index 441abd4..5f9483e 100644
+--- deparse.c
++++ deparse.cpp
+@@ -14,7 +14,7 @@
+ #include "postgres.h"
+ 
+ #include "access/heapam.h"
+-#include "access/htup_details.h"
++#include "access/htup.h"
+ #include "access/sysattr.h"
+ #include "access/transam.h"
+ #include "catalog/pg_collation.h"
+@@ -118,7 +118,7 @@ static void mysql_deparse_target_list(StringInfo buf, PlannerInfo *root,
+ 									  Bitmapset *attrs_used,
+ 									  List **retrieved_attrs);
+ static void mysql_deparse_column_ref(StringInfo buf, int varno, int varattno,
+-									 PlannerInfo *root);
++									 RangeTblEntry *rte);
+ 
+ /*
+  * Functions to construct string representation of a specific types.
+@@ -175,10 +175,10 @@ mysql_deparse_relation(StringInfo buf, Relation rel)
+ static char *
+ mysql_quote_identifier(const char *str, char quotechar)
+ {
+-	char	   *result = palloc(strlen(str) * 2 + 3);
+-	char	   *res = result;
++    char    *result = (char*)palloc(strlen(str) * 2 + 3);
++    char    *res = result;
+ 
+-	*res++ = quotechar;
++    *res++ = quotechar;
+ 	while (*str)
+ 	{
+ 		if (*str == quotechar)
+@@ -238,7 +238,7 @@ mysql_deparse_select(StringInfo buf, PlannerInfo *root, RelOptInfo *baserel,
+  * to *retrieved_attrs.
+  */
+ void
+-mysql_deparse_insert(StringInfo buf, PlannerInfo *root, Index rtindex,
++mysql_deparse_insert(StringInfo buf, RangeTblEntry *rte, Index rtindex,
+ 					 Relation rel, List *targetAttrs)
+ {
+ 	ListCell   *lc;
+@@ -262,7 +262,7 @@ mysql_deparse_insert(StringInfo buf, PlannerInfo *root, Index rtindex,
+ 				appendStringInfoString(buf, ", ");
+ 			first = false;
+ 
+-			mysql_deparse_column_ref(buf, rtindex, attnum, root);
++			mysql_deparse_column_ref(buf, rtindex, attnum, rte);
+ 		}
+ 
+ 		appendStringInfoString(buf, ") VALUES (");
+@@ -331,7 +331,7 @@ mysql_deparse_target_list(StringInfo buf, PlannerInfo *root, Index rtindex,
+ 				appendStringInfoString(buf, ", ");
+ 			first = false;
+ 
+-			mysql_deparse_column_ref(buf, rtindex, i, root);
++			mysql_deparse_column_ref(buf, rtindex, i, planner_rt_fetch(rtindex, root));
+ 			*retrieved_attrs = lappend_int(*retrieved_attrs, i);
+ 		}
+ 	}
+@@ -396,9 +396,8 @@ mysql_append_where_clause(StringInfo buf, PlannerInfo *root,
+  */
+ static void
+ mysql_deparse_column_ref(StringInfo buf, int varno, int varattno,
+-						 PlannerInfo *root)
++						 RangeTblEntry *rte)
+ {
+-	RangeTblEntry *rte;
+ 	char	   *colname = NULL;
+ 	List	   *options;
+ 	ListCell   *lc;
+@@ -406,9 +405,6 @@ mysql_deparse_column_ref(StringInfo buf, int varno, int varattno,
+ 	/* varno must not be any of OUTER_VAR, INNER_VAR and INDEX_VAR. */
+ 	Assert(!IS_SPECIAL_VARNO(varno));
+ 
+-	/* Get RangeTblEntry from array in PlannerInfo. */
+-	rte = planner_rt_fetch(varno, root);
+-
+ 	/*
+ 	 * If it's a column of a foreign table, and it has the column_name FDW
+ 	 * option, use that value.
+@@ -456,8 +452,7 @@ mysql_deparse_string(StringInfo buf, const char *val, bool isstr)
+ 		 * Remove '{', '}', and \" character from the string. Because this
+ 		 * syntax is not recognize by the remote MySQL server.
+ 		 */
+-		if ((ch == '{' && i == 0) || (ch == '}' && (i == (strlen(val) - 1))) ||
+-			ch == '\"')
++		if ((ch == '{' && i == 0) || (ch == '}' && ((unsigned int)i == (strlen(val) - 1))) || ch == '\"')
+ 			continue;
+ 
+ 		if (isstr && ch == ',')
+@@ -647,7 +642,7 @@ mysql_deparse_update(StringInfo buf, PlannerInfo *root, Index rtindex,
+ 			appendStringInfoString(buf, ", ");
+ 		first = false;
+ 
+-		mysql_deparse_column_ref(buf, rtindex, attnum, root);
++		mysql_deparse_column_ref(buf, rtindex, attnum, planner_rt_fetch(rtindex, root));
+ 		appendStringInfo(buf, " = ?");
+ 		pindex++;
+ 	}
+@@ -689,7 +684,7 @@ mysql_deparse_var(Var *node, deparse_expr_cxt *context)
+ 	{
+ 		/* Var belongs to foreign table */
+ 		mysql_deparse_column_ref(buf, node->varno, node->varattno,
+-								 context->root);
++								 planner_rt_fetch(node->varno, context->root));
+ 	}
+ 	else
+ 	{
+@@ -879,7 +874,7 @@ mysql_deparse_array_ref(SubscriptingRef *node, deparse_expr_cxt *context)
+ 		appendStringInfoChar(buf, '[');
+ 		if (lowlist_item)
+ 		{
+-			deparseExpr(lfirst(lowlist_item), context);
++			deparseExpr((Expr*)lfirst(lowlist_item), context);
+ 			appendStringInfoChar(buf, ':');
+ #if PG_VERSION_NUM < 130000
+ 			lowlist_item = lnext(lowlist_item);
+@@ -887,7 +882,7 @@ mysql_deparse_array_ref(SubscriptingRef *node, deparse_expr_cxt *context)
+ 			lowlist_item = lnext(node->reflowerindexpr, lowlist_item);
+ #endif
+ 		}
+-		deparseExpr(lfirst(uplist_item), context);
++		deparseExpr((Expr*)lfirst(uplist_item), context);
+ 		appendStringInfoChar(buf, ']');
+ 	}
+ 
+@@ -983,7 +978,7 @@ mysql_deparse_op_expr(OpExpr *node, deparse_expr_cxt *context)
+ 	if (oprkind == 'r' || oprkind == 'b')
+ 	{
+ 		arg = list_head(node->args);
+-		deparseExpr(lfirst(arg), context);
++		deparseExpr((Expr*)lfirst(arg), context);
+ 		appendStringInfoChar(buf, ' ');
+ 	}
+ 
+@@ -995,7 +990,7 @@ mysql_deparse_op_expr(OpExpr *node, deparse_expr_cxt *context)
+ 	{
+ 		arg = list_tail(node->args);
+ 		appendStringInfoChar(buf, ' ');
+-		deparseExpr(lfirst(arg), context);
++		deparseExpr((Expr*)lfirst(arg), context);
+ 	}
+ 
+ 	appendStringInfoChar(buf, ')');
+@@ -1056,9 +1051,9 @@ mysql_deparse_distinct_expr(DistinctExpr *node, deparse_expr_cxt *context)
+ 	Assert(list_length(node->args) == 2);
+ 
+ 	appendStringInfoChar(buf, '(');
+-	deparseExpr(linitial(node->args), context);
++	deparseExpr((Expr*)linitial(node->args), context);
+ 	appendStringInfoString(buf, " IS DISTINCT FROM ");
+-	deparseExpr(lsecond(node->args), context);
++	deparseExpr((Expr*)lsecond(node->args), context);
+ 	appendStringInfoChar(buf, ')');
+ }
+ 
+@@ -1090,7 +1085,7 @@ mysql_deparse_scalar_array_op_expr(ScalarArrayOpExpr *node,
+ 	Assert(list_length(node->args) == 2);
+ 
+ 	/* Deparse left operand. */
+-	arg1 = linitial(node->args);
++	arg1 = (Expr*)linitial(node->args);
+ 	deparseExpr(arg1, context);
+ 	appendStringInfoChar(buf, ' ');
+ 
+@@ -1102,7 +1097,7 @@ mysql_deparse_scalar_array_op_expr(ScalarArrayOpExpr *node,
+ 	appendStringInfo(buf, " IN (");
+ 
+ 	/* Deparse right operand. */
+-	arg2 = lsecond(node->args);
++	arg2 = (Expr*)lsecond(node->args);
+ 	switch (nodeTag((Node *) arg2))
+ 	{
+ 		case T_Const:
+@@ -1122,7 +1117,7 @@ mysql_deparse_scalar_array_op_expr(ScalarArrayOpExpr *node,
+ 				switch (c->consttype)
+ 				{
+ 					case INT4ARRAYOID:
+-					case OIDARRAYOID:
++					// case OIDARRAYOID:
+ 						mysql_deparse_string(buf, extval, false);
+ 						break;
+ 					default:
+@@ -1174,7 +1169,7 @@ mysql_deparse_bool_expr(BoolExpr *node, deparse_expr_cxt *context)
+ 		case NOT_EXPR:
+ 			appendStringInfoChar(buf, '(');
+ 			appendStringInfoString(buf, "NOT ");
+-			deparseExpr(linitial(node->args), context);
++			deparseExpr((Expr*)linitial(node->args), context);
+ 			appendStringInfoChar(buf, ')');
+ 			return;
+ 	}
+@@ -1223,7 +1218,7 @@ mysql_deparse_array_expr(ArrayExpr *node, deparse_expr_cxt *context)
+ 	{
+ 		if (!first)
+ 			appendStringInfoString(buf, ", ");
+-		deparseExpr(lfirst(lc), context);
++		deparseExpr((Expr*)lfirst(lc), context);
+ 		first = false;
+ 	}
+ 	appendStringInfoChar(buf, ']');
+diff --git expected/connection_validation.out expected/connection_validation.out
+index edeadfd..9372640 100644
+--- expected/connection_validation.out
++++ expected/connection_validation.out
+@@ -1,10 +1,11 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
++create database contrib_regression;
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+ CREATE SERVER mysql_svr FOREIGN DATA WRAPPER mysql_fdw
+@@ -28,7 +29,7 @@ SELECT * FROM f_mysql_test ORDER BY 1, 2;
+ -- details and fail as the host address is not correct.
+ ALTER SERVER mysql_svr OPTIONS (SET host 'localhos');
+ SELECT * FROM f_mysql_test ORDER BY 1, 2;
+-ERROR:  failed to connect to MySQL: Unknown MySQL server host 'localhos' (2)
++ERROR:  failed to connect to MySQL: Unknown MySQL server host 'localhos' (-2)
+ -- Set the correct host-name, next operation should succeed.
+ ALTER SERVER mysql_svr OPTIONS (SET host :MYSQL_HOST);
+ SELECT * FROM f_mysql_test ORDER BY 1, 2;
+diff --git expected/dml.out expected/dml.out
+index fbd5cf4..4d62ce1 100644
+--- expected/dml.out
++++ expected/dml.out
+@@ -1,10 +1,10 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+ CREATE SERVER mysql_svr FOREIGN DATA WRAPPER mysql_fdw
+@@ -113,9 +113,7 @@ WARNING:  skipping "f_empdata" --- cannot vacuum non-tables or special system ta
+ VACUUM FREEZE f_empdata;
+ WARNING:  skipping "f_empdata" --- cannot vacuum non-tables or special system tables
+ ANALYZE f_empdata;
+-WARNING:  skipping "f_empdata" --- cannot analyze this foreign table
+ ANALYZE f_empdata(emp_id);
+-WARNING:  skipping "f_empdata" --- cannot analyze this foreign table
+ VACUUM ANALYZE f_empdata;
+ WARNING:  skipping "f_empdata" --- cannot vacuum non-tables or special system tables
+ -- Verify the before update trigger which modifies the column value which is not
+@@ -126,26 +124,28 @@ BEGIN
+ 	RETURN NEW;
+   END
+ $$ language plpgsql;
++---Currently,triggers can only be created on general row-store tables.
+ CREATE TRIGGER before_row_update_trig
+ BEFORE UPDATE ON fdw126_ft1
+ FOR EACH ROW EXECUTE PROCEDURE before_row_update_func();
++ERROR:  "fdw126_ft1" is not a table or view
+ INSERT INTO fdw126_ft1 VALUES(1, 'One', 101);
+ EXPLAIN (verbose, costs off)
+ UPDATE fdw126_ft1 SET stu_dept = 201 WHERE stu_id = 1;
+-                                                             QUERY PLAN                                                              
+--------------------------------------------------------------------------------------------------------------------------------------
++                                                       QUERY PLAN                                                        
++-------------------------------------------------------------------------------------------------------------------------
+  Update on public.fdw126_ft1
+    ->  Foreign Scan on public.fdw126_ft1
+-         Output: stu_id, stu_name, 201, stu_id, fdw126_ft1.*
++         Output: stu_id, stu_name, 201, stu_id
+          Local server startup cost: 10
+-         Remote query: SELECT `stu_id`, `stu_name`, `stu_dept` FROM `mysql_fdw_regress1`.`student` WHERE ((`stu_id` = 1)) FOR UPDATE
++         Remote query: SELECT `stu_id`, `stu_name` FROM `mysql_fdw_regress1`.`student` WHERE ((`stu_id` = 1)) FOR UPDATE
+ (5 rows)
+ 
+ UPDATE fdw126_ft1 SET stu_dept = 201 WHERE stu_id = 1;
+ SELECT * FROM fdw126_ft1 ORDER BY stu_id;
+- stu_id |       stu_name       | stu_dept 
+---------+----------------------+----------
+-      1 | One trigger updated! |      201
++ stu_id | stu_name | stu_dept 
++--------+----------+----------
++      1 | One      |      201
+ (1 row)
+ 
+ -- Throw an error when target list has row identifier column.
+@@ -161,7 +161,6 @@ BEGIN
+   END
+ $$ language plpgsql;
+ UPDATE fdw126_ft1 SET stu_dept = 301 WHERE stu_id = 1;
+-ERROR:  row identifier column update is not supported
+ -- Verify the before update trigger which modifies the column value which is
+ -- not part of update statement.
+ CREATE OR REPLACE FUNCTION before_row_update_func() RETURNS TRIGGER AS $$
+@@ -170,26 +169,28 @@ BEGIN
+   RETURN NEW;
+   END
+ $$ language plpgsql;
++---Currently,triggers can only be created on general row-store tables.
+ CREATE TRIGGER before_row_update_trig1
+ BEFORE UPDATE ON fdw193_ft1
+ FOR EACH ROW EXECUTE PROCEDURE before_row_update_func();
++ERROR:  "fdw193_ft1" is not a table or view
+ INSERT INTO fdw193_ft1 VALUES('aa', 'One', 101);
+ EXPLAIN (verbose, costs off)
+ UPDATE fdw193_ft1 SET stu_dept = 201 WHERE stu_id = 'aa';
+-                                                               QUERY PLAN                                                                
+------------------------------------------------------------------------------------------------------------------------------------------
++                                                         QUERY PLAN                                                          
++-----------------------------------------------------------------------------------------------------------------------------
+  Update on public.fdw193_ft1
+    ->  Foreign Scan on public.fdw193_ft1
+-         Output: stu_id, stu_name, 201, stu_id, fdw193_ft1.*
++         Output: stu_id, stu_name, 201, stu_id
+          Local server startup cost: 10
+-         Remote query: SELECT `stu_id`, `stu_name`, `stu_dept` FROM `mysql_fdw_regress1`.`student1` WHERE ((`stu_id` = 'aa')) FOR UPDATE
++         Remote query: SELECT `stu_id`, `stu_name` FROM `mysql_fdw_regress1`.`student1` WHERE ((`stu_id` = 'aa')) FOR UPDATE
+ (5 rows)
+ 
+ UPDATE fdw193_ft1 SET stu_dept = 201 WHERE stu_id = 'aa';
+ SELECT * FROM fdw193_ft1 ORDER BY stu_id;
+- stu_id |       stu_name       | stu_dept 
+---------+----------------------+----------
+- aa     | One trigger updated! |      201
++ stu_id | stu_name | stu_dept 
++--------+----------+----------
++ aa     | One      |      201
+ (1 row)
+ 
+ -- Throw an error when before row update trigger modify the row identifier
+@@ -202,7 +203,6 @@ BEGIN
+   END
+ $$ language plpgsql;
+ UPDATE fdw193_ft1 SET stu_dept = 301 WHERE stu_id = 'aa';
+-ERROR:  row identifier column update is not supported
+ -- Verify the NULL assignment scenario.
+ CREATE OR REPLACE FUNCTION before_row_update_func() RETURNS TRIGGER AS $$
+ BEGIN
+@@ -212,7 +212,6 @@ BEGIN
+   END
+ $$ language plpgsql;
+ UPDATE fdw193_ft1 SET stu_dept = 401 WHERE stu_id = 'aa';
+-ERROR:  row identifier column update is not supported
+ -- Cleanup
+ DELETE FROM fdw126_ft1;
+ DELETE FROM f_empdata;
+diff --git expected/pushdown.out expected/pushdown.out
+index 9a72763..d2b2492 100644
+--- expected/pushdown.out
++++ expected/pushdown.out
+@@ -1,10 +1,10 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ -- Before running this file User must create database mysql_fdw_regress on
+--- mysql with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- mysql with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+ CREATE SERVER mysql_svr FOREIGN DATA WRAPPER mysql_fdw
+diff --git expected/select.out expected/select.out
+index 94d4278..4be6e33 100644
+--- expected/select.out
++++ expected/select.out
+@@ -1,10 +1,10 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+ CREATE SERVER mysql_svr FOREIGN DATA WRAPPER mysql_fdw
+@@ -538,14 +538,23 @@ END
+ $$ LANGUAGE plpgsql;
+ SELECT test_param_where();
+ NOTICE:  Found number One
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Two
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Three
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Four
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Five
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Six
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Seven
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Eight
++CONTEXT:  referenced column: test_param_where
+ NOTICE:  Found number Nine
++CONTEXT:  referenced column: test_param_where
+  test_param_where 
+ ------------------
+  
+@@ -898,104 +907,43 @@ SELECT d.c1, d.c2, e.c1, e.c2, e.c6, e.c8
+  40 | HR             |      |       |            |   
+ (15 rows)
+ 
++-- LATERAL is not supported now
+ -- FDW-206: LEFT JOIN LATERAL case should not crash
+ EXPLAIN (VERBOSE, COSTS OFF)
+ SELECT * FROM f_mysql_test t1 LEFT JOIN LATERAL (
+   SELECT t2.a, t1.a AS t1_a FROM f_mysql_test t2) t3 ON t1.a = t3.a ORDER BY 1;
+-                                           QUERY PLAN                                           
+-------------------------------------------------------------------------------------------------
+- Sort
+-   Output: t1.a, t1.b, t2.a, (t1.a)
+-   Sort Key: t1.a
+-   ->  Nested Loop Left Join
+-         Output: t1.a, t1.b, t2.a, (t1.a)
+-         ->  Foreign Scan on public.f_mysql_test t1
+-               Output: t1.a, t1.b
+-               Local server startup cost: 10
+-               Remote query: SELECT `a`, `b` FROM `mysql_fdw_regress`.`mysql_test`
+-         ->  Foreign Scan on public.f_mysql_test t2
+-               Output: t2.a, t1.a
+-               Local server startup cost: 10
+-               Remote query: SELECT `a` FROM `mysql_fdw_regress`.`mysql_test` WHERE ((? = `a`))
+-(13 rows)
+-
++ERROR:  syntax error at or near "SELECT"
++LINE 3:   SELECT t2.a, t1.a AS t1_a FROM f_mysql_test t2) t3 ON t1.a...
++          ^
+ SELECT * FROM f_mysql_test t1 LEFT JOIN LATERAL (
+   SELECT t2.a, t1.a AS t1_a FROM f_mysql_test t2) t3 ON t1.a = t3.a ORDER BY 1;
+- a | b | a | t1_a 
+----+---+---+------
+- 1 | 1 | 1 |    1
+-(1 row)
+-
++ERROR:  syntax error at or near "SELECT"
++LINE 2:   SELECT t2.a, t1.a AS t1_a FROM f_mysql_test t2) t3 ON t1.a...
++          ^
+ SELECT t1.c1, t3.c1, t3.t1_c8 FROM f_test_tbl1 t1 INNER JOIN LATERAL (
+   SELECT t2.c1, t1.c8 AS t1_c8 FROM f_test_tbl2 t2) t3 ON t3.c1 = t3.t1_c8
+   ORDER BY 1, 2, 3;
+-  c1  | c1 | t1_c8 
+-------+----+-------
+-  100 | 20 |    20
+-  200 | 30 |    30
+-  300 | 30 |    30
+-  400 | 20 |    20
+-  500 | 30 |    30
+-  600 | 30 |    30
+-  700 | 10 |    10
+-  800 | 20 |    20
+-  900 | 10 |    10
+- 1000 | 30 |    30
+- 1100 | 20 |    20
+- 1200 | 30 |    30
+- 1300 | 20 |    20
+- 1400 | 10 |    10
+-(14 rows)
+-
++ERROR:  syntax error at or near "SELECT"
++LINE 2:   SELECT t2.c1, t1.c8 AS t1_c8 FROM f_test_tbl2 t2) t3 ON t3...
++          ^
+ SELECT t1.c1, t3.c1, t3.t1_c8 FROM l_test_tbl1 t1 LEFT JOIN LATERAL (
+   SELECT t2.c1, t1.c8 AS t1_c8 FROM f_test_tbl2 t2) t3 ON t3.c1 = t3.t1_c8
+   ORDER BY 1, 2, 3;
+-  c1  | c1 | t1_c8 
+-------+----+-------
+-  100 | 20 |    20
+-  200 | 30 |    30
+-  300 | 30 |    30
+-  400 | 20 |    20
+-  500 | 30 |    30
+-  600 | 30 |    30
+-  700 | 10 |    10
+-  800 | 20 |    20
+-  900 | 10 |    10
+- 1000 | 30 |    30
+- 1100 | 20 |    20
+- 1200 | 30 |    30
+- 1300 | 20 |    20
+- 1400 | 10 |    10
+-(14 rows)
+-
++ERROR:  syntax error at or near "SELECT"
++LINE 2:   SELECT t2.c1, t1.c8 AS t1_c8 FROM f_test_tbl2 t2) t3 ON t3...
++          ^
+ SELECT *, (SELECT r FROM (SELECT c1 AS c1) x, LATERAL (SELECT c1 AS r) y)
+   FROM f_test_tbl1 ORDER BY 1, 2, 3;
+-  c1  |  c2   |    c3    |  c4  |     c5     |     c6     |  c7  | c8 |  r   
+-------+-------+----------+------+------------+------------+------+----+------
+-  100 | EMP1  | ADMIN    | 1300 | 1980-12-17 |  800.23000 |      | 20 |  100
+-  200 | EMP2  | SALESMAN |  600 | 1981-02-20 | 1600.00000 |  300 | 30 |  200
+-  300 | EMP3  | SALESMAN |  600 | 1981-02-22 | 1250.00000 |  500 | 30 |  300
+-  400 | EMP4  | MANAGER  |  900 | 1981-04-02 | 2975.12000 |      | 20 |  400
+-  500 | EMP5  | SALESMAN |  600 | 1981-09-28 | 1250.00000 | 1400 | 30 |  500
+-  600 | EMP6  | MANAGER  |  900 | 1981-05-01 | 2850.00000 |      | 30 |  600
+-  700 | EMP7  | MANAGER  |  900 | 1981-06-09 | 2450.45000 |      | 10 |  700
+-  800 | EMP8  | FINANCE  |  400 | 1987-04-19 | 3000.00000 |      | 20 |  800
+-  900 | EMP9  | HEAD     |      | 1981-11-17 | 5000.00000 |      | 10 |  900
+- 1000 | EMP10 | SALESMAN |  600 | 1980-09-08 | 1500.00000 |    0 | 30 | 1000
+- 1100 | EMP11 | ADMIN    |  800 | 1987-05-23 | 1100.00000 |      | 20 | 1100
+- 1200 | EMP12 | ADMIN    |  600 | 1981-12-03 |  950.00000 |      | 30 | 1200
+- 1300 | EMP13 | FINANCE  |  400 | 1981-12-03 | 3000.00000 |      | 20 | 1300
+- 1400 | EMP14 | ADMIN    |  700 | 1982-01-23 | 1300.00000 |      | 10 | 1400
+-(14 rows)
+-
++ERROR:  syntax error at or near "SELECT"
++LINE 1: ...T *, (SELECT r FROM (SELECT c1 AS c1) x, LATERAL (SELECT c1 ...
++                                                             ^
+ -- LATERAL JOIN with RIGHT should throw error
+ SELECT t1.c1, t3.c1, t3.t1_c8 FROM f_test_tbl1 t1 RIGHT JOIN LATERAL (
+   SELECT t2.c1, t1.c8 AS t1_c8 FROM f_test_tbl2 t2) t3 ON t3.c1 = t3.t1_c8
+   ORDER BY 1, 2, 3;
+-ERROR:  invalid reference to FROM-clause entry for table "t1"
++ERROR:  syntax error at or near "SELECT"
+ LINE 2:   SELECT t2.c1, t1.c8 AS t1_c8 FROM f_test_tbl2 t2) t3 ON t3...
+-                        ^
+-DETAIL:  The combining JOIN type must be INNER or LEFT for a LATERAL reference.
++          ^
+ -- FDW-207: NATURAL JOIN should give correct output
+ SELECT t1.c1, t2.c1, t3.c1
+   FROM f_test_tbl1 t1 NATURAL JOIN f_test_tbl1 t2 NATURAL JOIN f_test_tbl1 t3
+@@ -1061,21 +1009,14 @@ SELECT * FROM f_enum_t1 WHERE id = 4;
+ DROP FOREIGN TABLE f_enum_t1;
+ DROP TYPE size_t;
+ -- Create the type with extra enum values.
+-CREATE TYPE size_t AS enum('small', 'medium', 'large', 'largest', '');
++CREATE TYPE size_t AS enum('small', 'medium', 'large', 'largest', 'blank');
+ CREATE FOREIGN TABLE f_enum_t1(id int, size size_t)
+   SERVER mysql_svr OPTIONS (dbname 'mysql_fdw_regress', table_name 'enum_t1');
+ -- If we insert the enum value which is not present on MySQL side then it
+ -- inserts empty string in ANSI_QUOTES sql_mode, so verify that.
+ INSERT INTO f_enum_t1 VALUES (4, 'largest');
+ SELECT * from f_enum_t1;
+- id |  size  
+-----+--------
+-  1 | small
+-  2 | medium
+-  3 | medium
+-  4 | 
+-(4 rows)
+-
++ERROR:  invalid input value for enum size_t: ""
+ DELETE FROM f_enum_t1 WHERE size = '';
+ -- Postgres should throw an error as the value which we are inserting for enum
+ -- column is not present in enum on Postgres side, no matter whether it is
+@@ -1084,15 +1025,11 @@ INSERT INTO f_enum_t1 VALUES (4, 'big');
+ ERROR:  invalid input value for enum size_t: "big"
+ LINE 1: INSERT INTO f_enum_t1 VALUES (4, 'big');
+                                          ^
++CONTEXT:  referenced column: size
+ -- FDW-155: Enum data type can be handled correctly in select statements on
+ -- foreign table.
+ SELECT * FROM f_enum_t1 WHERE size = 'medium' ORDER BY id;
+- id |  size  
+-----+--------
+-  2 | medium
+-  3 | medium
+-(2 rows)
+-
++ERROR:  invalid input value for enum size_t: ""
+ -- Remote aggregate in combination with a local Param (for the output
+ -- of an initplan)
+ EXPLAIN (VERBOSE, COSTS OFF)
+@@ -1104,7 +1041,7 @@ SELECT EXISTS(SELECT 1 FROM pg_enum), sum(id) from f_enum_t1;
+    InitPlan 1 (returns $0)
+      ->  Seq Scan on pg_catalog.pg_enum
+    ->  Foreign Scan on public.f_enum_t1
+-         Output: f_enum_t1.id, f_enum_t1.size
++         Output: f_enum_t1.id
+          Local server startup cost: 10
+          Remote query: SELECT `id` FROM `mysql_fdw_regress`.`enum_t1`
+ (8 rows)
+@@ -1112,9 +1049,10 @@ SELECT EXISTS(SELECT 1 FROM pg_enum), sum(id) from f_enum_t1;
+ SELECT EXISTS(SELECT 1 FROM pg_enum), sum(id) from f_enum_t1;
+  exists | sum 
+ --------+-----
+- t      |   6
++ t      |  10
+ (1 row)
+ 
++-- IMPORT FOREIGN SCHEMA command is not supported now.
+ -- Check with the IMPORT FOREIGN SCHEMA command.  Also, check ENUM types with
+ -- the IMPORT FOREIGN SCHEMA command. If the enum name is the same for multiple
+ -- tables, then it should handle correctly by prefixing the table name.
+@@ -1122,41 +1060,27 @@ CREATE TYPE enum_t1_size_t AS enum('small', 'medium', 'large');
+ CREATE TYPE enum_t2_size_t AS enum('S', 'M', 'L');
+ IMPORT FOREIGN SCHEMA mysql_fdw_regress LIMIT TO (enum_t1, enum_t2)
+   FROM SERVER mysql_svr INTO public;
+-NOTICE:  error while generating the table definition
+-HINT:  If you encounter an error, you may need to execute the following first:
+-DO $$BEGIN IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_type WHERE typname = 'enum_t1_size_t') THEN CREATE TYPE enum_t1_size_t AS enum('small','medium','large'); END IF; END$$;
+-
+-NOTICE:  error while generating the table definition
+-HINT:  If you encounter an error, you may need to execute the following first:
+-DO $$BEGIN IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_type WHERE typname = 'enum_t2_size_t') THEN CREATE TYPE enum_t2_size_t AS enum('S','M','L'); END IF; END$$;
+-
++ERROR:  syntax error at or near "IMPORT"
++LINE 1: IMPORT FOREIGN SCHEMA mysql_fdw_regress LIMIT TO (enum_t1, e...
++        ^
+ SELECT attrelid::regclass, atttypid::regtype FROM pg_attribute
+   WHERE (attrelid = 'enum_t1'::regclass OR attrelid = 'enum_t2'::regclass) AND
+     attnum > 1 ORDER BY 1;
+- attrelid |    atttypid    
+-----------+----------------
+- enum_t1  | enum_t1_size_t
+- enum_t2  | enum_t2_size_t
+-(2 rows)
+-
++ERROR:  relation "enum_t1" does not exist
++LINE 2:   WHERE (attrelid = 'enum_t1'::regclass OR attrelid = 'enum_...
++                            ^
+ SELECT * FROM enum_t1 ORDER BY id;
+- id |  size  
+-----+--------
+-  1 | small
+-  2 | medium
+-  3 | medium
+-(3 rows)
+-
++ERROR:  relation "enum_t1" does not exist on datanode1
++LINE 1: SELECT * FROM enum_t1 ORDER BY id;
++                      ^
+ SELECT * FROM enum_t2 ORDER BY id;
+- id | size 
+-----+------
+- 10 | S
+- 20 | M
+- 30 | M
+-(3 rows)
+-
++ERROR:  relation "enum_t2" does not exist on datanode1
++LINE 1: SELECT * FROM enum_t2 ORDER BY id;
++                      ^
+ DROP FOREIGN TABLE enum_t1;
++ERROR:  foreign table "enum_t1" does not exist
+ DROP FOREIGN TABLE enum_t2;
++ERROR:  foreign table "enum_t2" does not exist
+ -- Parameterized queries should work correctly.
+ EXPLAIN (VERBOSE, COSTS OFF)
+ SELECT c1, c2 FROM f_test_tbl1
+@@ -1243,15 +1167,15 @@ SELECT c1, c2 FROM f_test_tbl1 WHERE c8 = (
+    Output: f_test_tbl1.c1, f_test_tbl1.c2
+    Sort Key: f_test_tbl1.c1
+    InitPlan 2 (returns $1)
+-     ->  Foreign Scan on public.f_test_tbl2 f_test_tbl2_1
+-           Output: f_test_tbl2_1.c1
++     ->  Foreign Scan on public.f_test_tbl2
++           Output: public.f_test_tbl2.c1
+            Local server startup cost: 10
+            Remote query: SELECT `c1` FROM `mysql_fdw_regress`.`test_tbl2` WHERE ((`c1` = ?))
+            InitPlan 1 (returns $0)
+              ->  Aggregate
+-                   Output: (min(f_test_tbl2.c1) + 1)
++                   Output: (min(public.f_test_tbl2.c1) + 1)
+                    ->  Foreign Scan on public.f_test_tbl2
+-                         Output: f_test_tbl2.c1, f_test_tbl2.c2, f_test_tbl2.c3
++                         Output: public.f_test_tbl2.c1
+                          Local server startup cost: 10
+                          Remote query: SELECT `c1` FROM `mysql_fdw_regress`.`test_tbl2`
+    ->  Foreign Scan on public.f_test_tbl1
+diff --git expected/server_options.out expected/server_options.out
+index ef2b3ad..4405fe1 100644
+--- expected/server_options.out
++++ expected/server_options.out
+@@ -1,10 +1,10 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+ CREATE SERVER mysql_svr FOREIGN DATA WRAPPER mysql_fdw
+@@ -16,9 +16,9 @@ SELECT e.fdwname as "Extension", srvname AS "Server", s.srvoptions AS "Server_Op
+   FROM pg_foreign_data_wrapper e LEFT JOIN pg_foreign_server s ON e.oid = s.srvfdw LEFT JOIN pg_user_mapping u ON s.oid = u.umserver
+   WHERE e.fdwname = 'mysql_fdw'
+   ORDER BY 1, 2, 3, 4;
+- Extension |  Server   |       Server_Options       |    User_Mapping_Options     
+------------+-----------+----------------------------+-----------------------------
+- mysql_fdw | mysql_svr | {host=localhost,port=3306} | {username=edb,password=edb}
++ Extension |  Server   |       Server_Options       |         User_Mapping_Options         
++-----------+-----------+----------------------------+--------------------------------------
++ mysql_fdw | mysql_svr | {host=localhost,port=3306} | {username=edb,password=Mysql@123!@#}
+ (1 row)
+ 
+ -- Create foreign table and perform basic SQL operations
+diff --git mysql_fdw.c mysql_fdw.cpp
+similarity index 88%
+rename from mysql_fdw.c
+rename to mysql_fdw.cpp
+index 1b83c8e..76d2a2c 100644
+--- mysql_fdw.c
++++ mysql_fdw.cpp
+@@ -26,7 +26,7 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
+-#include "access/htup_details.h"
++#include "access/htup.h"
+ #include "access/sysattr.h"
+ #include "access/reloptions.h"
+ #if PG_VERSION_NUM >= 120000
+@@ -121,7 +121,8 @@ typedef struct MySQLFdwRelationInfo
+ } MySQLFdwRelationInfo;
+ 
+ extern PGDLLEXPORT void _PG_init(void);
+-extern Datum mysql_fdw_handler(PG_FUNCTION_ARGS);
++extern "C" Datum mysql_fdw_handler(PG_FUNCTION_ARGS);
++extern "C" Datum mysql_fdw_version(PG_FUNCTION_ARGS);
+ 
+ PG_FUNCTION_INFO_V1(mysql_fdw_handler);
+ PG_FUNCTION_INFO_V1(mysql_fdw_version);
+@@ -199,7 +200,6 @@ static void mysqlEndForeignInsert(EState *estate,
+  * Helper functions
+  */
+ bool mysql_load_library(void);
+-static void mysql_fdw_exit(int code, Datum arg);
+ static bool mysql_is_column_unique(Oid foreigntableid);
+ 
+ static void prepare_query_params(PlanState *node,
+@@ -218,6 +218,7 @@ static void process_query_params(ExprContext *econtext,
+ 								 Oid *param_types);
+ 
+ static void bind_stmt_params_and_exec(ForeignScanState *node);
++static MySQLFdwExecState* getFdwState(EState* estate, ResultRelInfo* resultRelInfo);
+ 
+ void *mysql_dll_handle = NULL;
+ static int wait_timeout = WAIT_TIMEOUT;
+@@ -267,36 +268,36 @@ mysql_load_library(void)
+ 	if (mysql_dll_handle == NULL)
+ 		return false;
+ 
+-	_mysql_stmt_bind_param = dlsym(mysql_dll_handle, "mysql_stmt_bind_param");
+-	_mysql_stmt_bind_result = dlsym(mysql_dll_handle, "mysql_stmt_bind_result");
+-	_mysql_stmt_init = dlsym(mysql_dll_handle, "mysql_stmt_init");
+-	_mysql_stmt_prepare = dlsym(mysql_dll_handle, "mysql_stmt_prepare");
+-	_mysql_stmt_execute = dlsym(mysql_dll_handle, "mysql_stmt_execute");
+-	_mysql_stmt_fetch = dlsym(mysql_dll_handle, "mysql_stmt_fetch");
+-	_mysql_query = dlsym(mysql_dll_handle, "mysql_query");
+-	_mysql_stmt_result_metadata = dlsym(mysql_dll_handle, "mysql_stmt_result_metadata");
+-	_mysql_stmt_store_result = dlsym(mysql_dll_handle, "mysql_stmt_store_result");
+-	_mysql_fetch_row = dlsym(mysql_dll_handle, "mysql_fetch_row");
+-	_mysql_fetch_field = dlsym(mysql_dll_handle, "mysql_fetch_field");
+-	_mysql_fetch_fields = dlsym(mysql_dll_handle, "mysql_fetch_fields");
+-	_mysql_stmt_close = dlsym(mysql_dll_handle, "mysql_stmt_close");
+-	_mysql_stmt_reset = dlsym(mysql_dll_handle, "mysql_stmt_reset");
+-	_mysql_free_result = dlsym(mysql_dll_handle, "mysql_free_result");
+-	_mysql_error = dlsym(mysql_dll_handle, "mysql_error");
+-	_mysql_options = dlsym(mysql_dll_handle, "mysql_options");
+-	_mysql_ssl_set = dlsym(mysql_dll_handle, "mysql_ssl_set");
+-	_mysql_real_connect = dlsym(mysql_dll_handle, "mysql_real_connect");
+-	_mysql_close = dlsym(mysql_dll_handle, "mysql_close");
+-	_mysql_init = dlsym(mysql_dll_handle, "mysql_init");
+-	_mysql_stmt_attr_set = dlsym(mysql_dll_handle, "mysql_stmt_attr_set");
+-	_mysql_store_result = dlsym(mysql_dll_handle, "mysql_store_result");
+-	_mysql_stmt_errno = dlsym(mysql_dll_handle, "mysql_stmt_errno");
+-	_mysql_errno = dlsym(mysql_dll_handle, "mysql_errno");
+-	_mysql_num_fields = dlsym(mysql_dll_handle, "mysql_num_fields");
+-	_mysql_num_rows = dlsym(mysql_dll_handle, "mysql_num_rows");
+-	_mysql_get_host_info = dlsym(mysql_dll_handle, "mysql_get_host_info");
+-	_mysql_get_server_info = dlsym(mysql_dll_handle, "mysql_get_server_info");
+-	_mysql_get_proto_info = dlsym(mysql_dll_handle, "mysql_get_proto_info");
++	_mysql_stmt_bind_param = (bool (*)(st_mysql_stmt*, st_mysql_bind*))dlsym(mysql_dll_handle, "mysql_stmt_bind_param");
++	_mysql_stmt_bind_result = (bool (*)(st_mysql_stmt*, st_mysql_bind*))dlsym(mysql_dll_handle, "mysql_stmt_bind_result");
++	_mysql_stmt_init = (st_mysql_stmt* (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_stmt_init");
++	_mysql_stmt_prepare = (int (*)(st_mysql_stmt*, const char*, long unsigned int))dlsym(mysql_dll_handle, "mysql_stmt_prepare");
++	_mysql_stmt_execute = (int (*)(st_mysql_stmt*))dlsym(mysql_dll_handle, "mysql_stmt_execute");
++	_mysql_stmt_fetch = (int (*)(st_mysql_stmt*))dlsym(mysql_dll_handle, "mysql_stmt_fetch");
++	_mysql_query = (int (*)(st_mysql*, const char*))dlsym(mysql_dll_handle, "mysql_query");
++	_mysql_stmt_result_metadata = (st_mysql_res* (*)(st_mysql_stmt*))dlsym(mysql_dll_handle, "mysql_stmt_result_metadata");
++	_mysql_stmt_store_result = (int (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_stmt_store_result");
++	_mysql_fetch_row = (char** (*)(st_mysql_res*))dlsym(mysql_dll_handle, "mysql_fetch_row");
++	_mysql_fetch_field = (st_mysql_field* (*)(st_mysql_res*))dlsym(mysql_dll_handle, "mysql_fetch_field");
++	_mysql_fetch_fields = (st_mysql_field* (*)(st_mysql_res*))dlsym(mysql_dll_handle, "mysql_fetch_fields");
++	_mysql_stmt_close = (bool (*)(st_mysql_stmt*))dlsym(mysql_dll_handle, "mysql_stmt_close");
++	_mysql_stmt_reset = (bool (*)(st_mysql_stmt*))dlsym(mysql_dll_handle, "mysql_stmt_reset");
++	_mysql_free_result = (bool (*)(st_mysql_res*))dlsym(mysql_dll_handle, "mysql_free_result");
++	_mysql_error = (const char* (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_error");
++	_mysql_options = (int (*)(st_mysql*, mysql_option, const void*))dlsym(mysql_dll_handle, "mysql_options");
++	_mysql_ssl_set = (bool (*)(st_mysql*, const char*, const char*, const char*, const char*, const char*))dlsym(mysql_dll_handle, "mysql_ssl_set");
++	_mysql_real_connect = (st_mysql* (*)(st_mysql*, const char*, const char*, const char*, const char*, unsigned int, const char*, long unsigned int))dlsym(mysql_dll_handle, "mysql_real_connect");
++	_mysql_close = (void (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_close");
++	_mysql_init = (st_mysql* (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_init");
++	_mysql_stmt_attr_set = (bool (*)(st_mysql_stmt*, enum_stmt_attr_type, const void*))dlsym(mysql_dll_handle, "mysql_stmt_attr_set");
++	_mysql_store_result = (st_mysql_res* (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_store_result");
++	_mysql_stmt_errno = (unsigned int (*)(st_mysql_stmt*))dlsym(mysql_dll_handle, "mysql_stmt_errno");
++	_mysql_errno = (unsigned int (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_errno");
++	_mysql_num_fields = (unsigned int (*)(st_mysql_res*))dlsym(mysql_dll_handle, "mysql_num_fields");
++	_mysql_num_rows = (unsigned int (*)(st_mysql_res*))dlsym(mysql_dll_handle, "mysql_num_rows");
++	_mysql_get_host_info = (const char* (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_get_host_info");
++	_mysql_get_server_info = (const char* (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_get_server_info");
++	_mysql_get_proto_info = (int (*)(st_mysql*))dlsym(mysql_dll_handle, "mysql_get_proto_info");
+ 
+ 	if (_mysql_stmt_bind_param == NULL ||
+ 		_mysql_stmt_bind_result == NULL ||
+@@ -346,45 +347,42 @@ _PG_init(void)
+ 				 errmsg("failed to load the mysql query: \n%s", dlerror()),
+ 				 errhint("Export LD_LIBRARY_PATH to locate the library.")));
+ 
+-	DefineCustomIntVariable("mysql_fdw.wait_timeout",
+-							"Server-side wait_timeout",
+-							"Set the maximum wait_timeout"
+-							"use to set the MySQL session timeout",
+-							&wait_timeout,
+-							WAIT_TIMEOUT,
+-							0,
+-							INT_MAX,
+-							PGC_USERSET,
+-							0,
+-							NULL,
+-							NULL,
+-							NULL);
+-
+-	DefineCustomIntVariable("mysql_fdw.interactive_timeout",
+-							"Server-side interactive timeout",
+-							"Set the maximum interactive timeout"
+-							"use to set the MySQL session timeout",
+-							&interactive_timeout,
+-							INTERACTIVE_TIMEOUT,
+-							0,
+-							INT_MAX,
+-							PGC_USERSET,
+-							0,
+-							NULL,
+-							NULL,
+-							NULL);
+-
+-	on_proc_exit(&mysql_fdw_exit, PointerGetDatum(NULL));
++	if (GetConfigOption("mysql_fdw.wait_timeout", true, true) == NULL) {
++		DefineCustomIntVariable("mysql_fdw.wait_timeout",
++								"Server-side wait_timeout",
++								"Set the maximum wait_timeout"
++								"use to set the MySQL session timeout",
++								&wait_timeout,
++								WAIT_TIMEOUT,
++								0,
++								INT_MAX,
++								PGC_USERSET,
++								0,
++								NULL,
++								NULL,
++								NULL);
++	}
++
++	if (GetConfigOption("mysql_fdw.interactive_timeout", true, true) == NULL) {
++		DefineCustomIntVariable("mysql_fdw.interactive_timeout",
++								"Server-side interactive timeout",
++								"Set the maximum interactive timeout"
++								"use to set the MySQL session timeout",
++								&interactive_timeout,
++								INTERACTIVE_TIMEOUT,
++								0,
++								INT_MAX,
++								PGC_USERSET,
++								0,
++								NULL,
++								NULL,
++								NULL);
++	}
+ }
+ 
+-/*
+- * mysql_fdw_exit
+- * 		Exit callback function.
+- */
+-static void
+-mysql_fdw_exit(int code, Datum arg)
++static int mysqlGetFdwType()
+ {
+-	mysql_cleanup_connection();
++    return MYSQL_ORC;
+ }
+ 
+ /*
+@@ -418,7 +416,7 @@ mysql_fdw_handler(PG_FUNCTION_ARGS)
+ 	fdwroutine->ExplainForeignScan = mysqlExplainForeignScan;
+ 
+ 	/* Support functions for ANALYZE */
+-	fdwroutine->AnalyzeForeignTable = mysqlAnalyzeForeignTable;
++	fdwroutine->AnalyzeForeignTable = (bool (*)(Relation relation, AcquireSampleRowsFunc* func, BlockNumber* totalpages, void* additionalData, bool estimate_table_rownum))mysqlAnalyzeForeignTable;
+ 
+ 	/* Support functions for IMPORT FOREIGN SCHEMA */
+ #if PG_VERSION_NUM >= 90500
+@@ -431,6 +429,8 @@ mysql_fdw_handler(PG_FUNCTION_ARGS)
+ 	fdwroutine->EndForeignInsert = mysqlEndForeignInsert;
+ #endif
+ 
++	fdwroutine->GetFdwType = mysqlGetFdwType;
++
+ 	PG_RETURN_POINTER(fdwroutine);
+ }
+ 
+@@ -490,7 +490,7 @@ mysqlBeginForeignScan(ForeignScanState *node, int eflags)
+ 
+ 	/* Stash away the state info we have already */
+ 	festate->query = strVal(list_nth(fsplan->fdw_private, 0));
+-	festate->retrieved_attrs = list_nth(fsplan->fdw_private, 1);
++	festate->retrieved_attrs = (List*)list_nth(fsplan->fdw_private, 1);
+ 	festate->conn = conn;
+ 	festate->query_executed = false;
+ 
+@@ -966,12 +966,12 @@ mysqlGetForeignPaths(PlannerInfo *root, RelOptInfo *baserel,
+ 					   foreigntableid);
+ 
+ 	/* Create a ForeignPath node and add it as only possible path */
+-	add_path(baserel, (Path *)
++	add_path(root, baserel, (Path *)
+ 			 create_foreignscan_path(root, baserel,
+ #if PG_VERSION_NUM >= 90600
+ 									 NULL,	/* default pathtarget */
+-#endif
+ 									 baserel->rows,
++#endif
+ 									 startup_cost,
+ 									 total_cost,
+ 									 NIL,	/* no pathkeys */
+@@ -1074,7 +1074,7 @@ mysqlGetForeignPlan(PlannerInfo *root, RelOptInfo *foreignrel,
+ 		mysql_append_where_clause(&sql, root, foreignrel, remote_conds,
+ 								  true, &params_list);
+ 
+-	if (foreignrel->relid == root->parse->resultRelation &&
++	if (foreignrel->relid == (unsigned int)root->parse->resultRelation &&
+ 		(root->parse->commandType == CMD_UPDATE ||
+ 		 root->parse->commandType == CMD_DELETE))
+ 	{
+@@ -1258,7 +1258,7 @@ mysqlPlanForeignModify(PlannerInfo *root,
+ 	switch (operation)
+ 	{
+ 		case CMD_INSERT:
+-			mysql_deparse_insert(&sql, root, resultRelation, rel, targetAttrs);
++			mysql_deparse_insert(&sql, planner_rt_fetch(resultRelation, root), resultRelation, rel, targetAttrs);
+ 			break;
+ 		case CMD_UPDATE:
+ 			mysql_deparse_update(&sql, root, resultRelation, rel, targetAttrs,
+@@ -1404,6 +1404,12 @@ mysqlExecForeignInsert(EState *estate,
+ 	bool	   *isnull;
+ 
+ 	fmstate = (MySQLFdwExecState *) resultRelInfo->ri_FdwState;
++	if (fmstate == NULL)
++	{
++		fmstate = getFdwState(estate, resultRelInfo);
++		resultRelInfo->ri_FdwState = fmstate;
++	}
++
+ 	n_params = list_length(fmstate->retrieved_attrs);
+ 
+ 	oldcontext = MemoryContextSwitchTo(fmstate->temp_cxt);
+@@ -1419,7 +1425,7 @@ mysqlExecForeignInsert(EState *estate,
+ 		Oid			type = TupleDescAttr(slot->tts_tupleDescriptor, attnum)->atttypid;
+ 		Datum		value;
+ 
+-		value = slot_getattr(slot, attnum + 1, &isnull[attnum]);
++		value = heap_slot_getattr(slot, attnum + 1, &isnull[attnum]);
+ 
+ 		mysql_bind_sql_var(type, attnum, value, mysql_bind_buffer,
+ 						   &isnull[attnum]);
+@@ -1483,7 +1489,7 @@ mysqlExecForeignUpdate(EState *estate,
+ 		}
+ 
+ 		type = TupleDescAttr(slot->tts_tupleDescriptor, attnum - 1)->atttypid;
+-		value = slot_getattr(slot, attnum, (bool *) (&isnull[bindnum]));
++		value = heap_slot_getattr(slot, attnum, (bool *) (&isnull[bindnum]));
+ 
+ 		mysql_bind_sql_var(type, bindnum, value, mysql_bind_buffer,
+ 						   &isnull[bindnum]);
+@@ -1497,7 +1503,7 @@ mysqlExecForeignUpdate(EState *estate,
+ 	if (!found_row_id_col)
+ 		elog(ERROR, "missing row identifier column value in UPDATE");
+ 
+-	new_value = slot_getattr(slot, 1, &is_null);
++	new_value = heap_slot_getattr(slot, 1, &is_null);
+ 
+ 	/*
+ 	 * Get the row identifier column value that was passed up as a resjunk
+@@ -1652,7 +1658,7 @@ mysqlExecForeignDelete(EState *estate,
+ static void
+ mysqlEndForeignModify(EState *estate, ResultRelInfo *resultRelInfo)
+ {
+-	MySQLFdwExecState *festate = resultRelInfo->ri_FdwState;
++	MySQLFdwExecState *festate = (MySQLFdwExecState*)resultRelInfo->ri_FdwState;
+ 
+ 	if (festate && festate->stmt)
+ 	{
+@@ -1886,6 +1892,93 @@ mysqlImportForeignSchema(ImportForeignSchemaStmt *stmt, Oid serverOid)
+ }
+ #endif
+ 
++static MySQLFdwExecState* getFdwState(EState* estate, ResultRelInfo* resultRelInfo)
++{
++	Relation rel = resultRelInfo->ri_RelationDesc;
++	RangeTblEntry* rte = rt_fetch(resultRelInfo->ri_RangeTableIndex, estate->es_range_table);
++	Oid userid = rte->checkAsUser ? rte->checkAsUser : GetUserId();
++	Oid foreignTableId = RelationGetRelid(rel);
++
++	if (!mysql_is_column_unique(foreignTableId))
++		elog(ERROR, "first column of remote table must be unique for COPY operation");
++
++	ForeignTable* table = GetForeignTable(foreignTableId);
++	ForeignServer* server = GetForeignServer(table->serverid);
++	UserMapping* user = GetUserMapping(userid, server->serverid);
++	StringInfoData sql;
++
++	MySQLFdwExecState* fmstate = (MySQLFdwExecState *)palloc0(sizeof(MySQLFdwExecState));
++	fmstate->rel = rel;
++	fmstate->mysqlFdwOptions = mysql_get_options(foreignTableId);
++	fmstate->conn = mysql_get_connection(server, user, fmstate->mysqlFdwOptions);
++	fmstate->temp_cxt = AllocSetContextCreate(estate->es_query_cxt, "mysql_fdw temporary data",
++#if PG_VERSION_NUM >= 110000
++											  ALLOCSET_DEFAULT_SIZES);
++#else
++											  ALLOCSET_SMALL_MINSIZE,
++											  ALLOCSET_SMALL_INITSIZE,
++											  ALLOCSET_SMALL_MAXSIZE);
++#endif
++
++	TupleDesc tupdesc = RelationGetDescr(rel);
++	int attnum;
++	List* targetAttrs = NULL;
++
++	for (attnum = 1; attnum <= tupdesc->natts; attnum++)
++	{
++		Form_pg_attribute attr = TupleDescAttr(tupdesc, attnum - 1);
++
++		if (!attr->attisdropped)
++			targetAttrs = lappend_int(targetAttrs, attnum);
++	}
++
++	initStringInfo(&sql);
++	mysql_deparse_insert(&sql, rte, resultRelInfo->ri_RangeTableIndex, rel, targetAttrs);
++	fmstate->retrieved_attrs = targetAttrs;
++	fmstate->query = sql.data;
++	fmstate->stmt = _mysql_stmt_init(fmstate->conn);
++	if (!fmstate->stmt)
++	{
++		char *err = pstrdup(_mysql_error(fmstate->conn));
++		ereport(ERROR, (errcode(ERRCODE_FDW_UNABLE_TO_CREATE_EXECUTION),
++				errmsg("failed to initialize the MySQL query: \n%s", err)));
++	}
++
++	/* Prepare mysql statment */
++	if (_mysql_stmt_prepare(fmstate->stmt, fmstate->query, strlen(fmstate->query)) != 0)
++	{
++		switch(_mysql_stmt_errno(fmstate->stmt))
++		{
++			case CR_NO_ERROR:
++				break;
++
++			case CR_OUT_OF_MEMORY:
++			case CR_SERVER_GONE_ERROR:
++			case CR_SERVER_LOST:
++			{
++				char *err = pstrdup(_mysql_error(fmstate->conn));
++				mysql_release_connection(fmstate->conn);
++				ereport(ERROR,
++							(errcode(ERRCODE_FDW_UNABLE_TO_CREATE_EXECUTION),
++							errmsg("failed to prepare the MySQL query: \n%s", err)));
++			}
++			break;
++			case CR_COMMANDS_OUT_OF_SYNC:
++			case CR_UNKNOWN_ERROR:
++			default:
++			{
++				char *err = pstrdup(_mysql_error(fmstate->conn));
++				ereport(ERROR,
++							(errcode(ERRCODE_FDW_UNABLE_TO_CREATE_EXECUTION),
++							errmsg("failed to prepare the MySQL query: \n%s", err)));
++			}
++			break;
++		}
++	}
++
++	return fmstate;
++}
++
+ #if PG_VERSION_NUM >= 110000
+ /*
+  * mysqlBeginForeignInsert
+@@ -2137,7 +2230,7 @@ getUpdateTargetAttrs(RangeTblEntry *rte)
+ #if PG_VERSION_NUM >= 90500
+ 	Bitmapset  *tmpset = bms_copy(rte->updatedCols);
+ #else
+-	Bitmapset  *tmpset = bms_copy(rte->modifiedCols);
++	Bitmapset *tmpset = bms_copy(rte->updatedCols);
+ #endif
+ 	AttrNumber	col;
+ 
+diff --git mysql_fdw.h mysql_fdw.h
+index 22a48d3..997d2b3 100644
+--- mysql_fdw.h
++++ mysql_fdw.h
+@@ -215,7 +215,7 @@ extern mysql_opt *mysql_get_options(Oid foreigntableid);
+ extern void mysql_deparse_select(StringInfo buf, PlannerInfo *root,
+ 								 RelOptInfo *baserel, Bitmapset *attrs_used,
+ 								 char *svr_table, List **retrieved_attrs);
+-extern void mysql_deparse_insert(StringInfo buf, PlannerInfo *root,
++extern void mysql_deparse_insert(StringInfo buf, RangeTblEntry *rte,
+ 								 Index rtindex, Relation rel,
+ 								 List *targetAttrs);
+ extern void mysql_deparse_update(StringInfo buf, PlannerInfo *root,
+@@ -238,8 +238,8 @@ MYSQL *mysql_connect(mysql_opt *opt);
+ void mysql_cleanup_connection(void);
+ void mysql_release_connection(MYSQL *conn);
+ 
+-#if PG_VERSION_NUM < 110000		/* TupleDescAttr is defined from PG version 11 */
+-#define TupleDescAttr(tupdesc, i) ((tupdesc)->attrs[(i)])
+-#endif
++//#if PG_VERSION_NUM < 110000		/* TupleDescAttr is defined from PG version 11 */
++//#define TupleDescAttr(tupdesc, i) ((tupdesc)->attrs[(i)])
++//#endif
+ 
+ #endif							/* MYSQL_FDW_H */
+diff --git mysql_init.sh mysql_init.sh
+index 852b175..febc20f 100644
+--- mysql_init.sh
++++ mysql_init.sh
+@@ -1,11 +1,11 @@
+ #!/bin/sh
+-export MYSQL_PWD="edb"
++export MYSQL_PWD="Mysql@123!@#"
+ MYSQL_HOST="localhost"
+ MYSQL_PORT="3306"
+ MYSQL_USER_NAME="edb"
+ 
+ # Below commands must be run first time to create mysql_fdw_regress and mysql_fdw_regress1 databases
+-# used in regression tests with edb user and edb password.
++# used in regression tests with edb user and Mysql@123!@# password.
+ # --connect to mysql with root user
+ # mysql -u root -p
+ 
+@@ -17,7 +17,7 @@ MYSQL_USER_NAME="edb"
+ # SET GLOBAL validate_password.mixed_case_count = 0;
+ # SET GLOBAL validate_password.number_count = 0;
+ # SET GLOBAL validate_password.special_char_count = 0;
+-# CREATE USER 'edb'@'localhost' IDENTIFIED BY 'edb';
++# CREATE USER 'edb'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Mysql@123!@#';
+ # GRANT ALL PRIVILEGES ON mysql_fdw_regress.* TO 'edb'@'localhost';
+ # GRANT ALL PRIVILEGES ON mysql_fdw_regress1.* TO 'edb'@'localhost';
+ 
+diff --git mysql_query.c mysql_query.cpp
+similarity index 93%
+rename from mysql_query.c
+rename to mysql_query.cpp
+index 34bae80..eec6a6f 100644
+--- mysql_query.c
++++ mysql_query.cpp
+@@ -24,7 +24,7 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
+-#include "access/htup_details.h"
++#include "access/htup.h"
+ #include "catalog/pg_type.h"
+ #include "mysql_query.h"
+ #if PG_VERSION_NUM < 120000
+@@ -48,7 +48,7 @@ x->minute = y.tm_min; \
+ x->second = y.tm_sec; \
+ } while(0);
+ 
+-static int32 mysql_from_pgtyp(Oid type);
++static enum enum_field_types mysql_from_pgtyp(Oid type);
+ static int dec_bin(int number);
+ static int bin_dec(int binarynumber);
+ 
+@@ -121,7 +121,7 @@ mysql_convert_to_pg(Oid pgtyp, int pgtypmod, mysql_column *column)
+  * mysql_from_pgtyp:
+  * 		Give MySQL data type for PG type
+  */
+-static int32
++static enum enum_field_types
+ mysql_from_pgtyp(Oid type)
+ {
+ 	switch (type)
+@@ -165,6 +165,7 @@ mysql_from_pgtyp(Oid type)
+ 					 errhint("Constant value data type: %u", type)));
+ 			break;
+ 	}
++	return MAX_NO_FIELD_TYPES;
+ }
+ 
+ /*
+@@ -204,7 +205,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case INT2OID:
+ 			{
+ 				int16		dat = DatumGetInt16(value);
+-				int16	   *bufptr = palloc(sizeof(int16));
++				int16 *bufptr = (int16*)palloc0(sizeof(int16));
+ 
+ 				memcpy(bufptr, (char *) &dat, sizeof(int16));
+ 
+@@ -214,7 +215,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case INT4OID:
+ 			{
+ 				int32		dat = DatumGetInt32(value);
+-				int32	   *bufptr = palloc(sizeof(int32));
++				int32 *bufptr = (int32*)palloc0(sizeof(int32));
+ 
+ 				memcpy(bufptr, (char *) &dat, sizeof(int32));
+ 
+@@ -224,7 +225,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case INT8OID:
+ 			{
+ 				int64		dat = DatumGetInt64(value);
+-				int64	   *bufptr = palloc(sizeof(int64));
++				int64 *bufptr = (int64*)palloc0(sizeof(int64));
+ 
+ 				memcpy(bufptr, (char *) &dat, sizeof(int64));
+ 
+@@ -234,7 +235,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case FLOAT4OID:
+ 			{
+ 				float4		dat = DatumGetFloat4(value);
+-				float4	   *bufptr = palloc(sizeof(float4));
++				float4 *bufptr = (float4*)palloc0(sizeof(float4));
+ 
+ 				memcpy(bufptr, (char *) &dat, sizeof(float4));
+ 
+@@ -244,7 +245,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case FLOAT8OID:
+ 			{
+ 				float8		dat = DatumGetFloat8(value);
+-				float8	   *bufptr = palloc(sizeof(float8));
++				float8 *bufptr = (float8*)palloc0(sizeof(float8));
+ 
+ 				memcpy(bufptr, (char *) &dat, sizeof(float8));
+ 
+@@ -256,7 +257,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 				Datum		valueDatum = DirectFunctionCall1(numeric_float8,
+ 															 value);
+ 				float8		dat = DatumGetFloat8(valueDatum);
+-				float8	   *bufptr = palloc(sizeof(float8));
++				float8 *bufptr = (float8*)palloc0(sizeof(float8));
+ 
+ 				memcpy(bufptr, (char *) &dat, sizeof(float8));
+ 
+@@ -266,7 +267,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case BOOLOID:
+ 			{
+ 				int32		dat = DatumGetInt32(value);
+-				int32	   *bufptr = palloc(sizeof(int32));
++				int32 *bufptr = (int32*)palloc0(sizeof(int32));
+ 
+ 				memcpy(bufptr, (char *) &dat, sizeof(int32));
+ 
+@@ -313,7 +314,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 				Datum		valueDatum = DirectFunctionCall1(date_timestamp,
+ 															 value);
+ 				Timestamp	valueTimestamp = DatumGetTimestamp(valueDatum);
+-				MYSQL_TIME *ts = palloc0(sizeof(MYSQL_TIME));
++                MYSQL_TIME* ts = (MYSQL_TIME*)palloc0(sizeof(MYSQL_TIME));
+ 
+ 				timestamp2tm(valueTimestamp, &tz, tm, &fsec, &tzn,
+ 							 pg_tzset("UTC"));
+@@ -329,7 +330,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case TIMESTAMPTZOID:
+ 			{
+ 				Timestamp	valueTimestamp = DatumGetTimestamp(value);
+-				MYSQL_TIME *ts = palloc0(sizeof(MYSQL_TIME));
++				MYSQL_TIME* ts = (MYSQL_TIME*)palloc0(sizeof(MYSQL_TIME));
+ 				int			tz;
+ 				struct pg_tm tt,
+ 						   *tm = &tt;
+@@ -348,7 +349,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 		case BITOID:
+ 			{
+ 				int32		dat;
+-				int32	   *bufptr = palloc0(sizeof(int32));
++				int32 *bufptr = (int32*)palloc0(sizeof(int32));
+ 				char	   *outputString = NULL;
+ 				Oid			outputFunctionId = InvalidOid;
+ 				bool		typeVarLength = false;
+@@ -379,7 +380,7 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds,
+ 					dat = VARDATA_4B(result);
+ 				}
+ 
+-				bufptr = palloc(len);
++				bufptr = (char*)palloc0(len);
+ 				memcpy(bufptr, (char *) dat, len);
+ 				binds[attnum].buffer = bufptr;
+ 				binds[attnum].buffer_length = len;
+diff --git option.c option.cpp
+similarity index 99%
+rename from option.c
+rename to option.cpp
+index 30563d0..6d68d7e 100644
+--- option.c
++++ option.cpp
+@@ -58,7 +58,7 @@ static struct MySQLFdwOption valid_options[] =
+ 	{NULL, InvalidOid}
+ };
+ 
+-extern Datum mysql_fdw_validator(PG_FUNCTION_ARGS);
++extern "C" Datum mysql_fdw_validator(PG_FUNCTION_ARGS);
+ 
+ PG_FUNCTION_INFO_V1(mysql_fdw_validator);
+ 
+diff --git sql/connection_validation.sql sql/connection_validation.sql
+index 97749c1..e72dbaa 100644
+--- sql/connection_validation.sql
++++ sql/connection_validation.sql
+@@ -1,12 +1,12 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ 
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
+-
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
++create database contrib_regression;
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+ CREATE SERVER mysql_svr FOREIGN DATA WRAPPER mysql_fdw
+diff --git sql/dml.sql sql/dml.sql
+index 00fb29b..0c45b56 100644
+--- sql/dml.sql
++++ sql/dml.sql
+@@ -1,11 +1,11 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ 
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ 
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+@@ -101,6 +101,7 @@ BEGIN
+   END
+ $$ language plpgsql;
+ 
++---Currently,triggers can only be created on general row-store tables.
+ CREATE TRIGGER before_row_update_trig
+ BEFORE UPDATE ON fdw126_ft1
+ FOR EACH ROW EXECUTE PROCEDURE before_row_update_func();
+@@ -135,6 +136,7 @@ BEGIN
+   END
+ $$ language plpgsql;
+ 
++---Currently,triggers can only be created on general row-store tables.
+ CREATE TRIGGER before_row_update_trig1
+ BEFORE UPDATE ON fdw193_ft1
+ FOR EACH ROW EXECUTE PROCEDURE before_row_update_func();
+diff --git sql/pushdown.sql sql/pushdown.sql
+index 37af50d..1e37149 100644
+--- sql/pushdown.sql
++++ sql/pushdown.sql
+@@ -1,11 +1,11 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ 
+ -- Before running this file User must create database mysql_fdw_regress on
+--- mysql with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- mysql with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ 
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+diff --git sql/select.sql sql/select.sql
+index 1ef8d7c..6ce1ffb 100644
+--- sql/select.sql
++++ sql/select.sql
+@@ -1,11 +1,11 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ 
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ 
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;
+@@ -222,6 +222,7 @@ SELECT d.c1, d.c2, e.c1, e.c2, e.c6, e.c8
+ SELECT d.c1, d.c2, e.c1, e.c2, e.c6, e.c8
+   FROM f_test_tbl2 d FULL OUTER JOIN l_test_tbl1 e ON d.c1 = e.c8 ORDER BY 1, 3;
+ 
++-- LATERAL is not supported now
+ -- FDW-206: LEFT JOIN LATERAL case should not crash
+ EXPLAIN (VERBOSE, COSTS OFF)
+ SELECT * FROM f_mysql_test t1 LEFT JOIN LATERAL (
+@@ -275,7 +276,7 @@ SELECT * FROM f_enum_t1 WHERE id = 4;
+ DROP FOREIGN TABLE f_enum_t1;
+ DROP TYPE size_t;
+ -- Create the type with extra enum values.
+-CREATE TYPE size_t AS enum('small', 'medium', 'large', 'largest', '');
++CREATE TYPE size_t AS enum('small', 'medium', 'large', 'largest', 'blank');
+ CREATE FOREIGN TABLE f_enum_t1(id int, size size_t)
+   SERVER mysql_svr OPTIONS (dbname 'mysql_fdw_regress', table_name 'enum_t1');
+ 
+@@ -300,6 +301,7 @@ EXPLAIN (VERBOSE, COSTS OFF)
+ SELECT EXISTS(SELECT 1 FROM pg_enum), sum(id) from f_enum_t1;
+ SELECT EXISTS(SELECT 1 FROM pg_enum), sum(id) from f_enum_t1;
+ 
++-- IMPORT FOREIGN SCHEMA command is not supported now.
+ -- Check with the IMPORT FOREIGN SCHEMA command.  Also, check ENUM types with
+ -- the IMPORT FOREIGN SCHEMA command. If the enum name is the same for multiple
+ -- tables, then it should handle correctly by prefixing the table name.
+diff --git sql/server_options.sql sql/server_options.sql
+index b5c981f..85166d2 100644
+--- sql/server_options.sql
++++ sql/server_options.sql
+@@ -1,11 +1,11 @@
+ \set MYSQL_HOST			'\'localhost\''
+ \set MYSQL_PORT			'\'3306\''
+ \set MYSQL_USER_NAME	'\'edb\''
+-\set MYSQL_PASS			'\'edb\''
++\set MYSQL_PASS			'\'Mysql@123!@#\''
+ 
+ -- Before running this file User must create database mysql_fdw_regress on
+--- MySQL with all permission for 'edb' user with 'edb' password and ran
+--- mysql_init.sh file to create tables.
++-- MySQL with all permission for 'edb' user with 'Mysql@123!@#' password and
++-- ran mysql_init.sh file to create tables.
+ 
+ \c contrib_regression
+ CREATE EXTENSION IF NOT EXISTS mysql_fdw;

@@ -1,0 +1,35 @@
+diff -crN '--exclude=.git' '--exclude=.gitee' mysql_fdw-REL-2_5_5/mysql_fdw.cpp mysql_fdw-REL-2_5_5_edit/mysql_fdw.cpp
+*** mysql_fdw-REL-2_5_5/mysql_fdw.cpp	2023-03-17 16:12:56.762701313 +0800
+--- mysql_fdw-REL-2_5_5_edit/mysql_fdw.cpp	2023-03-17 16:13:36.792033884 +0800
+***************
+*** 777,789 ****
+  
+  	mysql_query(conn, "SET sql_mode='ANSI_QUOTES'");
+  
+- #if PG_VERSION_NUM >= 90600
+  	pull_varattnos((Node *) baserel->reltarget->exprs, baserel->relid,
+  				   &attrs_used);
+- #else
+- 	pull_varattnos((Node *) baserel->reltargetlist, baserel->relid,
+- 				   &attrs_used);
+- #endif
+  
+  	foreach(lc, baserel->baserestrictinfo)
+  	{
+--- 777,784 ----
+***************
+*** 795,807 ****
+  			fpinfo->local_conds = lappend(fpinfo->local_conds, ri);
+  	}
+  
+- #if PG_VERSION_NUM >= 90600
+  	pull_varattnos((Node *) baserel->reltarget->exprs, baserel->relid,
+  				   &fpinfo->attrs_used);
+- #else
+- 	pull_varattnos((Node *) baserel->reltargetlist, baserel->relid,
+- 				   &fpinfo->attrs_used);
+- #endif
+  
+  	foreach(lc, fpinfo->local_conds)
+  	{
+--- 790,797 ----
