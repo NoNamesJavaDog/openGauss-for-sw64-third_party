@@ -1,0 +1,37 @@
+diff --git a/cJSON.c b/cJSON.c
+index 64d1fef..0bfae98 100644
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -309,6 +309,8 @@ static cJSON_bool parse_number(cJSON * const item, parse_buffer * const input_bu
+     unsigned char number_c_string[64];
+     unsigned char decimal_point = get_decimal_point();
+     size_t i = 0;
++    unsigned char *output = NULL;
++    char is_float_number = false;
+ 
+     if ((input_buffer == NULL) || (input_buffer->content == NULL))
+     {
+@@ -341,6 +343,7 @@ static cJSON_bool parse_number(cJSON * const item, parse_buffer * const input_bu
+ 
+             case '.':
+                 number_c_string[i] = decimal_point;
++                is_float_number = true;
+                 break;
+ 
+             default:
+@@ -374,6 +377,15 @@ loop_end:
+ 
+     item->type = cJSON_Number;
+ 
++    /* In this case, the double type will suffer from precision loss, so we will also save the original string information in the valuestring */
++    if (is_float_number || i > 14) {
++        output = (unsigned char*)input_buffer->hooks.allocate(i + sizeof(""));
++        if (output != NULL) {
++            strcpy((char*)output, (const char *)number_c_string);
++            item->valuestring = (char*)output;
++        }
++    }
++
+     input_buffer->offset += (size_t)(after_end - number_c_string);
+     return true;
+ }
