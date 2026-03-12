@@ -1,0 +1,332 @@
+[Build zlib] 26-03-05 14:34:14: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 14:34:14: [Notice] zlib configure string: ./configure --64 --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-05 15:27:02: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 15:27:02: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-05 15:27:02: [Notice] zlib End configure
+[Build zlib] 26-03-05 15:27:02: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-05 15:27:05: [Notice] zlib End make
+[Build zlib] 26-03-05 15:27:05: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-05 15:27:05: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-05 15:27:05: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 15:27:05: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 15:27:05: [Notice] make libminiunz
+[Build zlib] 26-03-05 15:27:10: [Notice] make install libminiunz
+[Build zlib] 26-03-05 15:27:10: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 15:27:10: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 15:27:10: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-05 15:27:10: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 15:27:10: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-05 15:27:11: [Notice] zlib End configure
+[Build zlib] 26-03-05 15:27:11: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-05 15:27:14: [Notice] zlib End make
+[Build zlib] 26-03-05 15:27:14: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-05 15:27:14: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-05 15:27:14: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 15:27:14: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 15:27:14: [Notice] make libminiunz
+[Build zlib] 26-03-05 15:27:19: [Notice] make install libminiunz
+[Build zlib] 26-03-05 15:27:19: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 15:27:19: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 15:27:20: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-05 15:27:20: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-05 15:27:20: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-05 15:27:20: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-05 15:27:20: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-05 15:27:20: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-05 16:15:30: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 16:15:30: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-05 16:15:31: [Notice] zlib End configure
+[Build zlib] 26-03-05 16:15:31: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-05 16:15:33: [Notice] zlib End make
+[Build zlib] 26-03-05 16:15:33: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-05 16:15:33: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-05 16:15:33: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 16:15:33: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 16:15:33: [Notice] make libminiunz
+[Build zlib] 26-03-05 16:15:38: [Notice] make install libminiunz
+[Build zlib] 26-03-05 16:15:38: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 16:15:38: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 16:15:38: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-05 16:15:38: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 16:15:39: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-05 16:15:39: [Notice] zlib End configure
+[Build zlib] 26-03-05 16:15:39: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-05 16:15:43: [Notice] zlib End make
+[Build zlib] 26-03-05 16:15:43: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-05 16:15:43: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-05 16:15:43: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 16:15:43: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 16:15:43: [Notice] make libminiunz
+[Build zlib] 26-03-05 16:15:48: [Notice] make install libminiunz
+[Build zlib] 26-03-05 16:15:48: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 16:15:48: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 16:15:48: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-05 16:15:48: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-05 16:15:48: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-05 16:15:48: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-05 16:15:48: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-05 16:15:48: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-05 17:19:34: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 17:19:34: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-05 17:19:34: [Notice] zlib End configure
+[Build zlib] 26-03-05 17:19:34: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-05 17:19:36: [Notice] zlib End make
+[Build zlib] 26-03-05 17:19:36: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-05 17:19:36: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-05 17:19:36: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 17:19:36: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 17:19:36: [Notice] make libminiunz
+[Build zlib] 26-03-05 17:19:42: [Notice] make install libminiunz
+[Build zlib] 26-03-05 17:19:42: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 17:19:42: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 17:19:42: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-05 17:19:42: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 17:19:42: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-05 17:19:42: [Notice] zlib End configure
+[Build zlib] 26-03-05 17:19:42: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-05 17:19:46: [Notice] zlib End make
+[Build zlib] 26-03-05 17:19:46: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-05 17:19:46: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-05 17:19:46: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 17:19:46: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 17:19:46: [Notice] make libminiunz
+[Build zlib] 26-03-05 17:19:51: [Notice] make install libminiunz
+[Build zlib] 26-03-05 17:19:51: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 17:19:51: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 17:19:51: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-05 17:19:51: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-05 17:19:51: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-05 17:19:51: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-05 17:19:51: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-05 17:19:52: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-05 19:02:08: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 19:02:08: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-05 19:02:09: [Notice] zlib End configure
+[Build zlib] 26-03-05 19:02:09: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-05 19:02:11: [Notice] zlib End make
+[Build zlib] 26-03-05 19:02:11: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-05 19:02:11: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-05 19:02:11: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 19:02:11: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 19:02:11: [Notice] make libminiunz
+[Build zlib] 26-03-05 19:02:16: [Notice] make install libminiunz
+[Build zlib] 26-03-05 19:02:16: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 19:02:16: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 19:02:16: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-05 19:02:16: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 19:02:16: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-05 19:02:17: [Notice] zlib End configure
+[Build zlib] 26-03-05 19:02:17: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-05 19:02:21: [Notice] zlib End make
+[Build zlib] 26-03-05 19:02:21: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-05 19:02:21: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-05 19:02:21: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 19:02:21: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 19:02:21: [Notice] make libminiunz
+[Build zlib] 26-03-05 19:02:26: [Notice] make install libminiunz
+[Build zlib] 26-03-05 19:02:26: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 19:02:26: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 19:02:26: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-05 19:02:26: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-05 19:02:26: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-05 19:02:26: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-05 19:02:26: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-05 19:02:26: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-05 19:47:20: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 19:47:20: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-05 19:47:20: [Notice] zlib End configure
+[Build zlib] 26-03-05 19:47:20: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-05 19:47:22: [Notice] zlib End make
+[Build zlib] 26-03-05 19:47:22: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-05 19:47:22: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-05 19:47:22: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 19:47:22: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 19:47:22: [Notice] make libminiunz
+[Build zlib] 26-03-05 19:47:28: [Notice] make install libminiunz
+[Build zlib] 26-03-05 19:47:28: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 19:47:28: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 19:47:28: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-05 19:47:28: [Notice] zlib Begin configure...
+[Build zlib] 26-03-05 19:47:28: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-05 19:47:28: [Notice] zlib End configure
+[Build zlib] 26-03-05 19:47:28: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-05 19:47:32: [Notice] zlib End make
+[Build zlib] 26-03-05 19:47:32: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-05 19:47:32: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-05 19:47:32: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-05 19:47:32: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-05 19:47:32: [Notice] make libminiunz
+[Build zlib] 26-03-05 19:47:37: [Notice] make install libminiunz
+[Build zlib] 26-03-05 19:47:37: [Notice] make clean libminiunz
+[Build zlib] 26-03-05 19:47:37: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-05 19:47:37: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-05 19:47:37: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-05 19:47:37: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-05 19:47:37: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-05 19:47:37: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-05 19:47:37: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-06 10:31:55: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 10:31:55: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-06 10:31:56: [Notice] zlib End configure
+[Build zlib] 26-03-06 10:31:56: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-06 10:31:58: [Notice] zlib End make
+[Build zlib] 26-03-06 10:31:58: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-06 10:31:58: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-06 10:31:58: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 10:31:58: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 10:31:58: [Notice] make libminiunz
+[Build zlib] 26-03-06 10:32:03: [Notice] make install libminiunz
+[Build zlib] 26-03-06 10:32:03: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 10:32:03: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 10:32:03: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-06 10:32:03: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 10:32:03: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-06 10:32:04: [Notice] zlib End configure
+[Build zlib] 26-03-06 10:32:04: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-06 10:32:07: [Notice] zlib End make
+[Build zlib] 26-03-06 10:32:07: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-06 10:32:07: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-06 10:32:07: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 10:32:07: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 10:32:07: [Notice] make libminiunz
+[Build zlib] 26-03-06 10:32:13: [Notice] make install libminiunz
+[Build zlib] 26-03-06 10:32:13: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 10:32:13: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 10:32:13: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-06 10:32:13: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-06 10:32:13: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-06 10:32:13: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-06 10:32:13: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-06 10:32:13: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-06 11:38:35: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 11:38:35: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-06 11:38:35: [Notice] zlib End configure
+[Build zlib] 26-03-06 11:38:35: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-06 11:38:37: [Notice] zlib End make
+[Build zlib] 26-03-06 11:38:37: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-06 11:38:37: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-06 11:38:37: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 11:38:37: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 11:38:37: [Notice] make libminiunz
+[Build zlib] 26-03-06 11:38:43: [Notice] make install libminiunz
+[Build zlib] 26-03-06 11:38:43: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 11:38:43: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 11:38:43: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-06 11:38:43: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 11:38:43: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-06 11:38:43: [Notice] zlib End configure
+[Build zlib] 26-03-06 11:38:43: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-06 11:38:47: [Notice] zlib End make
+[Build zlib] 26-03-06 11:38:47: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-06 11:38:47: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-06 11:38:47: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 11:38:47: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 11:38:47: [Notice] make libminiunz
+[Build zlib] 26-03-06 11:38:52: [Notice] make install libminiunz
+[Build zlib] 26-03-06 11:38:52: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 11:38:52: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 11:38:52: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-06 11:38:52: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-06 11:38:52: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-06 11:38:52: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-06 11:38:52: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-06 11:38:52: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-06 15:04:44: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 15:04:44: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-06 15:04:45: [Notice] zlib End configure
+[Build zlib] 26-03-06 15:04:45: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-06 15:04:47: [Notice] zlib End make
+[Build zlib] 26-03-06 15:04:47: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-06 15:04:47: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-06 15:04:47: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 15:04:47: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 15:04:47: [Notice] make libminiunz
+[Build zlib] 26-03-06 15:04:52: [Notice] make install libminiunz
+[Build zlib] 26-03-06 15:04:52: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 15:04:52: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 15:04:52: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-06 15:04:52: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 15:04:52: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-06 15:04:53: [Notice] zlib End configure
+[Build zlib] 26-03-06 15:04:53: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-06 15:04:56: [Notice] zlib End make
+[Build zlib] 26-03-06 15:04:56: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-06 15:04:56: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-06 15:04:56: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 15:04:56: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 15:04:56: [Notice] make libminiunz
+[Build zlib] 26-03-06 15:05:02: [Notice] make install libminiunz
+[Build zlib] 26-03-06 15:05:02: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 15:05:02: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 15:05:02: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-06 15:05:02: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-06 15:05:02: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-06 15:05:02: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-06 15:05:02: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-06 15:05:02: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-06 16:24:00: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 16:24:00: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-06 16:24:01: [Notice] zlib End configure
+[Build zlib] 26-03-06 16:24:01: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-06 16:24:03: [Notice] zlib End make
+[Build zlib] 26-03-06 16:24:03: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-06 16:24:03: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-06 16:24:03: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 16:24:03: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 16:24:03: [Notice] make libminiunz
+[Build zlib] 26-03-06 16:24:08: [Notice] make install libminiunz
+[Build zlib] 26-03-06 16:24:08: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 16:24:08: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 16:24:08: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-06 16:24:08: [Notice] zlib Begin configure...
+[Build zlib] 26-03-06 16:24:08: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-06 16:24:09: [Notice] zlib End configure
+[Build zlib] 26-03-06 16:24:09: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-06 16:24:12: [Notice] zlib End make
+[Build zlib] 26-03-06 16:24:12: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-06 16:24:13: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-06 16:24:13: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-06 16:24:13: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-06 16:24:13: [Notice] make libminiunz
+[Build zlib] 26-03-06 16:24:18: [Notice] make install libminiunz
+[Build zlib] 26-03-06 16:24:18: [Notice] make clean libminiunz
+[Build zlib] 26-03-06 16:24:18: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-06 16:24:18: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-06 16:24:18: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-06 16:24:18: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-06 16:24:18: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-06 16:24:18: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-06 16:24:18: [Notice] zlib clean has been finished!
+[Build zlib] 26-03-09 10:56:50: [Notice] zlib Begin configure...
+[Build zlib] 26-03-09 10:56:50: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_comm
+[Build zlib] 26-03-09 10:56:51: [Notice] zlib End configure
+[Build zlib] 26-03-09 10:56:51: [Notice] zlib using "comm" Begin make
+[Build zlib] 26-03-09 10:56:53: [Notice] zlib End make
+[Build zlib] 26-03-09 10:56:53: [Notice] zlib using "comm" Begin make install
+[Build zlib] 26-03-09 10:56:53: [Notice] zlib using "comm" End make install
+[Build zlib] 26-03-09 10:56:53: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-09 10:56:53: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-09 10:56:53: [Notice] make libminiunz
+[Build zlib] 26-03-09 10:56:58: [Notice] make install libminiunz
+[Build zlib] 26-03-09 10:56:58: [Notice] make clean libminiunz
+[Build zlib] 26-03-09 10:56:58: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-09 10:56:58: [Notice] zlib build using "comm" has been finished
+[Build zlib] 26-03-09 10:56:58: [Notice] zlib Begin configure...
+[Build zlib] 26-03-09 10:56:58: [Notice] zlib configure string: ./configure  --prefix=/root/openGauss-third_party/dependency/zlib/install_llt
+[Build zlib] 26-03-09 10:56:59: [Notice] zlib End configure
+[Build zlib] 26-03-09 10:56:59: [Notice] zlib using "llt" Begin make
+[Build zlib] 26-03-09 10:57:03: [Notice] zlib End make
+[Build zlib] 26-03-09 10:57:03: [Notice] zlib using "llt" Begin make install
+[Build zlib] 26-03-09 10:57:03: [Notice] zlib using "llt" End make install
+[Build zlib] 26-03-09 10:57:03: [Notice] make and install libminiunz before zlib clean 
+[Build zlib] 26-03-09 10:57:03: [Notice] enter contrib/minizip/
+[Build zlib] 26-03-09 10:57:03: [Notice] make libminiunz
+[Build zlib] 26-03-09 10:57:08: [Notice] make install libminiunz
+[Build zlib] 26-03-09 10:57:08: [Notice] make clean libminiunz
+[Build zlib] 26-03-09 10:57:08: [Notice] exit contrib/minizip/
+[Build zlib] 26-03-09 10:57:08: [Notice] zlib build using "llt" has been finished
+[Build zlib] 26-03-09 10:57:08: [Notice] zlib shrink using "comm" has been finished!
+[Build zlib] 26-03-09 10:57:08: [Notice] zlib shrink using "llt" has been finished!
+[Build zlib] 26-03-09 10:57:08: [Notice] zlib dist using "comm" has been finished!
+[Build zlib] 26-03-09 10:57:08: [Notice] zlib dist using "llt" has been finished!
+[Build zlib] 26-03-09 10:57:08: [Notice] zlib clean has been finished!
