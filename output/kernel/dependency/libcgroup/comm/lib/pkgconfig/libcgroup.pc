@@ -1,0 +1,10 @@
+prefix=/root/openGauss-third_party/dependency/libcgroup/install_comm
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libcgroup
+Description: Control Group Configuration Library
+Version: 2.0.3
+Libs: -L${libdir} -lcgroup
+Cflags: -I${includedir}

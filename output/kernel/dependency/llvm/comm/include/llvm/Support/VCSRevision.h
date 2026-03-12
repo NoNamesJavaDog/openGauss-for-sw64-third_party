@@ -1,0 +1,3 @@
+#undef LLVM_REVISION
+#undef LLVM_REPOSITORY
+#define SW64_REVISION ""

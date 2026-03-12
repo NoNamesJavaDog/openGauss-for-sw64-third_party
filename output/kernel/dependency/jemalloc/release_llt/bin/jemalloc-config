@@ -1,0 +1,83 @@
+#!/bin/sh
+
+usage() {
+	cat <<EOF
+Usage:
+  /root/openGauss-third_party/dependency/jemalloc/install_release/bin/jemalloc-config <option>
+Options:
+  --help | -h  : Print usage.
+  --version    : Print jemalloc version.
+  --revision   : Print shared library revision number.
+  --config     : Print configure options used to build jemalloc.
+  --prefix     : Print installation directory prefix.
+  --bindir     : Print binary installation directory.
+  --datadir    : Print data installation directory.
+  --includedir : Print include installation directory.
+  --libdir     : Print library installation directory.
+  --mandir     : Print manual page installation directory.
+  --cc         : Print compiler used to build jemalloc.
+  --cflags     : Print compiler flags used to build jemalloc.
+  --cppflags   : Print preprocessor flags used to build jemalloc.
+  --cxxflags   : Print C++ compiler flags used to build jemalloc.
+  --ldflags    : Print library flags used to build jemalloc.
+  --libs       : Print libraries jemalloc was linked against.
+EOF
+}
+
+prefix="/root/openGauss-third_party/dependency/jemalloc/install_release"
+exec_prefix="/root/openGauss-third_party/dependency/jemalloc/install_release"
+
+case "$1" in
+--help | -h)
+	usage
+	exit 0
+	;;
+--version)
+	echo "5.3.0-0-g54eaed1d8b56b1aa528be3bdd1877e59c56fa90c"
+	;;
+--revision)
+	echo "2"
+	;;
+--config)
+	echo "--with-version=VERSION CFLAGS=-fPIC CXXFLAGS=-fPIC --with-lg-quantum=4 --with-lg-page=16 --with-lg-hugepage=21 --with-malloc-conf=background_thread:true,dirty_decay_ms:0,muzzy_decay_ms:0,lg_extent_max_active_fit:2 --prefix=/root/openGauss-third_party/dependency/jemalloc/install_release"
+	;;
+--prefix)
+	echo "/root/openGauss-third_party/dependency/jemalloc/install_release"
+	;;
+--bindir)
+	echo "/root/openGauss-third_party/dependency/jemalloc/install_release/bin"
+	;;
+--datadir)
+	echo "/root/openGauss-third_party/dependency/jemalloc/install_release/share"
+	;;
+--includedir)
+	echo "/root/openGauss-third_party/dependency/jemalloc/install_release/include"
+	;;
+--libdir)
+	echo "/root/openGauss-third_party/dependency/jemalloc/install_release/lib"
+	;;
+--mandir)
+	echo "/root/openGauss-third_party/dependency/jemalloc/install_release/share/man"
+	;;
+--cc)
+	echo "gcc"
+	;;
+--cflags)
+	echo "-std=gnu11 -Wall -Wextra -Wsign-compare -Wundef -Wno-format-zero-length -Wpointer-arith -Wno-missing-braces -Wno-missing-field-initializers -Wno-missing-attributes -pipe -g3 -fvisibility=hidden -Wimplicit-fallthrough -O3 -funroll-loops -fPIC"
+	;;
+--cppflags)
+	echo "-D_GNU_SOURCE -D_REENTRANT"
+	;;
+--cxxflags)
+	echo "-Wall -Wextra -g3 -fvisibility=hidden -Wimplicit-fallthrough -O3 -fPIC"
+	;;
+--ldflags)
+	echo " "
+	;;
+--libs)
+	echo "-lm -lstdc++ -pthread -ldl"
+	;;
+*)
+	usage
+	exit 1
+esac
