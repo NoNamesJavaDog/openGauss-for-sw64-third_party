@@ -1,0 +1,165 @@
+index c65b121..514d9ef 100644
+--- a/include/grpcpp/impl/codegen/completion_queue_impl.h
++++ b/include/grpcpp/impl/codegen/completion_queue_impl.h
+@@ -32,14 +32,11 @@
+ #ifndef GRPCPP_IMPL_CODEGEN_COMPLETION_QUEUE_IMPL_H
+ #define GRPCPP_IMPL_CODEGEN_COMPLETION_QUEUE_IMPL_H
+ 
+-#include <list>
+-
+ #include <grpc/impl/codegen/atm.h>
+ #include <grpcpp/impl/codegen/completion_queue_tag.h>
+ #include <grpcpp/impl/codegen/core_codegen_interface.h>
+ #include <grpcpp/impl/codegen/grpc_library.h>
+ #include <grpcpp/impl/codegen/status.h>
+-#include <grpcpp/impl/codegen/sync.h>
+ #include <grpcpp/impl/codegen/time.h>
+ 
+ struct grpc_completion_queue;
+@@ -253,11 +250,6 @@ class CompletionQueue : private ::grpc::GrpcLibraryCodegen {
+   }
+ 
+  private:
+-  // Friends for access to server registration lists that enable checking and
+-  // logging on shutdown
+-  friend class ::grpc_impl::ServerBuilder;
+-  friend class ::grpc_impl::Server;
+-
+   // Friend synchronous wrappers so that they can access Pluck(), which is
+   // a semi-private API geared towards the synchronous implementation.
+   template <class R>
+@@ -282,6 +274,7 @@ class CompletionQueue : private ::grpc::GrpcLibraryCodegen {
+   friend class ::grpc_impl::internal::TemplatedBidiStreamingHandler;
+   template <::grpc::StatusCode code>
+   friend class ::grpc_impl::internal::ErrorMethodHandler;
++  friend class ::grpc_impl::Server;
+   friend class ::grpc_impl::ServerContextBase;
+   friend class ::grpc::ServerInterface;
+   template <class InputMessage, class OutputMessage>
+@@ -386,37 +379,9 @@ class CompletionQueue : private ::grpc::GrpcLibraryCodegen {
+     }
+   }
+ 
+-  void RegisterServer(const Server* server) {
+-    (void)server;
+-#ifndef NDEBUG
+-    grpc::internal::MutexLock l(&server_list_mutex_);
+-    server_list_.push_back(server);
+-#endif
+-  }
+-  void UnregisterServer(const Server* server) {
+-    (void)server;
+-#ifndef NDEBUG
+-    grpc::internal::MutexLock l(&server_list_mutex_);
+-    server_list_.remove(server);
+-#endif
+-  }
+-  bool ServerListEmpty() const {
+-#ifndef NDEBUG
+-    grpc::internal::MutexLock l(&server_list_mutex_);
+-    return server_list_.empty();
+-#endif
+-    return true;
+-  }
+-
+   grpc_completion_queue* cq_;  // owned
+ 
+   gpr_atm avalanches_in_flight_;
+-
+-  // List of servers associated with this CQ. Even though this is only used with
+-  // NDEBUG, instantiate it in all cases since otherwise the size will be
+-  // inconsistent.
+-  mutable grpc::internal::Mutex server_list_mutex_;
+-  std::list<const Server*> server_list_ /* GUARDED_BY(server_list_mutex_) */;
+ };
+ 
+ /// A specific type of completion queue used by the processing of notifications
+
+index 8572c74..9506c41 100644
+--- a/include/grpcpp/server_impl.h
++++ b/include/grpcpp/server_impl.h
+@@ -385,11 +385,6 @@ class Server : public grpc::ServerInterface, private grpc::GrpcLibraryCodegen {
+   // shutdown callback tag (invoked when the CQ is fully shutdown).
+   // It is protected by mu_
+   CompletionQueue* callback_cq_ = nullptr;
+-
+-  // List of CQs passed in by user that must be Shutdown only after Server is
+-  // Shutdown.  Even though this is only used with NDEBUG, instantiate it in all
+-  // cases since otherwise the size will be inconsistent.
+-  std::vector<CompletionQueue*> cq_list_;
+ };
+ 
+ }  // namespace grpc_impl
+
+index 93f5f4c..43c2eee 100644
+--- a/src/cpp/common/completion_queue_cc.cc
++++ b/src/cpp/common/completion_queue_cc.cc
+@@ -39,12 +39,6 @@ CompletionQueue::CompletionQueue(grpc_completion_queue* take)
+ 
+ void CompletionQueue::Shutdown() {
+   g_gli_initializer.summon();
+-#ifndef NDEBUG
+-  if (!ServerListEmpty()) {
+-    gpr_log(GPR_ERROR,
+-            "CompletionQueue shutdown being shutdown before its server.");
+-  }
+-#endif
+   CompleteAvalanching();
+ }
+ 
+index d5e9347..e93117d 100644
+--- a/src/cpp/server/server_builder.cc
++++ b/src/cpp/server/server_builder.cc
+@@ -354,8 +354,8 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
+   //     server
+   //  2. cqs_: Completion queues added via AddCompletionQueue() call
+ 
+-  for (const auto& cq : *sync_server_cqs) {
+-    grpc_server_register_completion_queue(server->server_, cq->cq(), nullptr);
++  for (const auto& value : *sync_server_cqs) {
++    grpc_server_register_completion_queue(server->server_, value->cq(), nullptr);
+     has_frequently_polled_cqs = true;
+   }
+ 
+@@ -371,9 +371,8 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
+   // as non-listening queues. In debug mode, these should have their server list
+   // tracked since these are provided the user and must be Shutdown by the user
+   // after the server is shutdown.
+-  for (const auto& cq : cqs_) {
+-    grpc_server_register_completion_queue(server->server_, cq->cq(), nullptr);
+-    cq->RegisterServer(server.get());
++  for (const auto& value : cqs_) {
++    grpc_server_register_completion_queue(server->server_, value->cq(), nullptr);
+   }
+ 
+   if (!has_frequently_polled_cqs) {
+
+index 34ffd59..5367fb2 100644
+--- a/src/cpp/server/server_cc.cc
++++ b/src/cpp/server/server_cc.cc
+@@ -1249,9 +1249,6 @@ void Server::Start(grpc::ServerCompletionQueue** cqs, size_t num_cqs) {
+     }
+ 
+     for (size_t i = 0; i < num_cqs; i++) {
+-#ifndef NDEBUG
+-      cq_list_.push_back(cqs[i]);
+-#endif
+       if (cqs[i]->IsFrequentlyPolled()) {
+         new UnimplementedAsyncRequest(this, cqs[i]);
+       }
+@@ -1363,15 +1360,6 @@ void Server::ShutdownInternal(gpr_timespec deadline) {
+ 
+   shutdown_notified_ = true;
+   shutdown_cv_.Broadcast();
+-
+-#ifndef NDEBUG
+-  // Unregister this server with the CQs passed into it by the user so that
+-  // those can be checked for properly-ordered shutdown.
+-  for (auto* cq : cq_list_) {
+-    cq->UnregisterServer(this);
+-  }
+-  cq_list_.clear();
+-#endif
+ }
+ 
+ void Server::Wait() {

@@ -1,0 +1,568 @@
+--- a/include/grpcpp/server_builder.h
++++ b/include/grpcpp/server_builder.h
+@@ -21,6 +21,7 @@
+ 
+ #include <grpcpp/server_builder_impl.h>
+ 
++#include <functional>
+ namespace grpc {
+ 
+ typedef ::grpc_impl::ServerBuilder ServerBuilder;
+diff --git a/include/gs_openssl_decoder.h b/include/gs_openssl_decoder.h
+new file mode 100644
+index 0000000..a78ec52
+--- /dev/null
++++ b/include/gs_openssl_decoder.h
+@@ -0,0 +1,80 @@
++/*-------------------------------------------------------------------------
++ *
++ * Copyright (C), 2012-2020, Huawei Tech. Co., Ltd.
++ *
++ *-------------------------------------------------------------------------
++ * File Name	: gs_openssl_server.h
++ * Brief		:
++ * Description	: OpenSSL Server API
++ *
++ * History	: 2017-6
++ *
++ *-------------------------------------------------------------------------
++ */
++
++#ifndef GS_OPENSSL_DECODER
++#define GS_OPENSSL_DECODER
++
++#include <fcntl.h>
++
++#ifndef WIN32
++#include <unistd.h>
++#endif
++
++#include <sys/stat.h>
++
++#include <openssl/crypto.h>
++#include <openssl/evp.h>
++#include <openssl/ssl.h>
++#include <openssl/rand.h>
++#include <openssl/err.h>
++#include <assert.h>
++
++#include<string.h>
++
++typedef unsigned int uint32;
++
++#define ossl_free(p) free(p)
++#define ossl_malloc(n) malloc(n)
++#define ossl_assert(s) assert(s)
++
++#define MAXPGPATH 1024
++#ifdef WIN32
++#define MAXPGPATH _MAX_PATH
++#endif
++
++#define OSSL_CIPHER_KEY_FILE ".key.cipher"
++#define OSSL_RAN_KEY_FILE ".key.rand"
++
++/* AES128 will be used, so each block is 16 bytes. */
++#define OSSL_CIPHER_LEN 16
++#define OSSL_MAX_ERR_LEN (400)
++
++/* see:
++ * unsigned long ERR_get_error(void)
++ */
++typedef unsigned long ossl_ecode;
++
++enum gs_openssl_err {
++    ERR_OK = 0,
++    ERR_INIT_OPENSSL_LIB,
++    ERR_RAND_POLL,
++    ERR_SSLCTX,
++    ERR_OOM,
++    ERR_IO,
++    ERR_FILE_NOT_EXIST,
++    ERR_ROOT_CA,
++    ERR_CA_CERT,
++    ERR_PRIVATE_KEY,
++    ERR_CIPHER,
++    ERR_DECRYPT,
++    ERR_DIGEST,
++    ERR_PASSWD_TOO_LONG,
++    ERR_PADDING_MODE,
++    ERR_GET_DH,
++    ERR_SET_TEM_DH
++};
++
++
++
++#endif /* GS_OPENSSL_DECODER */
+diff --git a/src/core/lib/security/security_connector/ssl_utils.cc b/src/core/lib/security/security_connector/ssl_utils.cc
+index 2a3f300..d4d53c5 100644
+--- a/src/core/lib/security/security_connector/ssl_utils.cc
++++ b/src/core/lib/security/security_connector/ssl_utils.cc
+@@ -65,9 +65,7 @@ static const char* cipher_suites = nullptr;
+ // All cipher suites for default are compliant with HTTP2.
+ GPR_GLOBAL_CONFIG_DEFINE_STRING(
+     grpc_ssl_cipher_suites,
+-    "ECDHE-ECDSA-AES128-GCM-SHA256:"
+     "ECDHE-ECDSA-AES256-GCM-SHA384:"
+-    "ECDHE-RSA-AES128-GCM-SHA256:"
+     "ECDHE-RSA-AES256-GCM-SHA384",
+     "A colon separated list of cipher suites to use with OpenSSL")
+ 
+diff --git a/src/core/tsi/ssl_transport_security.cc b/src/core/tsi/ssl_transport_security.cc
+index 02c278d..0ab6ca1 100644
+--- a/src/core/tsi/ssl_transport_security.cc
++++ b/src/core/tsi/ssl_transport_security.cc
+@@ -56,6 +56,7 @@ extern "C" {
+ #include "src/core/tsi/ssl/session_cache/ssl_session_cache.h"
+ #include "src/core/tsi/ssl_types.h"
+ #include "src/core/tsi/transport_security.h"
++#include "gs_openssl_decoder.h"
+ 
+ /* --- Constants. ---*/
+ 
+@@ -188,6 +189,7 @@ static void init_openssl(void) {
+   GPR_ASSERT(g_ssl_ctx_ex_factory_index != -1);
+ }
+ 
++static int ossl_cipher_decode_files(const char* datadir, unsigned char* plainpwd);
+ /* --- Ssl utils. ---*/
+ 
+ static const char* ssl_error_string(int error) {
+@@ -643,7 +645,8 @@ static tsi_result ssl_ctx_use_engine_private_key(SSL_CTX* context,
+ 
+ static tsi_result ssl_ctx_use_pem_private_key(SSL_CTX* context,
+                                               const char* pem_key,
+-                                              size_t pem_key_size) {
++                                              size_t pem_key_size,
++                                              const char* password) {
+   tsi_result result = TSI_OK;
+   EVP_PKEY* private_key = nullptr;
+   BIO* pem;
+@@ -651,7 +654,7 @@ static tsi_result ssl_ctx_use_pem_private_key(SSL_CTX* context,
+   pem = BIO_new_mem_buf((void*)pem_key, static_cast<int>(pem_key_size));
+   if (pem == nullptr) return TSI_OUT_OF_RESOURCES;
+   do {
+-    private_key = PEM_read_bio_PrivateKey(pem, nullptr, nullptr, (void*)"");
++    private_key = PEM_read_bio_PrivateKey(pem, nullptr, nullptr, (void*)password);
+     if (private_key == nullptr) {
+       result = TSI_INVALID_ARGUMENT;
+       break;
+@@ -668,7 +671,7 @@ static tsi_result ssl_ctx_use_pem_private_key(SSL_CTX* context,
+ 
+ /* Loads an in-memory PEM private key into the SSL context. */
+ static tsi_result ssl_ctx_use_private_key(SSL_CTX* context, const char* pem_key,
+-                                          size_t pem_key_size) {
++                                          size_t pem_key_size, const char* password) {
+ // BoringSSL does not have ENGINE support
+ #ifndef OPENSSL_IS_BORINGSSL
+   if (strncmp(pem_key, kSslEnginePrefix, strlen(kSslEnginePrefix)) == 0) {
+@@ -676,7 +679,7 @@ static tsi_result ssl_ctx_use_private_key(SSL_CTX* context, const char* pem_key,
+   } else
+ #endif /* OPENSSL_IS_BORINGSSL */
+   {
+-    return ssl_ctx_use_pem_private_key(context, pem_key, pem_key_size);
++    return ssl_ctx_use_pem_private_key(context, pem_key, pem_key_size, password);
+   }
+ }
+ 
+@@ -763,12 +766,54 @@ static tsi_result ssl_ctx_load_verification_certs(SSL_CTX* context,
+                                root_name);
+ }
+ 
++static bool GetCertEnv(const char* envName, char* outputEnvStr, size_t envValueLen)
++{
++    char* envValue = NULL;
++    const char *dangerCharacterList[] = {"|", ";", "&", "$", "<", ">", "`", "\\", "'", "\"", "{", "}", "(", ")", "[", "]", "~", "*", "?", "!", "\n", NULL};
++    int index = 0;
++    if (envName == NULL) {
++        return false;
++    }
++
++    envValue = getenv(envName);
++    if (envValue == NULL) {
++        return false;
++    }
++
++    size_t len = strlen(envValue);
++    if ((envValue[0] == '\0') || len >= envValueLen) {
++        return false;
++    }
++
++    for (; dangerCharacterList[index] != NULL; index++) {
++        if (strstr(envValue, dangerCharacterList[index]) != NULL) {
++            return false;
++        }
++    }
++
++    strncpy(outputEnvStr, envValue, len);
++    outputEnvStr[len] = 0;
++    return true;
++}
++
+ /* Populates the SSL context with a private key and a cert chain, and sets the
+    cipher list and the ephemeral ECDH key. */
+ static tsi_result populate_ssl_context(
+     SSL_CTX* context, const tsi_ssl_pem_key_cert_pair* key_cert_pair,
+     const char* cipher_list) {
+   tsi_result result = TSI_OK;
++  char gaussHome[1024];
++  char pass[1024];
++  if(!GetCertEnv("GAUSSHOME", gaussHome, 1024)) {
++        gpr_log(GPR_ERROR, "Invalid env GAUSSHOME.");
++        return TSI_UNKNOWN_ERROR;
++  }
++  if(ossl_cipher_decode_files(gaussHome, (unsigned char *)pass) != 0) {
++     gpr_log(GPR_ERROR, "decode pass error.");
++     return TSI_UNKNOWN_ERROR;
++  }
++  SSL_CTX_set_default_passwd_cb_userdata(context, pass);
++
+   if (key_cert_pair != nullptr) {
+     if (key_cert_pair->cert_chain != nullptr) {
+       result = ssl_ctx_use_certificate_chain(context, key_cert_pair->cert_chain,
+@@ -780,7 +825,7 @@ static tsi_result populate_ssl_context(
+     }
+     if (key_cert_pair->private_key != nullptr) {
+       result = ssl_ctx_use_private_key(context, key_cert_pair->private_key,
+-                                       strlen(key_cert_pair->private_key));
++                                       strlen(key_cert_pair->private_key), pass);
+       if (result != TSI_OK || !SSL_CTX_check_private_key(context)) {
+         gpr_log(GPR_ERROR, "Invalid private key.");
+         return result != TSI_OK ? result : TSI_INVALID_ARGUMENT;
+@@ -2109,3 +2154,323 @@ const tsi_ssl_handshaker_factory_vtable* tsi_ssl_handshaker_factory_swap_vtable(
+   factory->vtable = new_vtable;
+   return orig_vtable;
+ }
++
++/* ossl_ecode type. 0 means no error. */
++#define OSSL_OK 0
++
++/* return value of OPENSSL functions
++ * 1 means success; 0 means failing.
++ */
++#define OPENSSL_RET_OK 1
++#define OPENSSL_RET_FAIL 0
++
++/* ERR_error_string() generates a human-readable string
++ * representing the error code e, and places it at buf. buf must be
++ * at least 256 bytes long.
++ * gs_openssl_server size shouldn't be too big, for example less than
++ * 512, so we choose 400 bytes.
++ */
++
++#define OSSL_ITERATE_TIMES 10000
++#define OSSL_RANDOM_LEN 16
++
++
++/* cipher key data */
++typedef struct {
++    unsigned char cipherkey[OSSL_CIPHER_LEN + 1];
++	unsigned char keysalt[OSSL_RANDOM_LEN + 1];
++    unsigned char vector[OSSL_RANDOM_LEN + 1];
++    uint32 crc;
++} cipher_key;
++
++/* random key data */
++typedef struct {
++    char rand[OSSL_CIPHER_LEN + 1];
++    uint32 crc;
++} ossl_rand_key;
++
++
++#define EOK 0
++static bool ossl_cipher_file_exists(const char* file);
++static void ossl_cipher_cipher_clear_keyfile(cipher_key* key);
++static bool ossl_cipher_load_key(
++    const char* cipherkeyfile, const char* randfile, cipher_key* cipher, ossl_rand_key* rand);
++
++/*
++ * @Description: remove padding char from plain text.
++ *    this plain text must be padding with ISO/IEC 7816-4 mode
++ * @IN len: valid length of this plain text
++ * @IN plain: plain text
++ * @Return: ERR_PADDING_MODE, padding mode is wrong; ERR_OK
++ * @See also:
++ */
++static int ossl_IEC_remove_padding_char(unsigned char* plain, int* len)
++{
++    /* see https://en.wikipedia.org/wiki/Padding_(cryptography)#Block_cipher_mode_of_operation
++     *
++     * here *ISO/IEC 7816-4* padding method is adoptted.
++     * Example: In the following example the block size is 8 bytes and padding is required for 4 bytes
++     *	... | DD DD DD DD DD DD DD DD | DD DD DD DD 80 00 00 00 |
++     * The next example shows a padding of just one byte
++     *	... | DD DD DD DD DD DD DD DD | DD DD DD DD DD DD DD 80 |
++     */
++    const unsigned char ch = 0x80;
++    const int ll = *len - 1;
++    int err = ERR_PADDING_MODE;
++
++    /* scan backforward */
++    for (int i = ll; i >= 0; --i) {
++        if (ch == plain[i]) {
++            plain[i] = '\0'; /* make it C string */
++            *len = i;        /* update C string length */
++            err = ERR_OK;
++            break;
++        } else if (0 != plain[i]) {
++            /* all chars after special 0x80 should be 0. */
++            break;
++        }
++    }
++    return err;
++}
++
++
++static int ossl_decrypt_aes128_cbc(
++    unsigned char* cipher, int cipher_len, unsigned char* key, unsigned char* iv, unsigned char* plain)
++{
++
++    EVP_CIPHER_CTX* ctx = NULL;
++
++    /* double space, so it's enough */
++    unsigned char buf[OSSL_CIPHER_LEN * 2] = {0};
++    unsigned char* p = buf;
++    int plain_len = 0;
++    int len = 0;
++    int ret = ERR_OK;
++   
++    /* create an cipher context */
++    if ((ctx = EVP_CIPHER_CTX_new()) == NULL) {
++        return ERR_OOM;
++    }
++
++    /*
++     * IMPORTANT - ensure you use a key and IV size appropriate for your cipher
++     * In this example we are using 128 bit AES (i.e. a 128 bit key). The
++     * IV size for *most* modes is the same as the block size. For AES this
++     * is 128 bits
++     */
++
++    /* AES with a 128-bit key in CBC */
++    const EVP_CIPHER* type = EVP_aes_128_cbc();
++
++    /* sets up cipher context ctx for decryption with cipher type */
++    if (OPENSSL_RET_OK != EVP_DecryptInit_ex(ctx, type, NULL, key, iv)) {
++        ret = ERR_DECRYPT;
++        goto cleanup;
++    }
++
++    /* EVP_CIPHER_CTX_set_padding() always returns 1.
++     * disable padding mode.
++     */
++    (void)EVP_CIPHER_CTX_set_padding(ctx, 0);
++
++    /* obtain the plain output */
++    if (OPENSSL_RET_OK != EVP_DecryptUpdate(ctx, p, &len, cipher, cipher_len)) {
++        ret = ERR_DECRYPT;
++        goto cleanup;
++    }
++
++    plain_len = len;
++    p += len;
++    len = 0;
++
++    if (OPENSSL_RET_OK != EVP_DecryptFinal_ex(ctx, p, &len)) {
++        ret = ERR_DECRYPT;
++        goto cleanup;
++    }
++
++    /* remember the length of plain password text */
++    plain_len += len;
++    if (plain_len > OSSL_CIPHER_LEN || plain_len <= 0) {
++        ret = ERR_PASSWD_TOO_LONG;
++        goto cleanup;
++    }
++
++    if (ERR_OK != ossl_IEC_remove_padding_char(buf, &plain_len)) {
++        ret = ERR_PADDING_MODE;
++        goto cleanup;
++    }
++
++    /* get the password copy */
++    memcpy(plain, buf, plain_len);
++    //ossl_securec_check(rc);
++    plain[plain_len] = '\0';
++
++cleanup:
++
++    EVP_CIPHER_CTX_free(ctx);
++    memset((char*)buf, 0, OSSL_CIPHER_LEN * 2);
++    //ossl_securec_check(rc);
++    return ret;
++}
++
++/*
++ * @Description:
++ * @IN cipher_key: cipher key
++ * @IN cipher_key_len: cipher key length
++ * @IN dv: decrypt vector
++ * @IN iv: init vector
++ * @IN plain: plain text
++ * @IN rand_key: random key
++ * @Return:
++ * @See also:
++ */
++static int ossl_cipher_decrypt_input_key(unsigned char* cipher_key, int cipher_key_len, const char* rand_key,
++    unsigned char* iv, unsigned char* dv, unsigned char* plain)
++{
++    int retval = 0;
++    unsigned char decrypt_key[OSSL_RANDOM_LEN + 1] = {0};
++
++    const EVP_MD* digest = EVP_sha256();
++    if (NULL == digest) {
++        return ERR_DIGEST;
++    }
++
++    /* get the decrypt key value.
++     * derives a key from a password using a salt and
++     * iteration count as specified in RFC 2898
++     */
++    retval = PKCS5_PBKDF2_HMAC(
++        rand_key, OSSL_RANDOM_LEN, iv, OSSL_RANDOM_LEN, OSSL_ITERATE_TIMES, digest, OSSL_RANDOM_LEN, decrypt_key);
++    if (OPENSSL_RET_OK != retval) {
++        memset((char*)decrypt_key, 0, OSSL_RANDOM_LEN + 1);
++        // securec_check(rc);
++        return ERR_DIGEST;
++    }
++
++    /* decrypt the cipher */
++    retval = ossl_decrypt_aes128_cbc(cipher_key, cipher_key_len, decrypt_key, dv, plain);
++    memset((char*)decrypt_key, 0, OSSL_RANDOM_LEN + 1);
++    // securec_check(rc);
++    return retval;
++}
++
++/*
++ * @Description : Read the contents of the file to buffer.
++ * @in filename : The file need to be read.
++ * @in content : Buffer to store the content.
++ * @in csize : The file size.
++ * @return		: success 1, failed 0.
++ */
++static bool ossl_read_file(const char* filename, void* content, size_t csize)
++{
++    FILE* pfRead = NULL;
++    int cnt = 0;
++
++    /* open and read file */
++    if ((pfRead = fopen(filename, "rb")) == NULL) {
++        return false;
++    }
++    cnt = fread(content, csize, 1, pfRead);
++    if (cnt < 0) {
++        fclose(pfRead);
++        return false;
++    }
++    if (fclose(pfRead)) {
++        return false;
++    }
++    return true;
++}
++
++/*
++ * @Description : Read random and cipher contents of the file to buffer.
++ * @in cipherkeyfile : The file name of the cipher file.
++ * @in randfile : The file name of the random file.
++ * @in cipher_file_content :The buffer to store the content of  the cipher.
++ * @in rand_file_content :The buffer to store the content of the random salt.
++ * @return		: success 1, failed 0.
++ */
++static bool ossl_cipher_load_key(
++    const char* cipherkeyfile, const char* randfile, cipher_key* cipher_file_content, ossl_rand_key* rand_file_content)
++{
++    /* read key file */
++    if (!ossl_read_file(cipherkeyfile, cipher_file_content, sizeof(cipher_key)) ||
++        !ossl_read_file(randfile, rand_file_content, sizeof(ossl_rand_key))) {
++        return false;
++    }
++    return true;
++}
++
++/*
++ * @Description : reset cipher file content.
++ * @in cipher_file_context : the file need to be cleared.
++ * @return		: void.
++ */
++static void ossl_cipher_cipher_clear_keyfile(cipher_key* key)
++{
++    memset((char*)key->cipherkey, 0, OSSL_CIPHER_LEN + 1);
++    // securec_check(rc);
++    memset((char*)key->keysalt, 0, OSSL_RANDOM_LEN + 1);
++    // securec_check(rc);
++    memset((char*)key->vector, 0, OSSL_RANDOM_LEN + 1);
++    // securec_check(rc);
++}
++
++/*
++ * @Description : decrypt the cipher text to plain text via the stored files
++ * @in datadir : the file path that contains rand file and cipher file.
++ * @in plainpwd : the decrypt password.
++ * @return		: success true, failed false.
++ */
++static int ossl_cipher_decode_files(const char* datadir, unsigned char* plainpwd)
++{
++
++    char cipherkeyfile[MAXPGPATH] = {0x00};
++    char randfile[MAXPGPATH] = {0x00};
++    memset((char *)cipherkeyfile, 0, MAXPGPATH);
++    memset((char *)randfile, 0, MAXPGPATH);
++    ossl_rand_key rand_data;
++    cipher_key cipher_data;
++    int rc = 0;
++
++    /* read the files begin with client, check the files */
++    rc = snprintf(cipherkeyfile, MAXPGPATH - 1, "%s/share/sslcert/grpc/client%s", datadir, OSSL_CIPHER_KEY_FILE);
++    // securec_check_ss(rc);
++    if (!ossl_cipher_file_exists(cipherkeyfile)) {
++        return ERR_FILE_NOT_EXIST;
++    }
++
++    rc = snprintf(randfile, MAXPGPATH - 1, "%s/share/sslcert/grpc/client%s", datadir, OSSL_RAN_KEY_FILE);
++    // securec_check_ss(rc);
++    if (!ossl_cipher_file_exists(randfile)) {
++        return ERR_FILE_NOT_EXIST;
++    }
++
++    /* first,read the cipher file and rand file to buffer */
++    if (!ossl_cipher_load_key(cipherkeyfile, randfile, &cipher_data, &rand_data)) {
++        ossl_cipher_cipher_clear_keyfile(&cipher_data);
++        memset(rand_data.rand, 0, OSSL_CIPHER_LEN + 1);
++        // securec_check(rc);
++        return ERR_IO;
++    }
++
++    rc = ossl_cipher_decrypt_input_key(
++        cipher_data.cipherkey, OSSL_CIPHER_LEN, rand_data.rand, cipher_data.keysalt, cipher_data.vector, plainpwd);
++    if (ERR_OK != rc) {
++        ossl_cipher_cipher_clear_keyfile(&cipher_data);
++        memset(rand_data.rand, 0, OSSL_CIPHER_LEN + 1);
++        // securec_check(rc);
++        return rc;
++    }
++    return ERR_OK;
++}
++
++/* Check the existence of the file */
++static bool ossl_cipher_file_exists(const char* file)
++{
++    FILE* f = fopen(file, "r");
++    if (f == NULL) {
++        return false;
++    }
++    (void)fclose(f);
++    return true;
++}
+diff --git a/src/cpp/thread_manager/thread_manager.h b/src/cpp/thread_manager/thread_manager.h
+index 43f1fd5..6c156a7 100644
+--- a/src/cpp/thread_manager/thread_manager.h
++++ b/src/cpp/thread_manager/thread_manager.h
+@@ -26,6 +26,7 @@
+ 
+ #include "src/core/lib/gprpp/sync.h"
+ #include "src/core/lib/gprpp/thd.h"
++#include <functional>
+ #include "src/core/lib/iomgr/resource_quota.h"
+ 
+ namespace grpc {
+

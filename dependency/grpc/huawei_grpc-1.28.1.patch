@@ -1,0 +1,196 @@
+ Makefile                                  | 14 +++++++-------
+ include/grpc/impl/codegen/port_platform.h |  2 +-
+ include/grpcpp/server_builder_impl.h      |  4 ++++
+ include/grpcpp/server_impl.h              |  3 +++
+ src/cpp/server/server_builder.cc          | 11 ++++++++++-
+ src/cpp/server/server_cc.cc               |  6 +++++-
+ src/cpp/thread_manager/thread_manager.cc  |  6 +++++-
+ 7 files changed, 35 insertions(+), 11 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 19058aae57..16f6908575 100644
+--- a/Makefile
++++ b/Makefile
+@@ -356,16 +356,16 @@ HOST_CXX ?= $(CXX)
+ HOST_LD ?= $(LD)
+ HOST_LDXX ?= $(LDXX)
+ 
+-CFLAGS += -std=c99 $(W_EXTRA_SEMI)
++CFLAGS += -std=c99 $(W_EXTRA_SEMI) -fPIC -fstack-protector-all -s
+ CXXFLAGS += -std=c++11
+ ifeq ($(SYSTEM),Darwin)
+ CXXFLAGS += -stdlib=libc++
+ LDFLAGS += -framework CoreFoundation
+ endif
+ CFLAGS += -g
+-CPPFLAGS += -g -Wall -Wextra -DOSATOMIC_USE_INLINED=1 -Ithird_party/abseil-cpp -Ithird_party/upb -Isrc/core/ext/upb-generated
++CPPFLAGS += -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -fstack-protector-all -s -g -Wall -Wextra -DOSATOMIC_USE_INLINED=1 -Ithird_party/abseil-cpp -Ithird_party/upb -Isrc/core/ext/upb-generated
+ COREFLAGS += -fno-exceptions
+-LDFLAGS += -g
++LDFLAGS += -g -Wl,-z,relro,-z,now -static-libstdc++
+ 
+ CPPFLAGS += $(CPPFLAGS_$(CONFIG))
+ CFLAGS += $(CFLAGS_$(CONFIG))
+@@ -432,7 +432,7 @@ ifneq ($(prefix),/usr)
+ # safe, and solves problems seen in the wild.  Note that $ORIGIN
+ # is a literal string interpreted much later by ld.so.  Escape it
+ # here with a dollar sign so Make doesn't expand $O.
+-LDFLAGS += '-Wl,-rpath,$$ORIGIN'
++# LDFLAGS += '-Wl,-rpath,$$ORIGIN'
+ endif
+ endif
+ 
+@@ -784,7 +784,7 @@ CPPFLAGS := $(shell $(PKG_CONFIG) --cflags openssl) $(CPPFLAGS)
+ LDFLAGS_OPENSSL_PKG_CONFIG = $(shell $(PKG_CONFIG) --libs-only-L openssl)
+ ifeq ($(SYSTEM),Linux)
+ ifneq ($(LDFLAGS_OPENSSL_PKG_CONFIG),)
+-LDFLAGS_OPENSSL_PKG_CONFIG += $(shell $(PKG_CONFIG) --libs-only-L openssl | sed s/L/Wl,-rpath,/)
++LDFLAGS_OPENSSL_PKG_CONFIG += $(shell $(PKG_CONFIG) --libs-only-L openssl)
+ endif # LDFLAGS_OPENSSL_PKG_CONFIG=''
+ endif # System=Linux
+ LDFLAGS := $(LDFLAGS_OPENSSL_PKG_CONFIG) $(LDFLAGS)
+@@ -850,7 +850,7 @@ CPPFLAGS := $(CPPFLAGS) $(shell $(PKG_CONFIG) --cflags protobuf)
+ LDFLAGS_PROTOBUF_PKG_CONFIG = $(shell $(PKG_CONFIG) --libs-only-L protobuf)
+ ifeq ($(SYSTEM),Linux)
+ ifneq ($(LDFLAGS_PROTOBUF_PKG_CONFIG),)
+-LDFLAGS_PROTOBUF_PKG_CONFIG += $(shell $(PKG_CONFIG) --libs-only-L protobuf | sed s/L/Wl,-rpath,/)
++LDFLAGS_PROTOBUF_PKG_CONFIG += $(shell $(PKG_CONFIG) --libs-only-L protobuf)
+ endif
+ endif
+ else
+@@ -1401,7 +1401,7 @@ third_party/protobuf/configure:
+ $(LIBDIR)/$(CONFIG)/protobuf/libprotobuf.a: third_party/protobuf/configure
+ 	$(E) "[MAKE]    Building protobuf"
+ 	$(Q)mkdir -p $(LIBDIR)/$(CONFIG)/protobuf
+-	$(Q)(cd third_party/protobuf ; CC="$(CC)" CXX="$(CXX)" LDFLAGS="$(LDFLAGS_$(CONFIG)) -g $(PROTOBUF_LDFLAGS_EXTRA)" CPPFLAGS="$(PIC_CPPFLAGS) $(CPPFLAGS_$(CONFIG)) -g $(PROTOBUF_CPPFLAGS_EXTRA)" ./configure --disable-shared --enable-static $(PROTOBUF_CONFIG_OPTS))
++	$(Q)(cd third_party/protobuf ; CC="$(CC)" CXX="$(CXX)" LDFLAGS="$(LDFLAGS_$(CONFIG)) -g $(PROTOBUF_LDFLAGS_EXTRA)" CPPFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0 $(PIC_CPPFLAGS) $(CPPFLAGS_$(CONFIG)) -g $(PROTOBUF_CPPFLAGS_EXTRA)" ./configure --disable-rpath --disable-shared --enable-static $(PROTOBUF_CONFIG_OPTS))
+ 	$(Q)$(MAKE) -C third_party/protobuf clean
+ 	$(Q)$(MAKE) -C third_party/protobuf
+ 	$(Q)mkdir -p $(BINDIR)/$(CONFIG)/protobuf
+diff --git a/include/grpc/impl/codegen/port_platform.h b/include/grpc/impl/codegen/port_platform.h
+index cb3fb79f5e..cab5504d55 100644
+--- a/include/grpc/impl/codegen/port_platform.h
++++ b/include/grpc/impl/codegen/port_platform.h
+@@ -193,7 +193,7 @@
+ #else /* _LP64 */
+ #define GPR_ARCH_32 1
+ #endif /* _LP64 */
+-#ifdef __GLIBC__
++#if __GLIBC__ > 2 && __GLIBC_MINOR__ >= 12
+ #define GPR_POSIX_CRASH_HANDLER 1
+ #define GPR_LINUX_PTHREAD_NAME 1
+ #include <linux/version.h>
+diff --git a/include/grpcpp/server_builder_impl.h b/include/grpcpp/server_builder_impl.h
+index 294a798bb9..48953f5c3d 100644
+--- a/include/grpcpp/server_builder_impl.h
++++ b/include/grpcpp/server_builder_impl.h
+@@ -231,6 +231,10 @@ class ServerBuilder {
+ 
+   ServerBuilder& SetOption(std::unique_ptr<grpc::ServerBuilderOption> option);
+ 
++  /// Set callback cleanup function for work thread quit
++  ServerBuilder& SetThreadCleanupFunc(const std::function<void()>& func);
++  std::function<void()> thread_cleanup_func_;
++
+   /// Options for synchronous servers.
+   enum SyncServerOption {
+     NUM_CQS,         ///< Number of completion queues.
+diff --git a/include/grpcpp/server_impl.h b/include/grpcpp/server_impl.h
+index 8572c74b07..2759c2db94 100644
+--- a/include/grpcpp/server_impl.h
++++ b/include/grpcpp/server_impl.h
+@@ -157,6 +157,9 @@ class Server : public grpc::ServerInterface, private grpc::GrpcLibraryCodegen {
+   int AddListeningPort(const grpc::string& addr,
+                        grpc::ServerCredentials* creds) override;
+ 
++  /// Set work thread cleanup function
++  void SetThreadCleanupFunc(const std::function<void()>& func);
++
+   /// NOTE: This is *NOT* a public API. The server constructors are supposed to
+   /// be used by \a ServerBuilder class only. The constructor will be made
+   /// 'private' very soon.
+diff --git a/src/cpp/server/server_builder.cc b/src/cpp/server/server_builder.cc
+index d5e9347653..7efea557b1 100644
+--- a/src/cpp/server/server_builder.cc
++++ b/src/cpp/server/server_builder.cc
+@@ -44,7 +44,8 @@ static void do_plugin_list_init(void) {
+ }
+ 
+ ServerBuilder::ServerBuilder()
+-    : max_receive_message_size_(INT_MIN),
++    : thread_cleanup_func_(NULL),
++      max_receive_message_size_(INT_MIN),
+       max_send_message_size_(INT_MIN),
+       sync_server_settings_(SyncServerSettings()),
+       resource_quota_(nullptr) {
+@@ -217,6 +218,12 @@ ServerBuilder& ServerBuilder::AddListeningPort(
+   return *this;
+ }
+ 
++ServerBuilder& ServerBuilder::SetThreadCleanupFunc(
++    const std::function<void()>& func) {
++  thread_cleanup_func_ = func;
++  return *this;
++}
++
+ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
+   grpc::ChannelArguments args;
+ 
+@@ -347,6 +354,8 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
+       std::move(acceptors_), resource_quota_,
+       std::move(interceptor_creators_)));
+ 
++  server->SetThreadCleanupFunc(thread_cleanup_func_);
++
+   grpc_impl::ServerInitializer* initializer = server->initializer();
+ 
+   // Register all the completion queues with the server. i.e
+diff --git a/src/cpp/server/server_cc.cc b/src/cpp/server/server_cc.cc
+index 34ffd59489..90ac94def8 100644
+--- a/src/cpp/server/server_cc.cc
++++ b/src/cpp/server/server_cc.cc
+@@ -51,7 +51,7 @@
+ #include "src/cpp/server/external_connection_acceptor_impl.h"
+ #include "src/cpp/server/health/default_health_check_service.h"
+ #include "src/cpp/thread_manager/thread_manager.h"
+-
++extern std::function <void()> g_thread_cleanup;
+ namespace grpc {
+ namespace {
+ 
+@@ -1201,6 +1201,10 @@ int Server::AddListeningPort(const grpc::string& addr,
+   return port;
+ }
+ 
++void Server::SetThreadCleanupFunc(const std::function <void()>& func) {
++  g_thread_cleanup = func;
++}
++
+ void Server::Start(grpc::ServerCompletionQueue** cqs, size_t num_cqs) {
+   GPR_ASSERT(!started_);
+   global_callbacks_->PreServerStart(this);
+diff --git a/src/cpp/thread_manager/thread_manager.cc b/src/cpp/thread_manager/thread_manager.cc
+index 305d43666e..b36f00f8c5 100644
+--- a/src/cpp/thread_manager/thread_manager.cc
++++ b/src/cpp/thread_manager/thread_manager.cc
+@@ -24,8 +24,8 @@
+ #include "src/core/lib/gprpp/thd.h"
+ #include "src/core/lib/iomgr/exec_ctx.h"
+ 
++std::function <void()> g_thread_cleanup;
+ namespace grpc {
+-
+ ThreadManager::WorkerThread::WorkerThread(ThreadManager* thd_mgr)
+     : thd_mgr_(thd_mgr) {
+   // Make thread creation exclusive with respect to its join happening in
+@@ -42,6 +42,10 @@ ThreadManager::WorkerThread::WorkerThread(ThreadManager* thd_mgr)
+ void ThreadManager::WorkerThread::Run() {
+   thd_mgr_->MainWorkLoop();
+   thd_mgr_->MarkAsCompleted(this);
++
++  if (g_thread_cleanup) {
++    g_thread_cleanup();
++  }
+ }
+ 
+ ThreadManager::WorkerThread::~WorkerThread() {
