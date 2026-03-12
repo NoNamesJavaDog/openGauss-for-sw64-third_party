@@ -1,0 +1,17 @@
+diff -crN '--exclude=.git' '--exclude=.gitee' oracle_fdw-ORACLE_FDW_2_2_0/oracle_fdw.cpp oracle_fdw-ORACLE_FDW_2_2_0_edit/oracle_fdw.cpp
+*** oracle_fdw-ORACLE_FDW_2_2_0/oracle_fdw.cpp	2023-03-17 16:19:09.627917711 +0800
+--- oracle_fdw-ORACLE_FDW_2_2_0_edit/oracle_fdw.cpp	2023-03-17 16:19:35.572144145 +0800
+***************
+*** 2707,2717 ****
+  	List *columnlist,
+  		*conditions = foreignrel->baserestrictinfo;
+  
+- #if PG_VERSION_NUM < 90600
+- 	columnlist = foreignrel->reltargetlist;
+- #else
+  	columnlist = foreignrel->reltarget->exprs;
+- #endif
+  
+  #ifdef JOIN_API
+  	if (IS_SIMPLE_REL(foreignrel))
+--- 2707,2713 ----

@@ -1,0 +1,184 @@
+diff -crN oracle_fdw_base/oracle_fdw.cpp oracle_fdw/oracle_fdw.cpp
+*** oracle_fdw_base/oracle_fdw.cpp	2022-12-07 15:00:54.718128960 +0800
+--- oracle_fdw/oracle_fdw.cpp	2022-12-07 15:07:57.808050512 +0800
+***************
+*** 301,311 ****
+  #ifdef JOIN_API
+  static void oracleGetForeignJoinPaths(PlannerInfo *root, RelOptInfo *joinrel, RelOptInfo *outerrel, RelOptInfo *innerrel, JoinType jointype, JoinPathExtraData *extra);
+  #endif  /* JOIN_API */
+! static ForeignScan *oracleGetForeignPlan(PlannerInfo *root, RelOptInfo *foreignrel, Oid foreigntableid, ForeignPath *best_path, List *tlist, List *scan_clauses
+! #if PG_VERSION_NUM >= 90500
+! , Plan *outer_plan
+! #endif  /* PG_VERSION_NUM */
+! );
+  static bool oracleAnalyzeForeignTable(Relation relation, AcquireSampleRowsFunc *func, BlockNumber *totalpages, void* additionalData, bool estimateTableRowNum);
+  #endif  /* OLD_FDW_API */
+  static void oracleExplainForeignScan(ForeignScanState *node, ExplainState *es);
+--- 301,307 ----
+  #ifdef JOIN_API
+  static void oracleGetForeignJoinPaths(PlannerInfo *root, RelOptInfo *joinrel, RelOptInfo *outerrel, RelOptInfo *innerrel, JoinType jointype, JoinPathExtraData *extra);
+  #endif  /* JOIN_API */
+! static ForeignScan *oracleGetForeignPlan(PlannerInfo *root, RelOptInfo *foreignrel, Oid foreigntableid, ForeignPath *best_path, List *tlist, List *scan_clauses, Plan *outer_plan);
+  static bool oracleAnalyzeForeignTable(Relation relation, AcquireSampleRowsFunc *func, BlockNumber *totalpages, void* additionalData, bool estimateTableRowNum);
+  #endif  /* OLD_FDW_API */
+  static void oracleExplainForeignScan(ForeignScanState *node, ExplainState *es);
+***************
+*** 1005,1013 ****
+  					fdwState->total_cost,
+  					usable_pathkeys,
+  					NULL,
+- #if PG_VERSION_NUM >= 90500
+  					NULL,  /* no extra plan */
+- #endif  /* PG_VERSION_NUM */
+  					NIL
+  			)
+  	);
+--- 1001,1007 ----
+***************
+*** 1130,1140 ****
+   * 		For join relations, the oraTable is constructed from the target list.
+   */
+  ForeignScan
+! *oracleGetForeignPlan(PlannerInfo *root, RelOptInfo *foreignrel, Oid foreigntableid, ForeignPath *best_path, List *tlist, List *scan_clauses
+! #if PG_VERSION_NUM >= 90500
+! , Plan *outer_plan
+! #endif  /* PG_VERSION_NUM */
+! )
+  {
+  	struct OracleFdwState *fdwState = (struct OracleFdwState *)foreignrel->fdw_private;
+  	List *fdw_private = NIL;
+--- 1124,1130 ----
+   * 		For join relations, the oraTable is constructed from the target list.
+   */
+  ForeignScan
+! *oracleGetForeignPlan(PlannerInfo *root, RelOptInfo *foreignrel, Oid foreigntableid, ForeignPath *best_path, List *tlist, List *scan_clauses, Plan *outer_plan)
+  {
+  	struct OracleFdwState *fdwState = (struct OracleFdwState *)foreignrel->fdw_private;
+  	List *fdw_private = NIL;
+***************
+*** 1143,1151 ****
+  	Relation rel;
+  	Index scan_relid;  /* will be 0 for join relations */
+  	List *local_exprs = fdwState->local_conds;
+- #if PG_VERSION_NUM >= 90500
+  	List *fdw_scan_tlist = NIL;
+- #endif  /* PG_VERSION_NUM */
+  
+  #ifdef JOIN_API
+  	/* treat base relations and join relations differently */
+--- 1133,1139 ----
+***************
+*** 1280,1291 ****
+  	 * field of the finished plan node; we can't keep them in private state
+  	 * because then they wouldn't be subject to later planner processing.
+  	 */
+! 	return make_foreignscan(tlist, local_exprs, scan_relid, fdwState->params, fdw_private
+! #if PG_VERSION_NUM >= 90500
+! 								, fdw_scan_tlist,
+  								NIL,  /* no parameterized paths */
+  								outer_plan
+- #endif  /* PG_VERSION_NUM */
+  							);
+  }
+  
+--- 1268,1277 ----
+  	 * field of the finished plan node; we can't keep them in private state
+  	 * because then they wouldn't be subject to later planner processing.
+  	 */
+! 	return make_foreignscan(tlist, local_exprs, scan_relid, fdwState->params, fdw_private,
+! 								fdw_scan_tlist,
+  								NIL,  /* no parameterized paths */
+  								outer_plan
+  							);
+  }
+  
+***************
+*** 1739,1744 ****
+--- 1725,1750 ----
+  	else
+  	{
+  		Bitmapset *attrs_used = NULL;
++ 		List *withCheckOptionList = NIL;
++ 
++ 		/*
++ 		 * Extract the relevant WITH CHECK OPTION list if any.
++ 		 */
++ 		if (plan->withCheckOptionLists)
++ 		{
++ 			withCheckOptionList = (List*)list_nth(plan->withCheckOptionLists, subplan_index);
++ 
++ 			/*
++ 			 * We need the attrs, non-system and system, mentioned in the local
++ 			 * query's WITH CHECK OPTION list.
++ 			 *
++ 			 * Note: we do this to ensure that WCO constraints will be evaluated
++ 			 * on the data actually inserted/updated on the remote side, which
++ 			 * might differ from the data supplied by the core code, for example
++ 			 * as a result of remote triggers.
++ 			 */
++ 			pull_varattnos((Node*)withCheckOptionList, resultRelation, &attrs_used);
++ 		}
+  
+  		/* extract the relevant RETURNING list if any */
+  		if (plan->returningLists)
+***************
+*** 1748,1776 ****
+  		{
+  			/* get all the attributes mentioned there */
+  			pull_varattnos((Node *) returningList, resultRelation, &attrs_used);
+  
+! 			/* mark the corresponding columns as used */
+! 			for (i=0; i<fdwState->oraTable->ncols; ++i)
+! 			{
+! 				/* ignore columns that are not in the PostgreSQL table */
+! 				if (fdwState->oraTable->cols[i]->pgname == NULL)
+! 					continue;
+  
+! 				if (bms_is_member(fdwState->oraTable->cols[i]->pgattnum - FirstLowInvalidHeapAttributeNumber, attrs_used))
+! 				{
+! 					/* throw an error if it is a LONG or LONG RAW column */
+! 					if (fdwState->oraTable->cols[i]->oratype == ORA_TYPE_LONGRAW
+! 							|| fdwState->oraTable->cols[i]->oratype == ORA_TYPE_LONG)
+! 						ereport(ERROR,
+! 								(errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
+! 								errmsg("columns with Oracle type LONG or LONG RAW cannot be used in RETURNING clause"),
+! 								errdetail("Column \"%s\" of foreign table \"%s\" is of Oracle type LONG%s.",
+! 									fdwState->oraTable->cols[i]->pgname,
+! 									fdwState->oraTable->pgname,
+! 									fdwState->oraTable->cols[i]->oratype == ORA_TYPE_LONG ? "" : " RAW")));
+  
+! 					fdwState->oraTable->cols[i]->used = 1;
+! 				}
+  			}
+  		}
+  	}
+--- 1754,1782 ----
+  		{
+  			/* get all the attributes mentioned there */
+  			pull_varattnos((Node *) returningList, resultRelation, &attrs_used);
++ 		}
+  
+! 		/* mark the corresponding columns as used */
+! 		for (i=0; i<fdwState->oraTable->ncols; ++i)
+! 		{
+! 			/* ignore columns that are not in the PostgreSQL table */
+! 			if (fdwState->oraTable->cols[i]->pgname == NULL)
+! 				continue;
+  
+! 			if (bms_is_member(fdwState->oraTable->cols[i]->pgattnum - FirstLowInvalidHeapAttributeNumber, attrs_used))
+! 			{
+! 				/* throw an error if it is a LONG or LONG RAW column */
+! 				if (fdwState->oraTable->cols[i]->oratype == ORA_TYPE_LONGRAW
+! 						|| fdwState->oraTable->cols[i]->oratype == ORA_TYPE_LONG)
+! 					ereport(ERROR,
+! 							(errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
+! 							errmsg("columns with Oracle type LONG or LONG RAW cannot be used in RETURNING clause"),
+! 							errdetail("Column \"%s\" of foreign table \"%s\" is of Oracle type LONG%s.",
+! 								fdwState->oraTable->cols[i]->pgname,
+! 								fdwState->oraTable->pgname,
+! 								fdwState->oraTable->cols[i]->oratype == ORA_TYPE_LONG ? "" : " RAW")));
+  
+! 				fdwState->oraTable->cols[i]->used = 1;
+  			}
+  		}
+  	}

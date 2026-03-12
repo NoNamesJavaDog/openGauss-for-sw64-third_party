@@ -1,0 +1,20 @@
+diff -crN oracle_fdw-ORACLE_FDW_2_2_0/oracle_fdw.cpp oracle_fdw-ORACLE_FDW_2_2_0_edit/oracle_fdw.cpp
+*** oracle_fdw-ORACLE_FDW_2_2_0/oracle_fdw.cpp	2022-03-23 14:25:42.232610272 +0800
+--- oracle_fdw-ORACLE_FDW_2_2_0_edit/oracle_fdw.cpp	2022-03-23 14:27:34.319579453 +0800
+***************
+*** 6670,6676 ****
+  
+  	for (i = 0; i < catlist->n_members; i++)
+  	{
+! 		HeapTuple proctup = &catlist->members[i]->tuple;
+  		Form_pg_proc procform = (Form_pg_proc)GETSTRUCT(proctup);
+  
+  		/*
+--- 6670,6676 ----
+  
+  	for (i = 0; i < catlist->n_members; i++)
+  	{
+! 		HeapTuple proctup = t_thrd.lsc_cxt.FetchTupleFromCatCList(catlist, i);
+  		Form_pg_proc procform = (Form_pg_proc)GETSTRUCT(proctup);
+  
+  		/*
