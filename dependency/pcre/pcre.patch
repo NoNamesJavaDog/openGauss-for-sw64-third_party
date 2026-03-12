@@ -1,0 +1,319 @@
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/CMakeLists.txt pcre_h3/CMakeLists.txt
+*** pcre/CMakeLists.txt	2022-08-26 14:59:03.216000000 +0800
+--- pcre_h3/CMakeLists.txt	2022-08-26 14:58:53.904000000 +0800
+***************
+*** 136,141 ****
+--- 136,143 ----
+  
+  OPTION(PCRE_BUILD_PCRECPP "Build the PCRE C++ library (pcrecpp)." ON)
+  
++ OPTION(SLJIT_SUPPORT_CUSTOM_ALLOC "Enable support for custom sljit alloc." OFF)
++ 
+  SET(PCRE_EBCDIC OFF CACHE BOOL
+      "Use EBCDIC coding instead of ASCII. (This is rarely used outside of mainframe systems.)")
+  
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/pcre_chartables.c.dist pcre_h3/pcre_chartables.c.dist
+*** pcre/pcre_chartables.c.dist	2022-08-26 14:59:03.248000000 +0800
+--- pcre_h3/pcre_chartables.c.dist	2022-08-26 14:58:53.932000000 +0800
+***************
+*** 196,198 ****
+--- 196,219 ----
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};/* 248-255 */
+  
+  /* End of pcre_chartables.c */
++ #ifdef SLJIT_SUPPORT_CUSTOM_ALLOC
++ int pcre_set_chartables_ext(unsigned char *tbl, int size)
++ {
++     if (tbl == NULL || size <= 0) {
++         return -1;
++     }
++     int total_len = sizeof(PRIV(default_tables));
++     if (total_len != size) {
++         return -1;
++     }
++     unsigned char *src_tables = PRIV(default_tables);
++     memcpy(tbl, src_tables, size);
++     return 0;
++ }
++ 
++ int pcre_get_chartables_size()
++ {
++     int size = sizeof(PRIV(default_tables));
++     return size;
++ }
++ #endif
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/pcre_compile.c pcre_h3/pcre_compile.c
+*** pcre/pcre_compile.c	2022-08-26 14:59:03.248000000 +0800
+--- pcre_h3/pcre_compile.c	2022-08-26 14:58:53.936000000 +0800
+***************
+*** 88,94 ****
+--- 88,112 ----
+      pcre_uint32 *, pcre_int32 *, pcre_uint32 *, pcre_int32 *, branch_chain *,
+      compile_data *, int *);
+  
++ #if defined SUPPORT_EGN_MODE
++ static egn_read_atomic_callout g_egn_read_atomic_callout = NULL;
++ __attribute__((visibility("default"))) void egn_init_pcrex_callout(egn_read_atomic_callout read_atomic_callout,
++     egn_extend_callout callout)
++ {
++     egn_init_extend_callout(callout);
++     g_egn_read_atomic_callout = read_atomic_callout;
++     return;
++ }
+  
++ #if defined COMPILE_PCRE8
++ __attribute__((visibility("default"))) PCRE_EXP_DEFN pcre * PCRE_CALL_CONVENTION egn_pcre_compile2(
++     const char *pattern, int options, int *errorcodeptr, const char **errorptr, int *erroroffset,
++     const unsigned char *tables)
++ {
++     return pcre_compile2(pattern, options, errorcodeptr, errorptr, erroroffset, tables);
++ }
++ #endif
++ #endif
+  
+  /*************************************************
+  *      Code parameters and static tables         *
+***************
+*** 7150,7157 ****
+            }
+          previous = NULL;
+          continue;
+  
+! 
+          /* ------------------------------------------------------------ */
+          case CHAR_P:              /* Python-style named subpattern handling */
+          if (*(++ptr) == CHAR_EQUALS_SIGN ||
+--- 7168,7202 ----
+            }
+          previous = NULL;
+          continue;
++ #if defined SUPPORT_EGN_MODE
++         case CHAR_F: {
++             if (g_egn_read_atomic_callout == NULL) {
++                 goto OTHER_CHAR_AFTER_QUERY;
++             }
++             unsigned int is_saved = 0;
++             int ret = g_egn_read_atomic_callout((const char *)cd->start_pattern, (const char **)&ptr, lengthptr, &is_saved);
++             if (ret != 0) {
++                 *errorcodeptr = ERR38;
++                 goto FAILED;
++             }
+  
+!             if (*ptr != CHAR_RIGHT_PARENTHESIS) {
+!                 *errorcodeptr = ERR39;
+!                 goto FAILED;
+!             }
+!             if (is_saved == 1) {
+!                 previous_callout = code;  /* Save for later completion */
+!                 after_manual_callout = 1; /* Skip one item before completing */
+!                 *code++ = OP_CALLOUT;
+!                 *code++ = ret;
+!                 PUT(code, 0, ptr - cd->start_pattern + 1);  /* Pattern offset */
+!                 PUT(code, LINK_SIZE, 0);                    /* Default length */
+!                 code += 2 * LINK_SIZE;
+!             }
+!             previous = NULL;
+!         }
+!         continue;
+! #endif
+          /* ------------------------------------------------------------ */
+          case CHAR_P:              /* Python-style named subpattern handling */
+          if (*(++ptr) == CHAR_EQUALS_SIGN ||
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/pcre_exec.c pcre_h3/pcre_exec.c
+*** pcre/pcre_exec.c	2022-08-26 14:59:03.252000000 +0800
+--- pcre_h3/pcre_exec.c	2022-08-26 14:58:53.936000000 +0800
+***************
+*** 138,145 ****
+  }
+  #endif
+  
+  
+! 
+  /*************************************************
+  *          Match a back-reference                *
+  *************************************************/
+--- 138,160 ----
+  }
+  #endif
+  
++ #if defined SUPPORT_EGN_MODE
++ static egn_extend_callout g_egn_extend_callout = NULL;
++ void egn_init_extend_callout(egn_extend_callout callout)
++ {
++     g_egn_extend_callout = callout;
++ }
+  
+! #if defined COMPILE_PCRE8
+! __attribute__((visibility("default"))) PCRE_EXP_DEFN int PCRE_CALL_CONVENTION
+!     egn_pcre_exec(const pcre *argument_re, const pcre_extra *extra_data,
+!     PCRE_SPTR subject, int length, int start_offset, int options, int *offsets, int offsetcount)
+! {
+!     return pcre_exec(argument_re, extra_data, subject, length, start_offset,
+!         options, offsets, offsetcount);
+! }
+! #endif
+! #endif
+  /*************************************************
+  *          Match a back-reference                *
+  *************************************************/
+***************
+*** 1729,1734 ****
+--- 1744,1754 ----
+        cb.mark             = md->nomatch_mark;
+        if ((rrc = (*PUBL(callout))(&cb)) > 0) RRETURN(MATCH_NOMATCH);
+        if (rrc < 0) RRETURN(rrc);
++ #if defined SUPPORT_EGN_MODE
++       if (g_egn_extend_callout != NULL) {
++           eptr = g_egn_extend_callout(md->start_subject, cb.current_position);
++       }
++ #endif
+        }
+      ecode += 2 + 2*LINK_SIZE;
+      break;
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/pcre_globals.c pcre_h3/pcre_globals.c
+*** pcre/pcre_globals.c	2022-08-26 14:59:03.252000000 +0800
+--- pcre_h3/pcre_globals.c	2022-08-26 14:58:53.936000000 +0800
+***************
+*** 83,86 ****
+--- 83,96 ----
+  PCRE_EXP_DATA_DEFN int   (*PUBL(stack_guard))(void) = NULL;
+  #endif
+  
++ #if defined SUPPORT_EGN_MODE
++ __attribute__((visibility("default"))) void egn_init_pcre_reg(egn_generic_callout generic_callout,
++     egn_malloc_callout egn_malloc, egn_free_callout egn_free)
++ {
++     PUBL(malloc) = egn_malloc;
++     PUBL(free) = egn_free;
++     PUBL(callout) = generic_callout;
++ }
++ #endif
++ 
+  /* End of pcre_globals.c */
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/pcre.h.in pcre_h3/pcre.h.in
+*** pcre/pcre.h.in	2022-08-26 14:59:03.244000000 +0800
+--- pcre_h3/pcre.h.in	2022-08-26 14:58:53.932000000 +0800
+***************
+*** 670,675 ****
+--- 670,703 ----
+  PCRE_EXP_DECL void pcre16_jit_free_unused_memory(void);
+  PCRE_EXP_DECL void pcre32_jit_free_unused_memory(void);
+  
++ /* 支持应用感知组件能力增强的宏控制开关，主要涉及?F扩展，内存处理函数注册，对外接口封装 */
++ #if defined SUPPORT_EGN_MODE
++ typedef int (*egn_read_atomic_callout)(const char *pattern,
++     const char **calloutPos, int *length, unsigned int *is_saved);
++ typedef unsigned char *(*egn_extend_callout)(const unsigned char *start_subject, int offset);
++ typedef int (*egn_generic_callout)(pcre_callout_block *callout_block);
++ typedef void *(*egn_malloc_callout)(size_t size);
++ typedef void (*egn_free_callout)(void *addr);
++ void egn_init_pcrex_callout(egn_read_atomic_callout read_atomic_callout,
++     egn_extend_callout callout);
++ void egn_init_extend_callout(egn_extend_callout callout);
++ void egn_init_pcre_reg(egn_generic_callout generic_callout,
++     egn_malloc_callout egn_malloc, egn_free_callout egn_free);
++ 
++ PCRE_EXP_DECL pcre *egn_pcre_compile2(const char *, int, int *, const char **,
++     int *, const unsigned char *);
++ PCRE_EXP_DECL pcre_extra *egn_pcre_study(const pcre *, int, const char **);
++ PCRE_EXP_DECL int egn_pcre_exec(const pcre *, const pcre_extra *, PCRE_SPTR,
++     int, int, int, int *, int);
++ #endif
++ 
++ #ifdef SLJIT_SUPPORT_CUSTOM_ALLOC
++ typedef void* (*pcre_alloc_t)(size_t size);
++ typedef void (*pcre_free_t)(void *ptr);
++ void sljit_set_allocator_extra(pcre_alloc_t alloc_func, pcre_free_t free_func);
++ int pcre_set_chartables_ext(unsigned char *tbl, int size);
++ int pcre_get_chartables_size();
++ #endif
+  #ifdef __cplusplus
+  }  /* extern "C" */
+  #endif
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/pcre_study.c pcre_h3/pcre_study.c
+*** pcre/pcre_study.c	2022-08-26 14:59:03.256000000 +0800
+--- pcre_h3/pcre_study.c	2022-08-26 14:58:53.940000000 +0800
+***************
+*** 1424,1431 ****
+  return yield;
+  }
+  
+! 
+! 
+  
+  
+  /*************************************************
+--- 1424,1438 ----
+  return yield;
+  }
+  
+! #if defined SUPPORT_EGN_MODE
+! #if defined COMPILE_PCRE8
+! __attribute__((visibility("default"))) PCRE_EXP_DEFN pcre_extra * PCRE_CALL_CONVENTION
+!     egn_pcre_study(const pcre *external_re, int options, const char **errorptr)
+! {
+!     return pcre_study(external_re, options, errorptr); 
+! }
+! #endif
+! #endif
+  
+  
+  /*************************************************
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' pcre/sljit/sljitExecAllocator.c pcre_h3/sljit/sljitExecAllocator.c
+*** pcre/sljit/sljitExecAllocator.c	2022-08-26 14:59:03.260000000 +0800
+--- pcre_h3/sljit/sljitExecAllocator.c	2022-08-26 14:58:53.944000000 +0800
+***************
+*** 239,246 ****
+--- 239,260 ----
+  	}
+  }
+  
++ #ifdef SLJIT_SUPPORT_CUSTOM_ALLOC
++ void* (*g_sljit_malloc_exec)(sljit_uw size) = NULL;
++ void (*g_sljit_free_exec)(void *ptr) = NULL;
++ void sljit_set_allocator_extra(pcre_alloc_t alloc_func, pcre_free_t free_func)
++ {
++ 	g_sljit_malloc_exec = alloc_func;
++ 	g_sljit_free_exec = free_func;
++ }
++ #endif
+  SLJIT_API_FUNC_ATTRIBUTE void* sljit_malloc_exec(sljit_uw size)
+  {
++ #ifdef SLJIT_SUPPORT_CUSTOM_ALLOC
++ 	if (g_sljit_malloc_exec) {
++ 		return g_sljit_malloc_exec(size);
++ 	}
++ #endif
+  	struct block_header *header;
+  	struct block_header *next_header;
+  	struct free_block *free_block;
+***************
+*** 312,317 ****
+--- 326,337 ----
+  
+  SLJIT_API_FUNC_ATTRIBUTE void sljit_free_exec(void* ptr)
+  {
++ #ifdef SLJIT_SUPPORT_CUSTOM_ALLOC
++ 	if (g_sljit_free_exec) {
++ 		g_sljit_free_exec(ptr);
++ 		return;
++ 	}
++ #endif
+  	struct block_header *header;
+  	struct free_block* free_block;
+  
+***************
+*** 357,362 ****
+--- 377,388 ----
+  
+  SLJIT_API_FUNC_ATTRIBUTE void sljit_free_unused_memory_exec(void)
+  {
++ #ifdef SLJIT_SUPPORT_CUSTOM_ALLOC
++ 	if (g_sljit_malloc_exec) {
++ 		/* nothing to free if malloc is customized. */
++ 		return;
++ 	}
++ #endif
+  	struct free_block* free_block;
+  	struct free_block* next_free_block;
+  
