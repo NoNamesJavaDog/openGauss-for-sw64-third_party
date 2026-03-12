@@ -1,0 +1,14 @@
+/root/openGauss-third_party/dependency/nghttp2/install_comm/share/doc/nghttp2/README.rst
+/root/openGauss-third_party/dependency/nghttp2/install_comm/include/nghttp2/nghttp2.h
+/root/openGauss-third_party/dependency/nghttp2/install_comm/include/nghttp2/nghttp2ver.h
+/root/openGauss-third_party/dependency/nghttp2/install_comm/lib/libnghttp2.so.14.28.2
+/root/openGauss-third_party/dependency/nghttp2/install_comm/lib/libnghttp2.so.14
+/root/openGauss-third_party/dependency/nghttp2/install_comm/lib/libnghttp2.so
+/root/openGauss-third_party/dependency/nghttp2/install_comm/lib/pkgconfig/libnghttp2.pc
+/root/openGauss-third_party/dependency/nghttp2/install_comm/lib/cmake/nghttp2/nghttp2-targets.cmake
+/root/openGauss-third_party/dependency/nghttp2/install_comm/lib/cmake/nghttp2/nghttp2-targets-relwithdebinfo.cmake
+/root/openGauss-third_party/dependency/nghttp2/install_comm/share/man/man1/nghttp.1
+/root/openGauss-third_party/dependency/nghttp2/install_comm/share/man/man1/nghttpd.1
+/root/openGauss-third_party/dependency/nghttp2/install_comm/share/man/man1/nghttpx.1
+/root/openGauss-third_party/dependency/nghttp2/install_comm/share/man/man1/h2load.1
+/root/openGauss-third_party/dependency/nghttp2/install_comm/share/nghttp2/fetch-ocsp-response

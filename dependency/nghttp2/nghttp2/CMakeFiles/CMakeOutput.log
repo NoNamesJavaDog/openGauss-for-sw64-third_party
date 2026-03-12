@@ -1,0 +1,850 @@
+The system is: Linux - 4.19.90-52.37.v2207.17.ky10.sw_64 - sw_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/cc 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/3.17.2/CompilerIdC/a.out"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_1eefe/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_1eefe.dir/build.make CMakeFiles/cmTC_1eefe.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1eefe.dir/testCCompiler.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_1eefe.dir/testCCompiler.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTC_1eefe
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1eefe.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_1eefe.dir/testCCompiler.c.o  -o cmTC_1eefe 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_7a9a9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7a9a9.dir/build.make CMakeFiles/cmTC_7a9a9.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o
+/usr/bin/cc   -v -o CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+Using built-in specs.
+COLLECT_GCC=/usr/bin/cc
+Target: sw_64-sunway-linux-gnu
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c,c++,fortran,go,lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a
+Thread model: posix
+gcc version 8.3.0  (ID:) (GCC) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=sw8a'
+ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/cc1 -quiet -v -imultilib . -imultiarch sw_64-linux-gnu /usr/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=sw8a -auxbase-strip CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o -version -o /tmp/ccelQhJ9.s
+GNU C17 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)
+	compiled by GNU C version 8.3.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version none
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring nonexistent directory "/usr/local/include/sw_64-linux-gnu"
+ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include-fixed"
+ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../sw_64-sunway-linux-gnu/include"
+ignoring nonexistent directory "/usr/include/sw_64-linux-gnu"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include
+ /usr/local/include
+ /usr/include
+End of search list.
+GNU C17 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)
+	compiled by GNU C version 8.3.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version none
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: a38ec2744f2a66649ae258d1a9d72912
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=sw8a'
+ as -v -no-mdebug -msw8a -o CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o /tmp/ccelQhJ9.s
+GNU assembler version 2.31.1 (sw_64-sunway-linux-gnu) using BFD version (GNU Binutils) 2.31.1
+COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=sw8a'
+Linking C executable cmTC_7a9a9
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7a9a9.dir/link.txt --verbose=1
+/usr/bin/cc     -v CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o  -o cmTC_7a9a9 
+Using built-in specs.
+COLLECT_GCC=/usr/bin/cc
+COLLECT_LTO_WRAPPER=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper
+Target: sw_64-sunway-linux-gnu
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c,c++,fortran,go,lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a
+Thread model: posix
+gcc version 8.3.0  (ID:) (GCC) 
+COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_7a9a9' '-mcpu=sw8a'
+ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/collect2 -plugin /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccJekc2b.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf64sw_64 -O1 -dynamic-linker /lib/ld-linux.so.2 -o cmTC_7a9a9 /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crt1.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crti.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtbegin.o -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0 -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../.. CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtend.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crtn.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_7a9a9' '-mcpu=sw8a'
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Parsed C implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include]
+    add: [/usr/local/include]
+    add: [/usr/include]
+  end of search list found
+  collapse include dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include] ==> [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include]
+  collapse include dir [/usr/local/include] ==> [/usr/local/include]
+  collapse include dir [/usr/include] ==> [/usr/include]
+  implicit include dirs: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include;/usr/local/include;/usr/include]
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/gmake cmTC_7a9a9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7a9a9.dir/build.make CMakeFiles/cmTC_7a9a9.dir/build]
+  ignore line: [gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp']
+  ignore line: [Building C object CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/cc]
+  ignore line: [Target: sw_64-sunway-linux-gnu]
+  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c c++ fortran go lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 8.3.0  (ID:) (GCC) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=sw8a']
+  ignore line: [ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/cc1 -quiet -v -imultilib . -imultiarch sw_64-linux-gnu /usr/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=sw8a -auxbase-strip CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o -version -o /tmp/ccelQhJ9.s]
+  ignore line: [GNU C17 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)]
+  ignore line: [	compiled by GNU C version 8.3.0  GMP version 6.1.2  MPFR version 4.0.2  MPC version 1.1.0  isl version none]
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring nonexistent directory "/usr/local/include/sw_64-linux-gnu"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../sw_64-sunway-linux-gnu/include"]
+  ignore line: [ignoring nonexistent directory "/usr/include/sw_64-linux-gnu"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /usr/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C17 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)]
+  ignore line: [	compiled by GNU C version 8.3.0  GMP version 6.1.2  MPFR version 4.0.2  MPC version 1.1.0  isl version none]
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: a38ec2744f2a66649ae258d1a9d72912]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=sw8a']
+  ignore line: [ as -v -no-mdebug -msw8a -o CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o /tmp/ccelQhJ9.s]
+  ignore line: [GNU assembler version 2.31.1 (sw_64-sunway-linux-gnu) using BFD version (GNU Binutils) 2.31.1]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o' '-c' '-mcpu=sw8a']
+  ignore line: [Linking C executable cmTC_7a9a9]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7a9a9.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/cc     -v CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o  -o cmTC_7a9a9 ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/cc]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper]
+  ignore line: [Target: sw_64-sunway-linux-gnu]
+  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c c++ fortran go lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 8.3.0  (ID:) (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_7a9a9' '-mcpu=sw8a']
+  link line: [ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/collect2 -plugin /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccJekc2b.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf64sw_64 -O1 -dynamic-linker /lib/ld-linux.so.2 -o cmTC_7a9a9 /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crt1.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crti.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtbegin.o -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0 -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../.. CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtend.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crtn.o]
+    arg [/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccJekc2b.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf64sw_64] ==> ignore
+    arg [-O1] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib/ld-linux.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_7a9a9] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crt1.o] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crti.o] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtbegin.o] ==> ignore
+    arg [-L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0] ==> dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0]
+    arg [-L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../..] ==> dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../..]
+    arg [CMakeFiles/cmTC_7a9a9.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crtn.o] ==> ignore
+  collapse library dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0] ==> [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0]
+  collapse library dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../..] ==> [/usr/lib]
+  implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+  implicit dirs: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0;/usr/lib]
+  implicit fwks: []
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/bin/c++ 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/3.17.2/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_2ee29/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_2ee29.dir/build.make CMakeFiles/cmTC_2ee29.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_2ee29.dir/testCXXCompiler.cxx.o
+/usr/bin/c++     -o CMakeFiles/cmTC_2ee29.dir/testCXXCompiler.cxx.o -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_2ee29
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2ee29.dir/link.txt --verbose=1
+/usr/bin/c++       CMakeFiles/cmTC_2ee29.dir/testCXXCompiler.cxx.o  -o cmTC_2ee29 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_25fe0/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_25fe0.dir/build.make CMakeFiles/cmTC_25fe0.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/c++    -v -o CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Using built-in specs.
+COLLECT_GCC=/usr/bin/c++
+Target: sw_64-sunway-linux-gnu
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c,c++,fortran,go,lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a
+Thread model: posix
+gcc version 8.3.0  (ID:) (GCC) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=sw8a'
+ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/cc1plus -quiet -v -imultilib . -imultiarch sw_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=sw8a -auxbase-strip CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o -version -o /tmp/ccfoUfCA.s
+GNU C++14 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)
+	compiled by GNU C version 8.3.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version none
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring nonexistent directory "/usr/local/include/sw_64-linux-gnu"
+ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include-fixed"
+ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../sw_64-sunway-linux-gnu/include"
+ignoring nonexistent directory "/usr/include/sw_64-linux-gnu"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0
+ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/sw_64-sunway-linux-gnu/.
+ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/backward
+ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include
+ /usr/local/include
+ /usr/include
+End of search list.
+GNU C++14 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)
+	compiled by GNU C version 8.3.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version none
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: c66c465066cf0b8603dafae03a2ff6f0
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=sw8a'
+ as -v -no-mdebug -msw8a -o CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccfoUfCA.s
+GNU assembler version 2.31.1 (sw_64-sunway-linux-gnu) using BFD version (GNU Binutils) 2.31.1
+COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=sw8a'
+Linking CXX executable cmTC_25fe0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_25fe0.dir/link.txt --verbose=1
+/usr/bin/c++      -v CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_25fe0 
+Using built-in specs.
+COLLECT_GCC=/usr/bin/c++
+COLLECT_LTO_WRAPPER=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper
+Target: sw_64-sunway-linux-gnu
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c,c++,fortran,go,lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a
+Thread model: posix
+gcc version 8.3.0  (ID:) (GCC) 
+COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_25fe0' '-shared-libgcc' '-mcpu=sw8a'
+ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/collect2 -plugin /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccwooazG.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf64sw_64 -O1 -dynamic-linker /lib/ld-linux.so.2 -o cmTC_25fe0 /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crt1.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crti.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtbegin.o -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0 -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../.. CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtend.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crtn.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_25fe0' '-shared-libgcc' '-mcpu=sw8a'
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Parsed CXX implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0]
+    add: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/sw_64-sunway-linux-gnu/.]
+    add: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/backward]
+    add: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include]
+    add: [/usr/local/include]
+    add: [/usr/include]
+  end of search list found
+  collapse include dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0] ==> [/usr/include/c++/8.3.0]
+  collapse include dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/sw_64-sunway-linux-gnu/.] ==> [/usr/include/c++/8.3.0/sw_64-sunway-linux-gnu]
+  collapse include dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/backward] ==> [/usr/include/c++/8.3.0/backward]
+  collapse include dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include] ==> [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include]
+  collapse include dir [/usr/local/include] ==> [/usr/local/include]
+  collapse include dir [/usr/include] ==> [/usr/include]
+  implicit include dirs: [/usr/include/c++/8.3.0;/usr/include/c++/8.3.0/sw_64-sunway-linux-gnu;/usr/include/c++/8.3.0/backward;/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include;/usr/local/include;/usr/include]
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/gmake cmTC_25fe0/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_25fe0.dir/build.make CMakeFiles/cmTC_25fe0.dir/build]
+  ignore line: [gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/bin/c++    -v -o CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/c++]
+  ignore line: [Target: sw_64-sunway-linux-gnu]
+  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c c++ fortran go lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 8.3.0  (ID:) (GCC) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=sw8a']
+  ignore line: [ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/cc1plus -quiet -v -imultilib . -imultiarch sw_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=sw8a -auxbase-strip CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o -version -o /tmp/ccfoUfCA.s]
+  ignore line: [GNU C++14 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)]
+  ignore line: [	compiled by GNU C version 8.3.0  GMP version 6.1.2  MPFR version 4.0.2  MPC version 1.1.0  isl version none]
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring nonexistent directory "/usr/local/include/sw_64-linux-gnu"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../sw_64-sunway-linux-gnu/include"]
+  ignore line: [ignoring nonexistent directory "/usr/include/sw_64-linux-gnu"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0]
+  ignore line: [ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/sw_64-sunway-linux-gnu/.]
+  ignore line: [ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../../include/c++/8.3.0/backward]
+  ignore line: [ /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/include]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /usr/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C++14 (GCC) version 8.3.0 (sw_64-sunway-linux-gnu)]
+  ignore line: [	compiled by GNU C version 8.3.0  GMP version 6.1.2  MPFR version 4.0.2  MPC version 1.1.0  isl version none]
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: c66c465066cf0b8603dafae03a2ff6f0]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=sw8a']
+  ignore line: [ as -v -no-mdebug -msw8a -o CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccfoUfCA.s]
+  ignore line: [GNU assembler version 2.31.1 (sw_64-sunway-linux-gnu) using BFD version (GNU Binutils) 2.31.1]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mcpu=sw8a']
+  ignore line: [Linking CXX executable cmTC_25fe0]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_25fe0.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/c++      -v CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_25fe0 ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/c++]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper]
+  ignore line: [Target: sw_64-sunway-linux-gnu]
+  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-languages=c c++ fortran go lto --build=sw_64-sunway-linux-gnu --host=sw_64-sunway-linux-gnu --target=sw_64-sunway-linux-gnu --disable-multilib --disable-bootstrap --enable-c99 --enable-long-long --enable-threads=posix --enable-__cxa_atexit --disable-nls --enable-gnu-indirect-function --enable-multiarch --enable-browser-plugin --enable-linker-build-id --disable-gnu-unique-object --enable-libsanitizer --disable-libquadmath-support --with-cpu=sw8a]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 8.3.0  (ID:) (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/libexec/gcc/sw_64-sunway-linux-gnu/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/:/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_25fe0' '-shared-libgcc' '-mcpu=sw8a']
+  link line: [ /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/collect2 -plugin /usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccwooazG.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf64sw_64 -O1 -dynamic-linker /lib/ld-linux.so.2 -o cmTC_25fe0 /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crt1.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crti.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtbegin.o -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0 -L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../.. CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtend.o /usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crtn.o]
+    arg [/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/libexec/gcc/sw_64-sunway-linux-gnu/8.3.0/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccwooazG.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf64sw_64] ==> ignore
+    arg [-O1] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib/ld-linux.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_25fe0] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crt1.o] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crti.o] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtbegin.o] ==> ignore
+    arg [-L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0] ==> dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0]
+    arg [-L/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../..] ==> dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../..]
+    arg [CMakeFiles/cmTC_25fe0.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../../crtn.o] ==> ignore
+  collapse library dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0] ==> [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0]
+  collapse library dir [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0/../../..] ==> [/usr/lib]
+  implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
+  implicit dirs: [/usr/lib/gcc/sw_64-sunway-linux-gnu/8.3.0;/usr/lib]
+  implicit fwks: []
+
+
+Performing C++ SOURCE FILE Test HAVE_STD_FUTURE succeeded with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_7a844/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7a844.dir/build.make CMakeFiles/cmTC_7a844.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7a844.dir/src.cxx.o
+/usr/bin/c++    -DHAVE_STD_FUTURE   -o CMakeFiles/cmTC_7a844.dir/src.cxx.o -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_7a844
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7a844.dir/link.txt --verbose=1
+/usr/bin/c++   -DHAVE_STD_FUTURE    CMakeFiles/cmTC_7a844.dir/src.cxx.o  -o cmTC_7a844 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+
+  #include <vector>
+  #include <future>
+  int main() { std::vector<std::future<int>> v; }
+Performing C++ SOURCE FILE Test HAVE_STD_MAP_EMPLACE succeeded with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_9aeef/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_9aeef.dir/build.make CMakeFiles/cmTC_9aeef.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_9aeef.dir/src.cxx.o
+/usr/bin/c++    -DHAVE_STD_MAP_EMPLACE   -o CMakeFiles/cmTC_9aeef.dir/src.cxx.o -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_9aeef
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9aeef.dir/link.txt --verbose=1
+/usr/bin/c++   -DHAVE_STD_MAP_EMPLACE    CMakeFiles/cmTC_9aeef.dir/src.cxx.o  -o cmTC_9aeef 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+
+  #include <map>
+  int main() { std::map<int, int>().emplace(1, 2); }
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_9926f/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_9926f.dir/build.make CMakeFiles/cmTC_9926f.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_9926f.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_9926f.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_9926f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9926f.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_9926f.dir/CheckIncludeFile.c.o  -o cmTC_9926f 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function pthread_create exists in the pthread passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_344a0/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_344a0.dir/build.make CMakeFiles/cmTC_344a0.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_344a0.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_344a0.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_344a0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_344a0.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_344a0.dir/CheckFunctionExists.c.o  -o cmTC_344a0  -lpthread 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file arpa/inet.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_550ad/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_550ad.dir/build.make CMakeFiles/cmTC_550ad.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_550ad.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_550ad.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_550ad
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_550ad.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_550ad.dir/CheckIncludeFile.c.o  -o cmTC_550ad 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file fcntl.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_5cd28/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_5cd28.dir/build.make CMakeFiles/cmTC_5cd28.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5cd28.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_5cd28.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_5cd28
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5cd28.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_5cd28.dir/CheckIncludeFile.c.o  -o cmTC_5cd28 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file inttypes.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_fa178/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_fa178.dir/build.make CMakeFiles/cmTC_fa178.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fa178.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_fa178.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_fa178
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fa178.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_fa178.dir/CheckIncludeFile.c.o  -o cmTC_fa178 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file limits.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_66b3d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_66b3d.dir/build.make CMakeFiles/cmTC_66b3d.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_66b3d.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_66b3d.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_66b3d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_66b3d.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_66b3d.dir/CheckIncludeFile.c.o  -o cmTC_66b3d 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file netdb.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_6c24f/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6c24f.dir/build.make CMakeFiles/cmTC_6c24f.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6c24f.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_6c24f.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_6c24f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6c24f.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_6c24f.dir/CheckIncludeFile.c.o  -o cmTC_6c24f 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file netinet/in.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_44897/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_44897.dir/build.make CMakeFiles/cmTC_44897.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_44897.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_44897.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_44897
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_44897.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_44897.dir/CheckIncludeFile.c.o  -o cmTC_44897 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file netinet/ip.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_08aba/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_08aba.dir/build.make CMakeFiles/cmTC_08aba.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_08aba.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_08aba.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_08aba
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_08aba.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_08aba.dir/CheckIncludeFile.c.o  -o cmTC_08aba 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file pwd.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_496d6/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_496d6.dir/build.make CMakeFiles/cmTC_496d6.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_496d6.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_496d6.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_496d6
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_496d6.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_496d6.dir/CheckIncludeFile.c.o  -o cmTC_496d6 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file sys/socket.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_8606c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_8606c.dir/build.make CMakeFiles/cmTC_8606c.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_8606c.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_8606c.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_8606c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8606c.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_8606c.dir/CheckIncludeFile.c.o  -o cmTC_8606c 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file sys/time.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_6d1e8/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6d1e8.dir/build.make CMakeFiles/cmTC_6d1e8.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6d1e8.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_6d1e8.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_6d1e8
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6d1e8.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_6d1e8.dir/CheckIncludeFile.c.o  -o cmTC_6d1e8 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file syslog.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_ed6e9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_ed6e9.dir/build.make CMakeFiles/cmTC_ed6e9.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ed6e9.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_ed6e9.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_ed6e9
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ed6e9.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_ed6e9.dir/CheckIncludeFile.c.o  -o cmTC_ed6e9 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file unistd.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_edb97/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_edb97.dir/build.make CMakeFiles/cmTC_edb97.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_edb97.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_edb97.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_edb97
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_edb97.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_edb97.dir/CheckIncludeFile.c.o  -o cmTC_edb97 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file sys/types.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_7a45f/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7a45f.dir/build.make CMakeFiles/cmTC_7a45f.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7a45f.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_7a45f.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_7a45f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7a45f.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_7a45f.dir/CheckIncludeFile.c.o  -o cmTC_7a45f 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file stdint.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_e358e/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e358e.dir/build.make CMakeFiles/cmTC_e358e.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e358e.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_e358e.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_e358e
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e358e.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_e358e.dir/CheckIncludeFile.c.o  -o cmTC_e358e 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file stddef.h exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_d979d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d979d.dir/build.make CMakeFiles/cmTC_d979d.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d979d.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_d979d.dir/CheckIncludeFile.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_d979d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d979d.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_d979d.dir/CheckIncludeFile.c.o  -o cmTC_d979d 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of ssize_t passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_903b9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_903b9.dir/build.make CMakeFiles/cmTC_903b9.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_903b9.dir/SIZEOF_SSIZE_T.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_903b9.dir/SIZEOF_SSIZE_T.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CheckTypeSize/SIZEOF_SSIZE_T.c
+Linking C executable cmTC_903b9
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_903b9.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_903b9.dir/SIZEOF_SSIZE_T.c.o  -o cmTC_903b9 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Performing C SOURCE FILE Test HAVE_STRUCT_TM_TM_GMTOFF succeeded with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_0b1ad/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_0b1ad.dir/build.make CMakeFiles/cmTC_0b1ad.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0b1ad.dir/src.c.o
+/usr/bin/cc   -DHAVE_STRUCT_TM_TM_GMTOFF   -o CMakeFiles/cmTC_0b1ad.dir/src.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_0b1ad
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0b1ad.dir/link.txt --verbose=1
+/usr/bin/cc  -DHAVE_STRUCT_TM_TM_GMTOFF    CMakeFiles/cmTC_0b1ad.dir/src.c.o  -o cmTC_0b1ad 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+
+#include <time.h>
+
+int main()
+{
+  (void)sizeof(((struct tm *)0)->tm_gmtoff);
+  return 0;
+}
+
+Determining if the function _Exit exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_2909e/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_2909e.dir/build.make CMakeFiles/cmTC_2909e.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2909e.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=_Exit   -o CMakeFiles/cmTC_2909e.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+<command-line>: warning: conflicting types for built-in function '_Exit' [-Wbuiltin-declaration-mismatch]
+/usr/share/cmake/Modules/CheckFunctionExists.c:7:3: note: in expansion of macro 'CHECK_FUNCTION_EXISTS'
+   CHECK_FUNCTION_EXISTS(void);
+   ^~~~~~~~~~~~~~~~~~~~~
+Linking C executable cmTC_2909e
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2909e.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=_Exit    CMakeFiles/cmTC_2909e.dir/CheckFunctionExists.c.o  -o cmTC_2909e 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function accept4 exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_05133/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_05133.dir/build.make CMakeFiles/cmTC_05133.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_05133.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=accept4   -o CMakeFiles/cmTC_05133.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_05133
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_05133.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=accept4    CMakeFiles/cmTC_05133.dir/CheckFunctionExists.c.o  -o cmTC_05133 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function clock_gettime exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_2e108/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_2e108.dir/build.make CMakeFiles/cmTC_2e108.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2e108.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=clock_gettime   -o CMakeFiles/cmTC_2e108.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_2e108
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2e108.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=clock_gettime    CMakeFiles/cmTC_2e108.dir/CheckFunctionExists.c.o  -o cmTC_2e108 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function mkostemp exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_da211/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_da211.dir/build.make CMakeFiles/cmTC_da211.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_da211.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=mkostemp   -o CMakeFiles/cmTC_da211.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_da211
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_da211.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=mkostemp    CMakeFiles/cmTC_da211.dir/CheckFunctionExists.c.o  -o cmTC_da211 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function pipe2 exists passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_583e1/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_583e1.dir/build.make CMakeFiles/cmTC_583e1.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_583e1.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pipe2   -o CMakeFiles/cmTC_583e1.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_583e1
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_583e1.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pipe2    CMakeFiles/cmTC_583e1.dir/CheckFunctionExists.c.o  -o cmTC_583e1 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the initgroups exist passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_e57fc/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e57fc.dir/build.make CMakeFiles/cmTC_e57fc.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e57fc.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_e57fc.dir/CheckSymbolExists.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_e57fc
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e57fc.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_e57fc.dir/CheckSymbolExists.c.o  -o cmTC_e57fc 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+File /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <grp.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef initgroups
+  return ((int*)(&initgroups))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CLOCK_MONOTONIC exist passed with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_de330/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_de330.dir/build.make CMakeFiles/cmTC_de330.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_de330.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_de330.dir/CheckSymbolExists.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_de330
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_de330.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_de330.dir/CheckSymbolExists.c.o  -o cmTC_de330 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+File /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <time.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CLOCK_MONOTONIC
+  return ((int*)(&CLOCK_MONOTONIC))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Performing C SOURCE FILE Test OPT_Wpragmas succeeded with the following output:
+Change Dir: /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_fa712/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_fa712.dir/build.make CMakeFiles/cmTC_fa712.dir/build
+gmake[1]: Entering directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fa712.dir/src.c.o
+/usr/bin/cc   -DOPT_Wpragmas   -Wpragmas -o CMakeFiles/cmTC_fa712.dir/src.c.o   -c /root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_fa712
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fa712.dir/link.txt --verbose=1
+/usr/bin/cc  -DOPT_Wpragmas    CMakeFiles/cmTC_fa712.dir/src.c.o  -o cmTC_fa712 
+gmake[1]: Leaving directory '/root/openGauss-third_party/dependency/nghttp2/nghttp2/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
