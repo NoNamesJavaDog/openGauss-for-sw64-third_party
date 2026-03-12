@@ -1,0 +1,26 @@
+diff -crN Python-3.7.4/Modules/Setup.dist Python-3.7.4_edit/Modules/Setup.dist
+*** Python-3.7.4/Modules/Setup.dist	2019-07-09 02:03:50.000000000 +0800
+--- Python-3.7.4_edit/Modules/Setup.dist	2021-01-23 10:54:56.385624328 +0800
+***************
+*** 208,217 ****
+  
+  # Socket module helper for SSL support; you must comment out the other
+  # socket line above, and possibly edit the SSL variable:
+! #SSL=/usr/local/ssl
+! #_ssl _ssl.c \
+! #	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
+! #	-L$(SSL)/lib -lssl -lcrypto
+  
+  # The crypt module is now disabled by default because it breaks builds
+  # on many systems (where -lcrypt is needed), e.g. Linux (I believe).
+--- 208,217 ----
+  
+  # Socket module helper for SSL support; you must comment out the other
+  # socket line above, and possibly edit the SSL variable:
+! SSL=/usr/local/ssl
+! _ssl _ssl.c \
+! 	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
+! 	-L$(SSL)/lib -lssl -lcrypto
+  
+  # The crypt module is now disabled by default because it breaks builds
+  # on many systems (where -lcrypt is needed), e.g. Linux (I believe).
