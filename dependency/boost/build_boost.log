@@ -1,0 +1,170 @@
+[Build boost] 26-03-05 15:27:30: [Notice] boost Begin configure...
+[Build boost] 26-03-05 15:27:30: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-05 15:34:42: [Notice] boost End configure
+[Build boost] 26-03-05 15:34:42: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-05 15:35:15: [Notice] boost End make
+[Build boost] 26-03-05 15:35:15: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-05 15:38:53: [Notice] boost using "comm" End make install
+[Build boost] 26-03-05 15:38:53: [Notice] boost Begin configure...
+[Build boost] 26-03-05 15:38:53: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-05 15:40:17: [Notice] boost End configure
+[Build boost] 26-03-05 15:40:17: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-05 15:40:36: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-05 15:40:38: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-05 15:40:38: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-05 15:40:41: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-05 15:40:41: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-05 15:40:47: [Notice] boost clean has been finished!
+[Build boost] 26-03-05 16:15:58: [Notice] boost Begin configure...
+[Build boost] 26-03-05 16:15:58: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-05 16:23:08: [Notice] boost End configure
+[Build boost] 26-03-05 16:23:08: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-05 16:23:41: [Notice] boost End make
+[Build boost] 26-03-05 16:23:41: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-05 16:27:04: [Notice] boost using "comm" End make install
+[Build boost] 26-03-05 16:27:04: [Notice] boost Begin configure...
+[Build boost] 26-03-05 16:27:04: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-05 16:28:26: [Notice] boost End configure
+[Build boost] 26-03-05 16:28:26: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-05 16:28:45: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-05 16:28:56: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-05 16:28:57: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-05 16:28:59: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-05 16:28:59: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-05 16:29:06: [Notice] boost clean has been finished!
+[Build boost] 26-03-05 17:20:02: [Notice] boost Begin configure...
+[Build boost] 26-03-05 17:20:02: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-05 17:27:13: [Notice] boost End configure
+[Build boost] 26-03-05 17:27:13: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-05 17:27:46: [Notice] boost End make
+[Build boost] 26-03-05 17:27:46: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-05 17:31:08: [Notice] boost using "comm" End make install
+[Build boost] 26-03-05 17:31:08: [Notice] boost Begin configure...
+[Build boost] 26-03-05 17:31:08: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-05 17:32:31: [Notice] boost End configure
+[Build boost] 26-03-05 17:32:31: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-05 17:32:49: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-05 17:32:59: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-05 17:32:59: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-05 17:33:02: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-05 17:33:02: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-05 17:33:09: [Notice] boost clean has been finished!
+[Build boost] 26-03-05 19:02:36: [Notice] boost Begin configure...
+[Build boost] 26-03-05 19:02:36: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-05 19:09:46: [Notice] boost End configure
+[Build boost] 26-03-05 19:09:46: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-05 19:10:18: [Notice] boost End make
+[Build boost] 26-03-05 19:10:18: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-05 19:13:38: [Notice] boost using "comm" End make install
+[Build boost] 26-03-05 19:13:38: [Notice] boost Begin configure...
+[Build boost] 26-03-05 19:13:38: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-05 19:15:01: [Notice] boost End configure
+[Build boost] 26-03-05 19:15:01: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-05 19:15:20: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-05 19:15:29: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-05 19:15:29: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-05 19:15:32: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-05 19:15:32: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-05 19:15:38: [Notice] boost clean has been finished!
+[Build boost] 26-03-05 19:47:48: [Notice] boost Begin configure...
+[Build boost] 26-03-05 19:47:48: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-05 19:54:57: [Notice] boost End configure
+[Build boost] 26-03-05 19:54:57: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-05 19:55:30: [Notice] boost End make
+[Build boost] 26-03-05 19:55:30: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-05 19:58:51: [Notice] boost using "comm" End make install
+[Build boost] 26-03-05 19:58:51: [Notice] boost Begin configure...
+[Build boost] 26-03-05 19:58:51: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-05 20:00:13: [Notice] boost End configure
+[Build boost] 26-03-05 20:00:13: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-05 20:00:32: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-05 20:00:41: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-05 20:00:41: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-05 20:00:44: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-05 20:00:44: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-05 20:00:50: [Notice] boost clean has been finished!
+[Build boost] 26-03-06 10:32:23: [Notice] boost Begin configure...
+[Build boost] 26-03-06 10:32:23: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-06 10:39:33: [Notice] boost End configure
+[Build boost] 26-03-06 10:39:33: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-06 10:40:06: [Notice] boost End make
+[Build boost] 26-03-06 10:40:06: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-06 10:43:27: [Notice] boost using "comm" End make install
+[Build boost] 26-03-06 10:43:27: [Notice] boost Begin configure...
+[Build boost] 26-03-06 10:43:27: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-06 10:44:50: [Notice] boost End configure
+[Build boost] 26-03-06 10:44:50: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-06 10:45:09: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-06 10:45:20: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-06 10:45:21: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-06 10:45:23: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-06 10:45:23: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-06 10:45:30: [Notice] boost clean has been finished!
+[Build boost] 26-03-06 11:39:03: [Notice] boost Begin configure...
+[Build boost] 26-03-06 11:39:03: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-06 11:46:12: [Notice] boost End configure
+[Build boost] 26-03-06 11:46:12: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-06 11:46:46: [Notice] boost End make
+[Build boost] 26-03-06 11:46:46: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-06 11:50:10: [Notice] boost using "comm" End make install
+[Build boost] 26-03-06 11:50:10: [Notice] boost Begin configure...
+[Build boost] 26-03-06 11:50:10: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-06 11:51:33: [Notice] boost End configure
+[Build boost] 26-03-06 11:51:33: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-06 11:51:52: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-06 11:52:03: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-06 11:52:03: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-06 11:52:06: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-06 11:52:06: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-06 11:52:12: [Notice] boost clean has been finished!
+[Build boost] 26-03-06 15:05:13: [Notice] boost Begin configure...
+[Build boost] 26-03-06 15:05:13: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-06 15:12:23: [Notice] boost End configure
+[Build boost] 26-03-06 15:12:23: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-06 15:12:55: [Notice] boost End make
+[Build boost] 26-03-06 15:12:55: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-06 15:16:18: [Notice] boost using "comm" End make install
+[Build boost] 26-03-06 15:16:18: [Notice] boost Begin configure...
+[Build boost] 26-03-06 15:16:18: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-06 15:17:42: [Notice] boost End configure
+[Build boost] 26-03-06 15:17:42: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-06 15:18:01: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-06 15:18:10: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-06 15:18:10: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-06 15:18:13: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-06 15:18:13: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-06 15:18:20: [Notice] boost clean has been finished!
+[Build boost] 26-03-06 16:24:28: [Notice] boost Begin configure...
+[Build boost] 26-03-06 16:24:28: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-06 16:31:39: [Notice] boost End configure
+[Build boost] 26-03-06 16:31:39: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-06 16:32:13: [Notice] boost End make
+[Build boost] 26-03-06 16:32:13: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-06 16:35:34: [Notice] boost using "comm" End make install
+[Build boost] 26-03-06 16:35:34: [Notice] boost Begin configure...
+[Build boost] 26-03-06 16:35:34: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-06 16:36:58: [Notice] boost End configure
+[Build boost] 26-03-06 16:36:58: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-06 16:37:18: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-06 16:37:29: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-06 16:37:29: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-06 16:37:32: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-06 16:37:32: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-06 16:37:39: [Notice] boost clean has been finished!
+[Build boost] 26-03-09 10:57:20: [Notice] boost Begin configure...
+[Build boost] 26-03-09 10:57:20: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_comm
+[Build boost] 26-03-09 11:04:31: [Notice] boost End configure
+[Build boost] 26-03-09 11:04:31: [Notice] boost using "comm" Begin make
+[Build boost] 26-03-09 11:05:04: [Notice] boost End make
+[Build boost] 26-03-09 11:05:04: [Notice] boost using "comm" Begin make install
+[Build boost] 26-03-09 11:08:25: [Notice] boost using "comm" End make install
+[Build boost] 26-03-09 11:08:25: [Notice] boost Begin configure...
+[Build boost] 26-03-09 11:08:25: [Notice] boost configure string: ./bootstrap.sh --prefix=/root/openGauss-third_party/dependency/boost/install_llt
+[Build boost] 26-03-09 11:09:48: [Notice] boost End configure
+[Build boost] 26-03-09 11:09:48: [Notice] boost using "llt" Start pic build
+[Build boost] 26-03-09 11:10:07: [Notice] boost using "llt" End pic build
+[Build boost] 26-03-09 11:10:22: [Notice] boost shrink using "comm" has been finished!
+[Build boost] 26-03-09 11:10:22: [Notice] boost shrink using "llt" has been finished!
+[Build boost] 26-03-09 11:10:25: [Notice] boost dist using "comm" has been finished!
+[Build boost] 26-03-09 11:10:25: [Notice] boost dist using "llt" has been finished!
+[Build boost] 26-03-09 11:10:32: [Notice] boost clean has been finished!
