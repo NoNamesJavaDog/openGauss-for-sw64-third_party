@@ -1,0 +1,181 @@
+diff -ruN a/Cargo.toml b/Cargo.toml
+--- a/Cargo.toml	2024-01-01 00:00:00.000000000 +0800
++++ b/Cargo.toml	2024-12-05 00:00:00.000000000 +0800
+@@ -1,6 +1,9 @@
+ [package]
+-name = "text-splitter"
++name = "text_splitter_ffi"
+ version = "0.28.0"
++edition = "2021"
++
++[lib]
++crate-type = ["cdylib"]
+ 
+ [dependencies]
+ text-splitter = "0.28.0"
++libc = "0.2"
+diff -ruN a/src/ffi.rs b/src/ffi.rs
+--- a/src/ffi.rs	1970-01-01 00:00:00.000000000 +0800
++++ b/src/ffi.rs	2024-12-05 00:00:00.000000000 +0800
+@@ -0,0 +1,92 @@
++//! C FFI bindings for text-splitter
++//! 
++//! This module provides C-compatible foreign function interface for the text-splitter library.
++
++use std::ffi::{CStr, CString};
++use std::os::raw::{c_char, c_int};
++use text_splitter::{TextSplitter, ChunkConfig, Characters};
++
++/// Opaque handle for TextSplitter
++pub struct TextSplitterHandle {
++    splitter: TextSplitter<Characters>,
++}
++
++/// Create a new text splitter instance
++/// 
++/// # Parameters
++/// - max_chunk_size: Maximum size of each chunk
++/// - max_chunk_overlap: Overlap size between chunks
++/// 
++/// # Returns
++/// Pointer to TextSplitterHandle, or NULL on failure
++#[no_mangle]
++pub extern "C" fn CreateTextSplitter(max_chunk_size: c_int, max_chunk_overlap: c_int) -> *mut TextSplitterHandle {
++    if max_chunk_size <= 0 {
++        return std::ptr::null_mut();
++    }
++    
++    let cfg = match ChunkConfig::new(max_chunk_size as usize).with_overlap(max_chunk_overlap as usize) {
++        Ok(cfg) => cfg,
++        Err(_) => return std::ptr::null_mut(),
++    };
++    let splitter = TextSplitter::new(cfg);
++    let handle = Box::new(TextSplitterHandle { splitter });
++    Box::into_raw(handle)
++}
++
++/// Free a text splitter instance
++/// 
++/// # Parameters
++/// - handle: Pointer to TextSplitterHandle
++#[no_mangle]
++pub extern "C" fn FreeTextSplitter(handle: *mut TextSplitterHandle) {
++    if handle.is_null() {
++        return;
++    }
++    let _ = unsafe { Box::from_raw(handle) };
++}
++
++/// Split text into chunks
++/// 
++/// # Parameters
++/// - handle: Pointer to TextSplitterHandle
++/// - document: Input text as C string
++/// - chunk_num: Output parameter for number of chunks
++/// 
++/// # Returns
++/// NULL-terminated array of C strings, or NULL on failure
++#[no_mangle]
++pub extern "C" fn SplitText(handle: *mut TextSplitterHandle, document: *const c_char, chunk_num: *mut c_int) -> *mut *mut c_char {
++    if handle.is_null() || document.is_null() || chunk_num.is_null() {
++        return std::ptr::null_mut();
++    }
++
++    unsafe {
++        let c_str = CStr::from_ptr(document);
++        let text_str = match c_str.to_str() {
++            Ok(s) => s,
++            Err(_) => return std::ptr::null_mut(),
++        };
++        let chunks = (*handle).splitter.chunks(text_str).collect::<Vec<_>>();
++        *chunk_num = chunks.len() as c_int;
++        let mut result: Vec<*mut c_char> = Vec::with_capacity(chunks.len() + 1);
++        for chunk in chunks {
++            match CString::new(chunk) {
++                Ok(c_str) => result.push(c_str.into_raw()),
++                Err(_) => {
++                    for ptr in result {
++                        let _ = CString::from_raw(ptr);
++                    }
++                    return std::ptr::null_mut();
++                }
++            }
++        }
++        result.push(std::ptr::null_mut());
++        let result_ptr = result.as_mut_ptr();
++        std::mem::forget(result);
++        result_ptr
++    }
++}
++
++/// Free the result from SplitText
++/// 
++/// # Parameters
++/// - chunks: NULL-terminated array of C strings
++#[no_mangle]
++pub extern "C" fn FreeSplitResult(chunks: *mut *mut c_char) {
++    if chunks.is_null() {
++        return;
++    }
++    unsafe {
++        let mut count = 0;
++        let mut current = chunks;
++        while !(*current).is_null() {
++            count += 1;
++            current = current.add(1);
++        }
++        
++        for i in 0..count {
++            let ptr = *chunks.add(i);
++            let _ = CString::from_raw(ptr);
++        }
++        
++        let _ = Vec::from_raw_parts(chunks, count + 1, count + 1);
++    }
++}
+diff -ruN a/src/lib.rs b/src/lib.rs
+--- a/src/lib.rs	1970-01-01 00:00:00.000000000 +0800
++++ b/src/lib.rs	2024-12-05 00:00:00.000000000 +0800
+@@ -0,0 +1,5 @@
++//! Text Splitter FFI Library
++//! C Foreign Function Interface for text-splitter
++
++pub mod ffi;
++pub use ffi::*;
+diff -ruN a/text_splitter_wrapper.h b/text_splitter_wrapper.h
+--- a/text_splitter_wrapper.h	1970-01-01 00:00:00.000000000 +0800
++++ b/text_splitter_wrapper.h	2024-12-05 00:00:00.000000000 +0800
+@@ -0,0 +1,32 @@
++/*
++ * Copyright (c) Huawei Technologies Co., Ltd. 2025. All rights reserved.
++ * Text Splitter C FFI Interface
++ * For use with openGauss kernel
++ */
++
++#ifndef TEXT_SPLITTER_WRAPPER_H
++#define TEXT_SPLITTER_WRAPPER_H
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++typedef void* TextSplitterHandle;
++
++/* Create a text splitter instance with specified chunk size and overlap */
++TextSplitterHandle CreateTextSplitter(int max_chunk_size, int max_chunk_overlap);
++
++/* Free the text splitter instance */
++void FreeTextSplitter(TextSplitterHandle handle);
++
++/* Split text into chunks, returns NULL-terminated array of strings */
++char** SplitText(TextSplitterHandle handle, const char* document, int* chunk_num);
++
++/* Free the result returned by SplitText */
++void FreeSplitResult(char** chunks);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* TEXT_SPLITTER_WRAPPER_H */
+

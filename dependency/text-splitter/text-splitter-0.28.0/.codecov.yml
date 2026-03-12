@@ -1,0 +1,16 @@
+ignore:
+  - "bindings"
+  - "benches"
+coverage:
+  status:
+    # ref: https://docs.codecov.com/docs/commit-status
+    project:
+      default:
+        # Avoid false negatives
+        threshold: 1%
+    patch:
+      default:
+        # Avoid false negatives
+        threshold: 1%
+comment:
+  require_changes: true
