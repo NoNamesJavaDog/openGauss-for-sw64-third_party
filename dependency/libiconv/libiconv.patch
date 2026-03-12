@@ -1,0 +1,1122 @@
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' libiconv-1.16/autogen.sh libiconv_eidt/autogen.sh
+*** libiconv-1.16/autogen.sh	1970-01-01 08:00:00.000000000 +0800
+--- libiconv_eidt/autogen.sh	2022-08-26 16:24:43.056000000 +0800
+***************
+*** 0 ****
+--- 1,83 ----
++ #!/bin/sh
++ # Convenience script for regenerating all autogeneratable files that are
++ # omitted from the version control repository. In particular, this script
++ # also regenerates all aclocal.m4, config.h.in, Makefile.in, configure files
++ # with new versions of autoconf or automake.
++ #
++ # This script requires autoconf-2.63..2.69 and automake-1.11..1.16 in the PATH.
++ # If not used from a released tarball, it also requires either
++ #   - the GNULIB_SRCDIR environment variable pointing to a gnulib checkout, or
++ #   - a preceding invocation of './gitsub.sh pull'.
++ # It also requires
++ #   - the gperf program.
++ 
++ # Copyright (C) 2003-2012, 2016, 2018-2019 Free Software Foundation, Inc.
++ #
++ # This program is free software: you can redistribute it and/or modify
++ # it under the terms of the GNU General Public License as published by
++ # the Free Software Foundation; either version 3 of the License, or
++ # (at your option) any later version.
++ #
++ # This program is distributed in the hope that it will be useful,
++ # but WITHOUT ANY WARRANTY; without even the implied warranty of
++ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ # GNU General Public License for more details.
++ #
++ # You should have received a copy of the GNU General Public License
++ # along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ 
++ # Usage: ./autogen.sh [--skip-gnulib]
++ 
++ skip_gnulib=false
++ while :; do
++   case "$1" in
++     --skip-gnulib) skip_gnulib=true; shift;;
++     *) break ;;
++   esac
++ done
++ 
++ if test $skip_gnulib = false; then
++   if test -n "$GNULIB_SRCDIR"; then
++     test -d "$GNULIB_SRCDIR" || {
++       echo "*** GNULIB_SRCDIR is set but does not point to an existing directory." 1>&2
++       exit 1
++     }
++   else
++     GNULIB_SRCDIR=`pwd`/gnulib
++     test -d "$GNULIB_SRCDIR" || {
++       echo "*** Subdirectory 'gnulib' does not yet exist. Use './gitsub.sh pull' to create it, or set the environment variable GNULIB_SRCDIR." 1>&2
++       exit 1
++     }
++   fi
++   # Now it should contain a gnulib-tool.
++   GNULIB_TOOL="$GNULIB_SRCDIR/gnulib-tool"
++   test -f "$GNULIB_TOOL" || {
++     echo "*** gnulib-tool not found." 1>&2
++     exit 1
++   }
++   $GNULIB_TOOL --copy-file build-aux/ar-lib || exit $?
++   chmod a+x build-aux/ar-lib || exit $?
++   make -f Makefile.devel \
++        gnulib-clean srclib/Makefile.gnulib gnulib-imported-files \
++        GNULIB_TOOL="$GNULIB_TOOL"
++ fi
++ 
++ make -f Makefile.devel totally-clean all || exit $?
++ 
++ # Copy files into the libcharset subpackage, so that libcharset/autogen.sh
++ # does not need to invoke gnulib-tool nor automake.
++ for file in INSTALL.generic; do
++   cp -p $file libcharset/$file || exit $?
++ done
++ for file in config.guess config.libpath config.sub install-sh libtool-reloc mkinstalldirs; do
++   cp -p build-aux/$file libcharset/build-aux/$file || exit $?
++ done
++ for file in codeset.m4 fcntl-o.m4 glibc21.m4 lib-ld.m4 relocatable.m4 relocatable-lib.m4 visibility.m4; do
++   cp -p srcm4/$file libcharset/m4/$file || exit $?
++ done
++ 
++ (cd libcharset
++  ./autogen.sh || exit $?
++ )
++ 
++ echo "$0: done.  Now you can run './configure'."
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' libiconv-1.16/.gitattributes libiconv_eidt/.gitattributes
+*** libiconv-1.16/.gitattributes	1970-01-01 08:00:00.000000000 +0800
+--- libiconv_eidt/.gitattributes	2022-08-26 16:24:43.052000000 +0800
+***************
+*** 0 ****
+--- 1 ----
++ ChangeLog	merge=merge-changelog
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' libiconv-1.16/.gitignore libiconv_eidt/.gitignore
+*** libiconv-1.16/.gitignore	1970-01-01 08:00:00.000000000 +0800
+--- libiconv_eidt/.gitignore	2022-08-26 16:24:43.052000000 +0800
+***************
+*** 0 ****
+--- 1,492 ----
++ ## This file specifies the files and directories that can usually occur in a
++ ## developer build of this Git repository.
++ ##
++ ## Reference: https://git-scm.com/docs/gitignore
++ ##
++ ## When we say, "files", it actually means files and directories. By
++ ## convention, directories are marked through a trailing first and listed
++ ## first in each category.
++ 
++ # Files brought in by gnulib-tool:
++ /build-aux/config.libpath
++ /build-aux/config.rpath
++ /build-aux/install-reloc
++ /build-aux/libtool-reloc
++ /build-aux/reloc-ldflags
++ /doc/relocatable.texi
++ /libcharset/INSTALL.generic
++ /libcharset/build-aux/config.libpath
++ /libcharset/build-aux/libtool-reloc
++ /libcharset/m4/codeset.m4
++ /libcharset/m4/fcntl-o.m4
++ /libcharset/m4/glibc21.m4
++ /libcharset/m4/lib-ld.m4
++ /libcharset/m4/relocatable-lib.m4
++ /libcharset/m4/relocatable.m4
++ /libcharset/m4/visibility.m4
++ /srclib/_Noreturn.h
++ /srclib/Makefile.gnulib
++ /srclib/alloca.in.h
++ /srclib/allocator.c
++ /srclib/allocator.h
++ /srclib/areadlink.c
++ /srclib/areadlink.h
++ /srclib/basename-lgpl.c
++ /srclib/binary-io.c
++ /srclib/binary-io.h
++ /srclib/c-ctype.c
++ /srclib/c-ctype.h
++ /srclib/canonicalize-lgpl.c
++ /srclib/careadlinkat.c
++ /srclib/careadlinkat.h
++ /srclib/dirname-lgpl.c
++ /srclib/dirname.h
++ /srclib/dosname.h
++ /srclib/errno.in.h
++ /srclib/error.c
++ /srclib/error.h
++ /srclib/fcntl.in.h
++ /srclib/filename.h
++ /srclib/getprogname.c
++ /srclib/getprogname.h
++ /srclib/gettext.h
++ /srclib/intprops.h
++ /srclib/limits.in.h
++ /srclib/localcharset.h
++ /srclib/lstat.c
++ /srclib/malloc.c
++ /srclib/malloca.c
++ /srclib/malloca.h
++ /srclib/msvc-inval.c
++ /srclib/msvc-inval.h
++ /srclib/msvc-nothrow.c
++ /srclib/msvc-nothrow.h
++ /srclib/pathmax.h
++ /srclib/progname.c
++ /srclib/progname.h
++ /srclib/progreloc.c
++ /srclib/raise.c
++ /srclib/read.c
++ /srclib/readlink.c
++ /srclib/relocatable.c
++ /srclib/relocatable.h
++ /srclib/relocwrapper.c
++ /srclib/safe-read.c
++ /srclib/safe-read.h
++ /srclib/setenv.c
++ /srclib/signal.in.h
++ /srclib/sigprocmask.c
++ /srclib/stat.c
++ /srclib/stat-time.c
++ /srclib/stat-time.h
++ /srclib/stat-w32.c
++ /srclib/stat-w32.h
++ /srclib/stdbool.in.h
++ /srclib/stddef.in.h
++ /srclib/stdint.in.h
++ /srclib/stdio-write.c
++ /srclib/stdio.in.h
++ /srclib/stdlib.in.h
++ /srclib/streq.h
++ /srclib/strerror-override.c
++ /srclib/strerror-override.h
++ /srclib/strerror.c
++ /srclib/string.in.h
++ /srclib/stripslash.c
++ /srclib/sys-limits.h
++ /srclib/sys_stat.in.h
++ /srclib/sys_types.in.h
++ /srclib/time.in.h
++ /srclib/unistd.c
++ /srclib/unistd.in.h
++ /srclib/unitypes.in.h
++ /srclib/uniwidth.in.h
++ /srclib/unlocked-io.h
++ /srclib/verify.h
++ /srclib/xalloc-oversized.h
++ /srclib/xalloc.h
++ /srclib/xmalloc.c
++ /srclib/xreadlink.c
++ /srclib/xreadlink.h
++ /srclib/xstrdup.c
++ /srclib/uniwidth/cjk.h
++ /srclib/uniwidth/width.c
++ /srcm4/00gnulib.m4
++ /srcm4/absolute-header.m4
++ /srcm4/alloca.m4
++ /srcm4/asm-underscore.m4
++ /srcm4/canonicalize.m4
++ /srcm4/codeset.m4
++ /srcm4/dirname.m4
++ /srcm4/double-slash-root.m4
++ /srcm4/eealloc.m4
++ /srcm4/environ.m4
++ /srcm4/errno_h.m4
++ /srcm4/error.m4
++ /srcm4/extensions.m4
++ /srcm4/extern-inline.m4
++ /srcm4/fcntl-o.m4
++ /srcm4/fcntl_h.m4
++ /srcm4/getprogname.m4
++ /srcm4/gettext.m4
++ /srcm4/glibc2.m4
++ /srcm4/glibc21.m4
++ /srcm4/gnulib-common.m4
++ /srcm4/gnulib-comp.m4
++ /srcm4/gnulib-tool.m4
++ /srcm4/host-cpu-c-abi.m4
++ /srcm4/iconv.m4
++ /srcm4/include_next.m4
++ /srcm4/intdiv0.m4
++ /srcm4/intl-thread-locale.m4
++ /srcm4/intl.m4
++ /srcm4/intldir.m4
++ /srcm4/intlmacosx.m4
++ /srcm4/intmax.m4
++ /srcm4/inttypes-pri.m4
++ /srcm4/inttypes_h.m4
++ /srcm4/largefile.m4
++ /srcm4/lcmessage.m4
++ /srcm4/lib-ld.m4
++ /srcm4/lib-link.m4
++ /srcm4/lib-prefix.m4
++ /srcm4/libunistring-base.m4
++ /srcm4/limits-h.m4
++ /srcm4/lock.m4
++ /srcm4/longlong.m4
++ /srcm4/lstat.m4
++ /srcm4/malloc.m4
++ /srcm4/malloca.m4
++ /srcm4/mbstate_t.m4
++ /srcm4/msvc-inval.m4
++ /srcm4/msvc-nothrow.m4
++ /srcm4/multiarch.m4
++ /srcm4/nls.m4
++ /srcm4/nocrash.m4
++ /srcm4/off_t.m4
++ /srcm4/pathmax.m4
++ /srcm4/po.m4
++ /srcm4/printf-posix.m4
++ /srcm4/progtest.m4
++ /srcm4/raise.m4
++ /srcm4/read.m4
++ /srcm4/readlink.m4
++ /srcm4/relocatable-lib.m4
++ /srcm4/relocatable.m4
++ /srcm4/safe-read.m4
++ /srcm4/setenv.m4
++ /srcm4/signal_h.m4
++ /srcm4/signalblocking.m4
++ /srcm4/sigpipe.m4
++ /srcm4/size_max.m4
++ /srcm4/ssize_t.m4
++ /srcm4/stat-time.m4
++ /srcm4/stat.m4
++ /srcm4/stdbool.m4
++ /srcm4/stddef_h.m4
++ /srcm4/stdint.m4
++ /srcm4/stdint_h.m4
++ /srcm4/stdio_h.m4
++ /srcm4/stdlib_h.m4
++ /srcm4/strerror.m4
++ /srcm4/string_h.m4
++ /srcm4/sys_socket_h.m4
++ /srcm4/sys_stat_h.m4
++ /srcm4/sys_types_h.m4
++ /srcm4/threadlib.m4
++ /srcm4/time_h.m4
++ /srcm4/uintmax_t.m4
++ /srcm4/unistd_h.m4
++ /srcm4/unlocked-io.m4
++ /srcm4/visibility.m4
++ /srcm4/warn-on-use.m4
++ /srcm4/wchar_t.m4
++ /srcm4/wint_t.m4
++ /srcm4/xsize.m4
++ # Cached parameters of gnulib-tool:
++ /srcm4/gnulib-cache.m4
++ 
++ # Files brought in by "automake --add-missing --copy":
++ /build-aux/ar-lib
++ /build-aux/compile
++ /build-aux/install-sh
++ /build-aux/missing
++ /libcharset/build-aux/install-sh
++ /libcharset/build-aux/mkinstalldirs
++ 
++ # Other files brought in by autogen.sh:
++ /build-aux/config.guess
++ /build-aux/config.sub
++ /libcharset/build-aux/config.guess
++ /libcharset/build-aux/config.sub
++ 
++ # ---------- "make -f Makefile.devel totally-clean" gets you here ----------
++ 
++ # Files generated by the autotools:
++ # Built by Makefile.devel.
++ /aclocal.m4
++ /configure
++ /config.h.in
++ /srclib/Makefile.in
++ # Built by libcharset/Makefile.devel.
++ /libcharset/autoconf/aclocal.m4
++ /libcharset/configure
++ /libcharset/config.h.in
++ 
++ # Files generated by "make -f Makefile.devel" and even kept by "make maintainer-clean":
++ # Built by Makefile.devel.
++ /srclib/Makefile.gnulib
++ /srclib/Makefile.in
++ /include/iconv.h.build.in
++ /lib/aliases.gperf
++ /lib/aliases_sysaix.gperf
++ /lib/aliases_syshpux.gperf
++ /lib/aliases_sysosf1.gperf
++ /lib/aliases_syssolaris.gperf
++ /lib/aliases.h
++ /lib/aliases_sysaix.h
++ /lib/aliases_syshpux.h
++ /lib/aliases_sysosf1.h
++ /lib/aliases_syssolaris.h
++ /lib/aliases_aix.h
++ /lib/aliases_aix_sysaix.h
++ /lib/aliases_osf1.h
++ /lib/aliases_osf1_sysosf1.h
++ /lib/aliases_dos.h
++ /lib/aliases_extra.h
++ /lib/canonical.h
++ /lib/canonical_sysaix.h
++ /lib/canonical_syshpux.h
++ /lib/canonical_sysosf1.h
++ /lib/canonical_syssolaris.h
++ /lib/canonical_aix.h
++ /lib/canonical_aix_sysaix.h
++ /lib/canonical_osf1.h
++ /lib/canonical_osf1_sysosf1.h
++ /lib/canonical_dos.h
++ /lib/canonical_extra.h
++ /lib/canonical_local.h
++ /lib/canonical_local_sysaix.h
++ /lib/canonical_local_syshpux.h
++ /lib/canonical_local_sysosf1.h
++ /lib/canonical_local_syssolaris.h
++ /lib/flags.h
++ /lib/translit.h
++ /man/iconv.1.html
++ /man/iconv.3.html
++ /man/iconv_close.3.html
++ /man/iconv_open.3.html
++ /man/iconvctl.3.html
++ /man/iconv_open_into.3.html
++ # Built by libcharset/Makefile.devel.
++ /libcharset/include/localcharset.h.build.in
++ 
++ # ---------- "make maintainerclean" gets you here ----------
++ 
++ # Files generated by "make" and distributed
++ # (i.e. kept by "make distclean")
++ # (see MAINTAINERCLEANFILES in Makefile.am and, if present, Makefile.gnulib):
++ # Files generated by "make", using msgfmt.
++ /po/??.gmo
++ /po/pt_??.gmo
++ /po/zh_??.gmo
++ /po/??@*.gmo
++ po/stamp-po
++ 
++ # ---------- "make distclean" ought to get you here ----------
++ 
++ # Directories generated by "make" and mistakenly distributed
++ # (i.e. mistakenly kept by "make distclean"):
++ autom4te.cache/
++ 
++ # ---------- "make distclean" gets you here ----------
++ 
++ # Files generated by "configure" and not distributed
++ # (i.e. erased by "make distclean"):
++ # Erased by Makefile.
++ /config.status
++ /config.log
++ /config.cache
++ /Makefile
++ /libtool
++ /config.h
++ /stamp-h1
++ /lib/stamp-h2
++ /include/iconv.h
++ /include/iconv.h.inst
++ # Erased by libcharset/Makefile.
++ /libcharset/config.status
++ /libcharset/config.log
++ /libcharset/config.cache
++ /libcharset/Makefile
++ /libcharset/config.h
++ /libcharset/libtool
++ /libcharset/include/localcharset.h
++ /libcharset/include/localcharset.h.inst
++ # Erased by libcharset/lib/Makefile.
++ /libcharset/lib/Makefile
++ # Erased by lib/Makefile.
++ /lib/Makefile
++ /lib/config.h
++ # Erased by srclib/Makefile.
++ /srclib/Makefile
++ # Erased by src/Makefile.
++ /src/Makefile
++ # Erased by po/Makefile.
++ /po/Makefile.in
++ /po/Makefile
++ /po/POTFILES
++ # Erased by man/Makefile.
++ /man/Makefile
++ # Erased by tests/Makefile.
++ /tests/Makefile
++ 
++ # Files generated by "make" and not distributed
++ # (i.e. erased by "make distclean").
++ .dirstamp
++ # Erased by libcharset/Makefile.
++ /libcharset/include/libcharset.h
++ 
++ # ---------- "make clean" gets you here ----------
++ 
++ # Files generated by "make" and erased by "make clean"
++ # (see CLEANFILES in Makefile.am and, if present, Makefile.gnulib):
++ /srclib/libicrt.a
++ 
++ # ---------- "make mostlyclean" gets you here ----------
++ 
++ # Directories generated by "make all check" and erased by "make mostlyclean":
++ /libcharset/lib/.libs/
++ /libcharset/lib/_libs/
++ /lib/.libs/
++ /lib/_libs/
++ /src/.libs/
++ /src/_libs/
++ /tests/.libs/
++ /tests/_libs/
++ 
++ # Files generated by "make all check" and erased by "make mostlyclean"
++ # (see MOSTLYCLEANFILES in Makefile.am and, if present, Makefile.gnulib):
++ # Erased by Makefile.
++ /lib/libcharset.h
++ /lib/libcharset.so*
++ /lib/localcharset.h
++ # Erased by libcharset/Makefile.
++ # Erased by libcharset/lib/Makefile.
++ /libcharset/lib/*.o
++ /libcharset/lib/*.lo
++ /libcharset/lib/*.a
++ /libcharset/lib/*.la
++ /libcharset/lib/*.o.lock
++ /libcharset/lib/core
++ /libcharset/lib/*.stackdump
++ # Erased by lib/Makefile.
++ /lib/*.o
++ /lib/*.lo
++ /lib/*.a
++ /lib/*.la
++ /lib/core
++ /lib/*.stackdump
++ /lib/so_locations
++ # Erased by srclib/Makefile.
++ /srclib/**/*.o
++ /srclib/core
++ /srclib/*.stackdump
++ /srclib/alloca.h
++ /srclib/alloca.h-t
++ /srclib/errno.h
++ /srclib/errno.h-t
++ /srclib/fcntl.h
++ /srclib/fcntl.h-t
++ /srclib/limits.h
++ /srclib/limits.h-t
++ /srclib/signal.h
++ /srclib/signal.h-t
++ /srclib/arg-nonnull.h
++ /srclib/arg-nonnull.h-t
++ /srclib/c++defs.h
++ /srclib/c++defs.h-t
++ /srclib/warn-on-use.h
++ /srclib/warn-on-use.h-t
++ /srclib/stdbool.h
++ /srclib/stdbool.h-t
++ /srclib/stddef.h
++ /srclib/stddef.h-t
++ /srclib/stdint.h
++ /srclib/stdint.h-t
++ /srclib/stdio.h
++ /srclib/stdio.h-t
++ /srclib/stdlib.h
++ /srclib/stdlib.h-t
++ /srclib/string.h
++ /srclib/string.h-t
++ /srclib/sys/stat.h
++ /srclib/sys/stat.h-t
++ /srclib/sys/time.h
++ /srclib/sys/time.h-t
++ /srclib/sys/types.h
++ /srclib/sys/types.h-t
++ /srclib/time.h
++ /srclib/time.h-t
++ /srclib/unistd.h
++ /srclib/unistd.h-t
++ /srclib/unitypes.h
++ /srclib/unitypes.h-t
++ /srclib/uniwidth.h
++ /srclib/uniwidth.h-t
++ # Erased by src/Makefile.
++ /src/*.o
++ /src/*.lo
++ /src/iconv.res
++ /src/iconv_no_i18n
++ /src/iconv_no_i18n.exe
++ /src/iconv
++ /src/iconv.exe
++ /src/core
++ /src/*.stackdump
++ # Erased by po/Makefile.
++ /po/*.mo
++ /po/remove-potcdate.sed
++ /po/stamp-poT
++ /po/core
++ /po/core.*
++ /po/libiconv.po
++ /po/libiconv.1po
++ /po/libiconv.2po
++ /po/*.new.po
++ /po/*.o
++ # Erased by man/Makefile.
++ # Erased by tests/Makefile.
++ /tests/*.o
++ /tests/*.lo
++ /tests/table-from
++ /tests/table-from.exe
++ /tests/table-to
++ /tests/table-to.exe
++ /tests/test-shiftseq
++ /tests/test-shiftseq.exe
++ /tests/test-to-wchar
++ /tests/test-to-wchar.exe
++ /tests/tmp-*
++ /tests/genutf8
++ /tests/genutf8.exe
++ /tests/UTF-8.TXT
++ /tests/gengb18030z
++ /tests/gengb18030z.exe
++ /tests/GB18030.TXT
++ /tests/core
++ /tests/*.stackdump
++ 
++ # Files generated by "make dist" and erased by "make mostlyclean"
++ # (see MOSTLYCLEANFILES in Makefile.am):
++ 
++ # ---------- "make all check" gets you here ----------
++ 
++ # Patterns for all subdirectories: all kinds of automatic backup files.
++ *.orig
++ *.rej
++ *~
++ *.kate-swp
++ .#*
++ \#*#
++ 
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' libiconv-1.16/.gitmodules libiconv_eidt/.gitmodules
+*** libiconv-1.16/.gitmodules	1970-01-01 08:00:00.000000000 +0800
+--- libiconv_eidt/.gitmodules	2022-08-26 16:24:43.052000000 +0800
+***************
+*** 0 ****
+--- 1,3 ----
++ [subcheckout "gnulib"]
++ 	url = git://git.savannah.gnu.org/gnulib.git
++ 	path = gnulib
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' libiconv-1.16/gitsub.sh libiconv_eidt/gitsub.sh
+*** libiconv-1.16/gitsub.sh	1970-01-01 08:00:00.000000000 +0800
+--- libiconv_eidt/gitsub.sh	2022-08-26 16:24:43.064000000 +0800
+***************
+*** 0 ****
+--- 1,483 ----
++ #! /bin/sh
++ #
++ # Copyright (C) 2019 Free Software Foundation, Inc.
++ # Written by Bruno Haible <bruno@clisp.org>, 2019.
++ #
++ # This program is free software: you can redistribute it and/or modify
++ # it under the terms of the GNU General Public License as published by
++ # the Free Software Foundation; either version 3 of the License, or
++ # (at your option) any later version.
++ #
++ # This program is distributed in the hope that it will be useful,
++ # but WITHOUT ANY WARRANTY; without even the implied warranty of
++ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ # GNU General Public License for more details.
++ #
++ # You should have received a copy of the GNU General Public License
++ # along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ 
++ # Program that manages the subdirectories of a git checkout of a package
++ # that come from other packages (called "dependency packages").
++ #
++ # This program is similar in spirit to 'git submodule', with three
++ # essential differences:
++ #
++ #   1) Its options are easy to remember, and do not require knowledge of
++ #      'git submodule'.
++ #
++ #   2) The developer may choose to work on a different checkout for each
++ #      dependency package.  This is important when the developer is
++ #      preparing simultaneous changes to the package and the dependency
++ #      package, or is using the dependency package in several packages.
++ #
++ #      The developer indicates this different checkout by setting the
++ #      environment variable <SUBDIR>_SRCDIR (e.g. GNULIB_SRCDIR) to point to it.
++ #
++ #   3) The package maintainer may choose to use or not use git submodules.
++ #
++ #      The advantages of management through a git submodule are:
++ #        - Changes to the dependency package cannot suddenly break your package.
++ #          In other words, when there is an incompatible change that will cause
++ #          a breakage, you can fix things at your pace; you are not forced to
++ #          cope with such breakages in an emergency.
++ #        - When you need to make a change as a response to a change in the
++ #          dependency package, your co-developers cannot accidentally mix things
++ #          up (for example, use a combination of your newest change with an
++ #          older version of the dependency package).
++ #
++ #      The advantages of management without a git submodule (just as a plain
++ #      subdirectory, let's call it a "subcheckout") are:
++ #        - The simplicity: you are conceptually always using the newest revision
++ #          of the dependency package.
++ #        - You don't have to remember to periodially upgrade the dependency.
++ #          Upgrading the dependency is an implicit operation.
++ 
++ # This program is meant to be copied to the top-level directory of the package,
++ # together with a configuration file.  The configuration is supposed to be
++ # named '.gitmodules' and to define:
++ # * The git submodules, as described in "man 5 gitmodules" or
++ #   <https://git-scm.com/docs/gitmodules>.  For example:
++ #
++ #       [submodule "gnulib"]
++ #               url = git://git.savannah.gnu.org/gnulib.git
++ #               path = gnulib
++ #
++ #   You don't add this piece of configuration to .gitmodules manually.  Instead,
++ #   you would invoke
++ #     $ git submodule add --name "gnulib" -- git://git.savannah.gnu.org/gnulib.git gnulib
++ #
++ # * The subdirectories that are not git submodules, in a similar syntax.  For
++ #   example:
++ #
++ #       [subcheckout "gnulib"]
++ #               url = git://git.savannah.gnu.org/gnulib.git
++ #               path = gnulib
++ #
++ # Here the URL is the one used for anonymous checkouts of the dependency
++ # package. If the developer needs a checkout with write access, they can
++ # either set the GNULIB_SRCDIR environment variable to point to that checkout
++ # or modify the gnulib/.git/config file to enter a different URL.
++ 
++ scriptname="$0"
++ scriptversion='2019-04-01'
++ nl='
++ '
++ IFS=" ""	$nl"
++ 
++ # func_usage
++ # outputs to stdout the --help usage message.
++ func_usage ()
++ {
++   echo "\
++ Usage: gitsub.sh pull [SUBDIR]
++        gitsub.sh upgrade [SUBDIR]
++        gitsub.sh checkout SUBDIR REVISION
++ 
++ Operations:
++ 
++ gitsub.sh pull [SUBDIR]
++         You should perform this operation after 'git clone ...' and after
++         every 'git pull'.
++         It brings your checkout in sync with what the other developers of
++         your package have committed and pushed.
++         If an environment variable <SUBDIR>_SRCDIR is set, with a non-empty
++         value, nothing is done for this SUBDIR.
++         If no SUBDIR is specified, the operation applies to all dependencies.
++ 
++ gitsub.sh upgrade [SUBDIR]
++         You should perform this operation periodically, to ensure currency
++         of the dependency package revisions that you use.
++         This operation pulls and checks out the changes that the developers
++         of the dependency package have committed and pushed.
++         If an environment variable <SUBDIR>_SRCDIR is set, with a non-empty
++         value, nothing is done for this SUBDIR.
++         If no SUBDIR is specified, the operation applies to all dependencies.
++ 
++ gitsub.sh checkout SUBDIR REVISION
++         Checks out a specific revision for a dependency package.
++         If an environment variable <SUBDIR>_SRCDIR is set, with a non-empty
++         value, this operation fails.
++ 
++ This script requires the git program in the PATH and an internet connection.
++ "
++ }
++ 
++ # func_version
++ # outputs to stdout the --version message.
++ func_version ()
++ {
++   year=`echo "$scriptversion" | sed -e 's/^\(....\)-.*/\1/'`
++   echo "\
++ gitsub.sh (GNU gnulib) $scriptversion
++ Copyright (C) 2019-$year Free Software Foundation, Inc.
++ License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
++ This is free software: you are free to change and redistribute it.
++ There is NO WARRANTY, to the extent permitted by law.
++ "
++   printf "Written by %s.\n" "Bruno Haible"
++ }
++ 
++ # func_fatal_error message
++ # outputs to stderr a fatal error message, and terminates the program.
++ # Input:
++ # - scriptname               name of this program
++ func_fatal_error ()
++ {
++   echo "$scriptname: *** $1" 1>&2
++   echo "$scriptname: *** Stop." 1>&2
++   exit 1
++ }
++ 
++ # func_warning message
++ # Outputs to stderr a warning message,
++ func_warning ()
++ {
++   echo "gitsub.sh: warning: $1" 1>&2
++ }
++ 
++ # func_note message
++ # Outputs to stdout a note message,
++ func_note ()
++ {
++   echo "gitsub.sh: note: $1"
++ }
++ 
++ # Unset CDPATH.  Otherwise, output from 'cd dir' can surprise callers.
++ (unset CDPATH) >/dev/null 2>&1 && unset CDPATH
++ 
++ # Command-line option processing.
++ mode=
++ while test $# -gt 0; do
++   case "$1" in
++     --help | --hel | --he | --h )
++       func_usage
++       exit $? ;;
++     --version | --versio | --versi | --vers | --ver | --ve | --v )
++       func_version
++       exit $? ;;
++     -- )
++       # Stop option processing
++       shift
++       break ;;
++     -* )
++       echo "gitsub.sh: unknown option $1" 1>&2
++       echo "Try 'gitsub.sh --help' for more information." 1>&2
++       exit 1 ;;
++     * )
++       break ;;
++   esac
++ done
++ if test $# = 0; then
++   echo "gitsub.sh: missing operation argument" 1>&2
++   echo "Try 'gitsub.sh --help' for more information." 1>&2
++   exit 1
++ fi
++ case "$1" in
++   pull | upgrade | checkout )
++     mode="$1"
++     shift ;;
++   *)
++     echo "gitsub.sh: unknown operation '$1'" 1>&2
++     echo "Try 'gitsub.sh --help' for more information." 1>&2
++     exit 1 ;;
++ esac
++ if test $# = 2 && test $mode != checkout || test $# -gt 2; then
++   echo "gitsub.sh: too many arguments in '$mode' mode" 1>&2
++   echo "Try 'gitsub.sh --help' for more information." 1>&2
++   exit 1
++ fi
++ if test $# = 0 && test $mode = checkout; then
++   echo "gitsub.sh: too few arguments in '$mode' mode" 1>&2
++   echo "Try 'gitsub.sh --help' for more information." 1>&2
++   exit 1
++ fi
++ 
++ # Read the configuration.
++ # Output:
++ # - subcheckout_names        space-separated list of subcheckout names
++ # - submodule_names          space-separated list of submodule names
++ if test -f .gitmodules; then
++   subcheckout_names=`git config --file .gitmodules --get-regexp --name-only 'subcheckout\..*\.url' | sed -e 's/^subcheckout\.//' -e 's/\.url$//' | tr -d '\r' | tr '\n' ' '`
++   submodule_names=`git config --file .gitmodules --get-regexp --name-only 'submodule\..*\.url' | sed -e 's/^submodule\.//' -e 's/\.url$//' | tr -d '\r' | tr '\n' ' '`
++ else
++   subcheckout_names=
++   submodule_names=
++ fi
++ 
++ # func_validate SUBDIR
++ # Verifies that the state on the file system is in sync with the declarations
++ # in the configuration file.
++ # Input:
++ # - subcheckout_names        space-separated list of subcheckout names
++ # - submodule_names          space-separated list of submodule names
++ # Output:
++ # - srcdirvar                Environment that the user can set
++ # - srcdir                   Value of the environment variable
++ # - path                     if $srcdir = "": relative path of the subdirectory
++ # - needs_init               if $srcdir = "" and $path is not yet initialized:
++ #                            true
++ # - url                      if $srcdir = "" and $path is not yet initialized:
++ #                            the repository URL
++ func_validate ()
++ {
++   srcdirvar=`echo "$1" | LC_ALL=C sed -e 's/[^a-zA-Z0-9]/_/g' | LC_ALL=C tr '[a-z]' '[A-Z]'`"_SRCDIR"
++   eval 'srcdir=$'"$srcdirvar"
++   path=
++   url=
++   if test -n "$srcdir"; then
++     func_note "Ignoring '$1' because $srcdirvar is set."
++   else
++     found=false
++     needs_init=
++     case " $subcheckout_names " in *" $1 "*)
++       found=true
++       # It ought to be a subcheckout.
++       path=`git config --file .gitmodules "subcheckout.$1.path"`
++       if test -z "$path"; then
++         path="$1"
++       fi
++       if test -d "$path"; then
++         if test -d "$path/.git"; then
++           # It's a plain checkout.
++           :
++         else
++           if test -f "$path/.git"; then
++             # It's a submodule.
++             func_fatal_error "Subdirectory '$path' is supposed to be a plain checkout, but it is a submodule."
++           else
++             func_warning "Ignoring '$path' because it exists but is not a git checkout."
++           fi
++         fi
++       else
++         # The subdir does not yet exist.
++         needs_init=true
++         url=`git config --file .gitmodules "subcheckout.$1.url"`
++         if test -z "$url"; then
++           func_fatal_error "Property subcheckout.$1.url is not defined in .gitmodules"
++         fi
++       fi
++       ;;
++     esac
++     case " $submodule_names " in *" $1 "*)
++       found=true
++       # It ought to be a submodule.
++       path=`git config --file .gitmodules "submodule.$1.path"`
++       if test -z "$path"; then
++         path="$1"
++       fi
++       if test -d "$path"; then
++         if test -d "$path/.git" || test -f "$path/.git"; then
++           # It's likely a submodule.
++           :
++         else
++           path_if_empty=`find "$path" -prune -empty 2>/dev/null`
++           if test -n "$path_if_empty"; then
++             # The subdir is empty.
++             needs_init=true
++           else
++             # The subdir is not empty.
++             # It is important to report an error, because we don't want to erase
++             # the user's files and 'git submodule update gnulib' sometimes reports
++             # "fatal: destination path '$path' already exists and is not an empty directory."
++             # but sometimes does not.
++             func_fatal_error "Subdir '$path' exists but is not a git checkout."
++           fi
++         fi
++       else
++         # The subdir does not yet exist.
++         needs_init=true
++       fi
++       # Another way to determine needs_init could be:
++       # if git submodule status "$path" | grep '^-' > /dev/null; then
++       #   needs_init=true
++       # fi
++       if test -n "$needs_init"; then
++         url=`git config --file .gitmodules "submodule.$1.url"`
++         if test -z "$url"; then
++           func_fatal_error "Property submodule.$1.url is not defined in .gitmodules"
++         fi
++       fi
++       ;;
++     esac
++     if ! $found; then
++       func_fatal_error "Subdir '$1' is not configured as a subcheckout or a submodule in .gitmodules"
++     fi
++   fi
++ }
++ 
++ # func_cleanup_current_git_clone
++ # Cleans up the current 'git clone' operation.
++ # Input:
++ # - path
++ func_cleanup_current_git_clone ()
++ {
++   rm -rf "$path"
++   func_fatal_error "git clone failed"
++ }
++ 
++ # func_pull SUBDIR
++ # Implements the 'pull' operation.
++ func_pull ()
++ {
++   func_validate "$1"
++   if test -z "$srcdir"; then
++     case " $subcheckout_names " in *" $1 "*)
++       # It's a subcheckout.
++       if test -d "$path"; then
++         if test -d "$path/.git"; then
++           (cd "$path" && git pull) || func_fatal_error "git operation failed"
++         fi
++       else
++         # The subdir does not yet exist. Create a plain checkout.
++         trap func_cleanup_current_git_clone 1 2 13 15
++         git clone "$url" "$path" || func_cleanup_current_git_clone
++         trap - 1 2 13 15
++       fi
++       ;;
++     esac
++     case " $submodule_names " in *" $1 "*)
++       # It's a submodule.
++       if test -n "$needs_init"; then
++         # Create a submodule checkout.
++         git submodule init -- "$path" && git submodule update -- "$path" || func_fatal_error "git operation failed"
++       else
++         # See https://stackoverflow.com/questions/1030169/easy-way-to-pull-latest-of-all-git-submodules
++         # https://stackoverflow.com/questions/4611512/is-there-a-way-to-make-git-pull-automatically-update-submodules
++         git submodule update "$path" || func_fatal_error "git operation failed"
++       fi
++       ;;
++     esac
++   fi
++ }
++ 
++ # func_upgrade SUBDIR
++ # Implements the 'upgrade' operation.
++ func_upgrade ()
++ {
++   func_validate "$1"
++   if test -z "$srcdir"; then
++     if test -d "$path"; then
++       case " $subcheckout_names " in *" $1 "*)
++         # It's a subcheckout.
++         if test -d "$path/.git"; then
++           (cd "$path" && git pull) || func_fatal_error "git operation failed"
++         fi
++         ;;
++       esac
++       case " $submodule_names " in *" $1 "*)
++         # It's a submodule.
++         if test -z "$needs_init"; then
++           (cd "$path" && git fetch && git merge origin/master) || func_fatal_error "git operation failed"
++         fi
++         ;;
++       esac
++     else
++       # The subdir does not yet exist.
++       func_fatal_error "Subdirectory '$path' does not exist yet. Use 'gitsub.sh pull' to create it."
++     fi
++   fi
++ }
++ 
++ # func_checkout SUBDIR REVISION
++ # Implements the 'checkout' operation.
++ func_checkout ()
++ {
++   func_validate "$1"
++   if test -z "$srcdir"; then
++     if test -d "$path"; then
++       case " $subcheckout_names " in *" $1 "*)
++         # It's a subcheckout.
++         if test -d "$path/.git"; then
++           (cd "$path" && git checkout "$2") || func_fatal_error "git operation failed"
++         fi
++         ;;
++       esac
++       case " $submodule_names " in *" $1 "*)
++         # It's a submodule.
++         if test -z "$needs_init"; then
++           (cd "$path" && git checkout "$2") || func_fatal_error "git operation failed"
++         fi
++         ;;
++       esac
++     else
++       # The subdir does not yet exist.
++       func_fatal_error "Subdirectory '$path' does not exist yet. Use 'gitsub.sh pull' to create it."
++     fi
++   fi
++ }
++ 
++ case "$mode" in
++   pull )
++     if test $# = 0; then
++       for sub in $subcheckout_names $submodule_names; do
++         func_pull "$sub"
++       done
++     else
++       valid=false
++       for sub in $subcheckout_names $submodule_names; do
++         if test "$sub" = "$1"; then
++           valid=true
++         fi
++       done
++       if $valid; then
++         func_pull "$1"
++       else
++         func_fatal_error "Subdir '$1' is not configured as a subcheckout or a submodule in .gitmodules"
++       fi
++     fi
++     ;;
++ 
++   upgrade )
++     if test $# = 0; then
++       for sub in $subcheckout_names $submodule_names; do
++         func_upgrade "$sub"
++       done
++     else
++       valid=false
++       for sub in $subcheckout_names $submodule_names; do
++         if test "$sub" = "$1"; then
++           valid=true
++         fi
++       done
++       if $valid; then
++         func_upgrade "$1"
++       else
++         func_fatal_error "Subdir '$1' is not configured as a subcheckout or a submodule in .gitmodules"
++       fi
++     fi
++     ;;
++ 
++   checkout )
++     valid=false
++     for sub in $subcheckout_names $submodule_names; do
++       if test "$sub" = "$1"; then
++         valid=true
++       fi
++     done
++     if $valid; then
++       func_checkout "$1" "$2"
++     else
++       func_fatal_error "Subdir '$1' is not configured as a subcheckout or a submodule in .gitmodules"
++     fi
++     ;;
++ esac
+diff -crN '--exclude=.git' '--exclude=.gitee' '--exclude=.vscode' libiconv-1.16/libcharset/autogen.sh libiconv_eidt/libcharset/autogen.sh
+*** libiconv-1.16/libcharset/autogen.sh	1970-01-01 08:00:00.000000000 +0800
+--- libiconv_eidt/libcharset/autogen.sh	2022-08-26 16:24:43.104000000 +0800
+***************
+*** 0 ****
+--- 1,24 ----
++ #!/bin/sh
++ # Convenience script for regenerating all aclocal.m4, config.h.in, Makefile.in,
++ # configure files with new versions of autoconf or automake.
++ #
++ # This script requires autoconf-2.63..2.69 and automake-1.11..1.15 in the PATH.
++ 
++ # Copyright (C) 2003-2007, 2009-2010, 2016 Free Software Foundation, Inc.
++ #
++ # This program is free software: you can redistribute it and/or modify
++ # it under the terms of the GNU General Public License as published by
++ # the Free Software Foundation; either version 3 of the License, or
++ # (at your option) any later version.
++ #
++ # This program is distributed in the hope that it will be useful,
++ # but WITHOUT ANY WARRANTY; without even the implied warranty of
++ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ # GNU General Public License for more details.
++ #
++ # You should have received a copy of the GNU General Public License
++ # along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ 
++ # Usage: ./autogen.sh
++ 
++ make -f Makefile.devel totally-clean all
